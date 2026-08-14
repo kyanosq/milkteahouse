@@ -84,6 +84,17 @@ func _ready() -> void:
 	GameLocale.set_locale("zh_CN", false)
 	await get_tree().process_frame
 
+	# 上架必须记录试做得分的那一杯：改料后旧分数失效，命名上架被拒绝。
+	lab.pending_quality = 88
+	lab._show_note_state({"kind": "shelf", "score": 88})
+	assert(lab.note_card.visible)
+	lab.name_edit.text = "Stale Formula"
+	lab._on_tile("topping", find.call(GameData.toppings, "boba"))
+	assert(lab.pending_quality == 0, "changing ingredients must invalidate the pending shelf score")
+	assert(not lab.note_card.visible)
+	lab._on_shelf()
+	assert(GameState.tests.is_empty(), "shelving a changed formula must not record a stale-score test")
+
 	# 2) 黑暗传说：香菜狂想曲
 	lab.cup_tops = []
 	lab._on_base(find.call(GameData.bases, "green_tea"))

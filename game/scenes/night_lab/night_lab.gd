@@ -684,6 +684,7 @@ func _set_tile(kind: String, item: Variant, on: bool) -> void:
 # ---------------------------------------------------------------- 选料
 
 func _on_tile(kind: String, item: Dictionary) -> void:
+	_invalidate_pending_shelf()
 	Sfx.play("select", 0.96 if kind == "sugar" else 1.0)
 	Haptics.play("tap")
 	match kind:
@@ -729,6 +730,17 @@ func _on_sugar(item: Dictionary) -> void:
 	cup_sugar = item
 	_set_tile("sugar", cup_sugar, true)
 	_refresh()
+
+
+## 上架记录的公式必须与试做得分的那杯一致。改料后旧分数即失效，
+## 防止旧高分搭配新配方被登记为高价爆款（也可被当作刷分漏洞）。
+func _invalidate_pending_shelf() -> void:
+	if pending_quality <= 0:
+		return
+	pending_quality = 0
+	if String(_note_state.get("kind", "")) == "shelf":
+		note_card.visible = false
+		_note_state.clear()
 
 
 func _refresh() -> void:
@@ -1058,6 +1070,8 @@ func _grade(score: int) -> String:
 
 
 func _on_shelf() -> void:
+	if pending_quality <= 0:
+		return
 	var recipe_name := name_edit.text.strip_edges()
 	if recipe_name.is_empty():
 		return
