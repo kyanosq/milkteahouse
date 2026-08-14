@@ -14,6 +14,8 @@ var _music_label: Label
 var _music: HSlider
 var _sfx_label: Label
 var _sfx: HSlider
+var _settings_dirty := false
+var _settings_save_generation := 0
 # 兼容旧自动化接口；从本轮起“总音量”明确等同于音效音量。
 var _volume_label: Label
 var _volume: HSlider
@@ -329,6 +331,32 @@ func hide_panel() -> void:
 	_display_panel.visible = false
 	_rebind_action = ""
 	_panel.visible = true
+	_persist_settings_now()
+
+
+## 设置写盘包含临时文件、回读校验与备份轮换；滑条拖动每 tick 都触发
+## 一次完整落盘会在移动端造成卡顿。内存立即生效，磁盘写入防抖合并。
+func _schedule_settings_save() -> void:
+	_settings_dirty = true
+	_settings_save_generation += 1
+	var generation := _settings_save_generation
+	await get_tree().create_timer(0.6).timeout
+	if _settings_save_generation == generation:
+		_persist_settings_now()
+
+
+func _persist_settings_now() -> void:
+	_settings_save_generation += 1
+	if not _settings_dirty:
+		return
+	_settings_dirty = false
+	GameState.save_game()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _settings_dirty:
+		GameState.save_game()
+		_settings_dirty = false
 
 
 func _request_menu() -> void:
@@ -432,7 +460,7 @@ func _on_music_volume_changed(value: float) -> void:
 	GameState.settings["music_volume"] = value / 100.0
 	_update_audio_labels()
 	Sfx.apply_settings()
-	GameState.save_game()
+	_schedule_settings_save()
 
 
 func _on_sfx_volume_changed(value: float) -> void:
@@ -440,19 +468,19 @@ func _on_sfx_volume_changed(value: float) -> void:
 	GameState.settings["sound_volume"] = GameState.settings["sfx_volume"]
 	_update_audio_labels()
 	Sfx.apply_settings()
-	GameState.save_game()
+	_schedule_settings_save()
 
 
 func _on_motion_toggled(enabled: bool) -> void:
 	GameState.settings["reduced_motion"] = enabled
-	GameState.save_game()
+	_schedule_settings_save()
 
 
 func _on_haptics_toggled(enabled: bool) -> void:
 	GameState.settings["haptics"] = enabled
 	if enabled:
 		Haptics.play("confirm")
-	GameState.save_game()
+	_schedule_settings_save()
 
 
 func _on_input_scheme_changed(_gamepad: bool) -> void:
