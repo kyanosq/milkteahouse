@@ -371,9 +371,12 @@ func _finish_campaign() -> void:
 
 
 func _validate_campaign(summary: Dictionary) -> bool:
+	# 2026-08-15 再基线：S1 摇杯衰减宽限（合同约定的手感修复）让低熟练画像
+	# 密封少 ~2 次按压、出杯更快——careful 从 A/30★/80-180 迁移到 S/33★/500-550，
+	# balanced 现金上限抬至 2360。门禁仍是逐项精确钉定，非放松。
 	var expected: Dictionary = {
-		"careful": {"grade": "A", "levels": 9, "finish_day": 0, "stars": 30, "cash_min": 80, "cash_max": 180},
-		"balanced": {"grade": "S", "levels": 10, "finish_day": 10, "stars": 42, "cash_min": 1900, "cash_max": 2300},
+		"careful": {"grade": "S", "levels": 9, "finish_day": 0, "stars": 33, "cash_min": 500, "cash_max": 550},
+		"balanced": {"grade": "S", "levels": 10, "finish_day": 10, "stars": 42, "cash_min": 1900, "cash_max": 2360},
 		"growth": {"grade": "S", "levels": 10, "finish_day": 10, "stars": 42, "cash_min": 3500, "cash_max": 4200},
 	}[strategy]
 	var failures: Array[String] = []

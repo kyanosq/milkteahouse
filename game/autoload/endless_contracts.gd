@@ -75,24 +75,31 @@ func available_for_day(target_day: int) -> Array[Dictionary]:
 
 
 func cost_for(data: Dictionary, target_day: int) -> int:
-	var step := clampi((target_day - FIRST_TARGET_DAY) / 3, 0, MAX_COST_STEP)
+	# Day 58 起费用步进饱和于 +210（原 +90 让后期的金币失去用途）。
+	var step := clampi((target_day - FIRST_TARGET_DAY) / 3, 0, 14)
 	return int(data["base_cost"]) + step * 15
 
 
 func target_for(contract_id: String, target_day: int) -> int:
+	# 现有曲线在 day 40 饱和于 30；day 46 起每 6 天 +1，上限 40（审计 DP#2）。
+	var elapsed := maxi(0, target_day - FIRST_TARGET_DAY)
 	match contract_id:
 		"streak_stage":
-			return 28 + mini(2, maxi(0, target_day - FIRST_TARGET_DAY) / 12)
+			return 28 + mini(2, elapsed / 12) + clampi((elapsed - 24) / 6, 0, 10)
 		"precision_shift":
-			return 28 + mini(2, maxi(0, target_day - FIRST_TARGET_DAY) / 12)
+			return 28 + mini(2, elapsed / 12) + clampi((elapsed - 24) / 6, 0, 10)
 		"revenue_sprint":
 			return ceili(float(goal_for_day(target_day)) * LegacyRoutes.goal_multiplier() * 1.35)
 	return 0
 
 
 func goal_for_day(day_number: int) -> int:
-	# Day 17 后保持有压力但不再无限增长，避免无尽模式必然进入 0 星状态。
-	return mini(380, 80 + 18 * day_number)
+	# Day 17 后封顶 380 防止无尽必然 0 星；Day 30 起每 2 天 +1 爬到 420，
+	# 让满配店铺仍有优化产量的理由。
+	var base := mini(380, 80 + 18 * day_number)
+	if day_number <= 30:
+		return base
+	return mini(420, base + (day_number - 30) * 2)
 
 
 func target_text(contract: Dictionary) -> String:
@@ -201,6 +208,10 @@ func resolve(day_number: int, stats: Dictionary, persist := false) -> Dictionary
 
 
 func rank_name(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
+	if stamps >= 20:
+		return GameLocale.text("CONTRACT_RANK_LEGEND")
+	if stamps >= 15:
+		return GameLocale.text("CONTRACT_RANK_CITY_PLUS")
 	if stamps >= 12:
 		return GameLocale.text("CONTRACT_RANK_GOLD")
 	if stamps >= 7:
@@ -211,9 +222,9 @@ func rank_name(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
 
 
 func next_rank_text(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
-	if stamps >= 12:
+	if stamps >= 20:
 		return GameLocale.text("CONTRACT_RANK_MAX")
-	var next := 3 if stamps < 3 else (7 if stamps < 7 else 12)
+	var next := 3 if stamps < 3 else (7 if stamps < 7 else (12 if stamps < 12 else (15 if stamps < 15 else 20)))
 	return GameLocale.text("CONTRACT_RANK_NEXT", [next - stamps])
 
 
