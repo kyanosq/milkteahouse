@@ -1,0 +1,32 @@
+[
+  {
+    "id": "xiangcai_fantasy",
+    "name": "香菜狂想曲",
+    "base": "green_tea",
+    "milk": "fresh_milk",
+    "toppings": ["boba", "xiangcai"],
+    "sugar": [0, 100],
+    "buzz": 8,
+    "desc": "翠绿的珍珠奶茶，喝一口仿佛被大自然扇了一巴掌。"
+  },
+  {
+    "id": "zheergen_rage",
+    "name": "折耳根の逆袭",
+    "base": "black_tea",
+    "milk": "oat_milk",
+    "toppings": ["zheergen"],
+    "sugar": [0, 30],
+    "buzz": 6,
+    "desc": "西南限定。喝完的人分成两派：暴怒的，和上瘾的。"
+  },
+  {
+    "id": "sweet_salt_horror",
+    "name": "甜咸双煞",
+    "base": "black_tea",
+    "milk": "coconut_milk",
+    "toppings": ["xiangcai", "brown_sugar"],
+    "sugar": [70, 100],
+    "buzz": 10,
+    "desc": "黑糖的甜、香菜的冲、椰奶的滑，三个好人凑成了一桩惨案。"
+  }
+]

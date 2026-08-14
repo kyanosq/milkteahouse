@@ -1,0 +1,804 @@
+keys,en,zh_CN
+LANGUAGE_CURRENT,Language · English,语言 · 中文
+LANGUAGE_SWITCHED,Language changed to English.,语言已切换为中文。
+TEST_FORMAT,Day %d · %ds,第 %d 天 · %d秒
+INGREDIENT_BLACK_TEA,Assam Black Tea,阿萨姆红茶
+INGREDIENT_GREEN_TEA,Jasmine Green Tea,茉莉绿茶
+INGREDIENT_OOLONG,Roasted Oolong,炭焙乌龙
+INGREDIENT_NONE,No Milk (Pure Tea),不加奶（纯茶）
+INGREDIENT_FRESH_MILK,Fresh Milk,鲜奶
+INGREDIENT_COCONUT_MILK,Coconut Milk,生椰乳
+INGREDIENT_OAT_MILK,Oat Milk,燕麦奶
+INGREDIENT_BOBA,Boba,珍珠
+INGREDIENT_COCONUT_JELLY,Coconut Jelly,椰果
+INGREDIENT_PUDDING,Pudding,布丁
+INGREDIENT_TARO,Taro Paste,芋泥
+INGREDIENT_RED_BEAN,Sweet Red Bean,蜜红豆
+INGREDIENT_BROWN_SUGAR,Brown Sugar Jelly,黑糖冻
+INGREDIENT_XIANGCAI,Cilantro,香菜
+INGREDIENT_ZHEERGEN,Fish Mint,折耳根
+SUGAR_0,No Sugar,无糖
+SUGAR_30,30% Sugar,三分糖
+SUGAR_50,50% Sugar,五分糖
+SUGAR_70,70% Sugar,七分糖
+SUGAR_100,Full Sugar,全糖
+奶茶物语,Milk Tea Story,奶茶物语
+EVENT_CALM_NAME,Steady Shift,平稳营业
+EVENT_CALM_HEADLINE,Learn the basics and serve at your own pace.,熟悉基础操作，按自己的节奏完成订单。
+EVENT_CALM_CHALLENGE,No extra rules,没有额外规则
+EVENT_CALM_BENEFIT,Build combos and learn recipes safely,适合建立连击与熟悉配方
+EVENT_LUNCH_RUSH_NAME,Lunch Rush,午间热浪
+EVENT_LUNCH_RUSH_HEADLINE,The lunch crowd arrives all at once.,午休人潮一起涌进店里，队列会更快补满。
+EVENT_LUNCH_RUSH_CHALLENGE,Customers arrive 28% faster,顾客到店间隔缩短 28%
+EVENT_LUNCH_RUSH_BENEFIT,More orders and more chances to earn three stars,更多订单，也有更多冲击三星的机会
+EVENT_LIGHT_DRINKS_NAME,Light-Drink Trend,轻饮风向
+EVENT_LIGHT_DRINKS_HEADLINE,Low-sugar pure tea is trending today.,今天流行低糖纯茶，熟悉的订单比例会发生变化。
+EVENT_LIGHT_DRINKS_CHALLENGE,More pure tea low-sugar and topping-free orders,纯茶、低糖与无小料订单明显增多
+EVENT_LIGHT_DRINKS_BENEFIT,Topping-free drinks earn +2 coins,无小料订单正确出杯额外 +2 金币
+EVENT_BROWN_SUGAR_TREND_NAME,Brown-Sugar Buzz,黑糖热搜
+EVENT_BROWN_SUGAR_TREND_HEADLINE,Brown-sugar jelly is suddenly everywhere.,黑糖冻突然刷屏，多数客人都指名要这一口。
+EVENT_BROWN_SUGAR_TREND_CHALLENGE,Most orders request brown-sugar jelly,多数订单会指定黑糖冻
+EVENT_BROWN_SUGAR_TREND_BENEFIT,Matching drinks earn +4 coins,含黑糖冻的正确出杯额外 +4 金币
+EVENT_CRITIC_DAY_NAME,Critic Visit,探店日
+EVENT_CRITIC_DAY_HEADLINE,Anonymous critics are hiding in the queue.,匿名评论家混进队伍，认出并服务好他们。
+EVENT_CRITIC_DAY_CHALLENGE,Critics have 22% less patience and order two toppings,评论家耐心 -22%，且会点两种小料
+EVENT_CRITIC_DAY_BENEFIT,A good review earns +8 coins and +1 inspiration,正确服务额外 +8 金币和 +1 灵感
+EVENT_INFLUENCER_DAY_NAME,Camera Crew,镜头来访
+EVENT_INFLUENCER_DAY_HEADLINE,An influencer wants a photogenic oddball special.,探店网红要一杯上镜的猎奇特调，围观客人也在等结果。
+EVENT_INFLUENCER_DAY_CHALLENGE,Influencers prefer unusual toppings and have 10% less patience,网红偏爱猎奇小料，耐心 -10%
+EVENT_INFLUENCER_DAY_BENEFIT,A correct drink earns +5 coins and +3 buzz,正确服务额外 +5 金币和 +3 话题度
+EVENT_GROUP_DAY_NAME,Friends' Day,结伴到店
+EVENT_GROUP_DAY_HEADLINE,Groups arrive together for two-drink tickets.,朋友们成群来喝奶茶，一张订单需要连续完成两杯。
+EVENT_GROUP_DAY_CHALLENGE,Group tickets hold a queue slot for two consecutive drinks,团体订单占用队列更久，需要连续完成 2 杯
+EVENT_GROUP_DAY_BENEFIT,Completing the ticket earns +10 coins and +2 inspiration,整单完成额外 +10 金币和 +2 灵感
+ORDER_HINT_CRITIC,Critic · Correct drink +8 coins +1 inspiration,评论家 · 正确出杯 +8 金币 +1 灵感
+ORDER_HINT_INFLUENCER,Influencer · Correct drink +5 coins +3 buzz,网红 · 正确出杯 +5 金币 +3 话题
+ORDER_HINT_GROUP,Group %d/%d · Finish the ticket for a bonus,团单 %d/%d · 完成整单有大奖励
+ORDER_HINT_LIGHT,Light drink · Correct drink +2 coins,轻饮订单 · 正确出杯 +2 金币
+ORDER_HINT_TREND,Trending drink · Correct drink +4 coins,热搜订单 · 正确出杯 +4 金币
+ORDER_HINT_DEFAULT,Select as current order,点按设为当前订单
+CONTRACT_STREAK_STAGE_NAME,Golden Combo Stage,黄金连击擂台
+CONTRACT_STREAK_STAGE_SHORT,Combo Stage,连击擂台
+CONTRACT_STREAK_STAGE_DESCRIPTION,The district livestream is watching. Tighter traffic and patience demand a stable combo.,商圈直播全程盯场。客流与耐心都会收紧，靠稳定连击拿下店招印章。
+CONTRACT_STREAK_STAGE_CHALLENGE,Reach the required best combo,最高连击达到指定次数
+CONTRACT_PRECISION_SHIFT_NAME,Zero-Complaint Tasting,零差评品鉴场
+CONTRACT_PRECISION_SHIFT_SHORT,Zero Complaints,零差评
+CONTRACT_PRECISION_SHIFT_DESCRIPTION,Community judges arrive together. Lose nobody and serve enough perfect drinks.,社区评审集中到店。必须保持零气走并完成足够多的完美出杯。
+CONTRACT_PRECISION_SHIFT_CHALLENGE,Lose no customers and reach the perfect-drink target,零气走并完成指定完美杯数
+CONTRACT_REVENUE_SPRINT_NAME,District Revenue Sprint,商圈营收冲刺
+CONTRACT_REVENUE_SPRINT_SHORT,Revenue Sprint,营收冲刺
+CONTRACT_REVENUE_SPRINT_DESCRIPTION,A promotion drives dense traffic. More orders arrive but only the signed revenue target counts.,联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。
+CONTRACT_REVENUE_SPRINT_CHALLENGE,Reach the signed operating-revenue target,营业营收达到签约目标
+CONTRACT_TARGET_STREAK,Best combo ≥ x%d,最高连击 ≥ x%d
+CONTRACT_TARGET_PRECISION,0 lost · Perfect ≥ %d,气走 0 位 · 完美 ≥ %d 杯
+CONTRACT_TARGET_REVENUE,Operating revenue ≥ %d coins,营业营收 ≥ %d 金币
+CONTRACT_TARGET_DEFAULT,Complete the signed target,完成签约目标
+CONTRACT_PROGRESS_STREAK,Combo %d/%d,连击 %d/%d
+CONTRACT_PROGRESS_PRECISION,Perfect %d/%d · Lost %d,完美 %d/%d · 气走 %d
+CONTRACT_PROGRESS_REVENUE,Revenue %d/%d,营收 %d/%d
+CONTRACT_PROGRESS_DEFAULT,Contract active,委托进行中
+CONTRACT_RANK_BLOCK,Block Collaboration,街区联名
+CONTRACT_RANK_DISTRICT,District Favorite,商圈红店
+CONTRACT_RANK_CITY,City Signature,城市招牌
+CONTRACT_RANK_GOLD,Golden-Cup Owner,金杯主理人
+CONTRACT_RANK_MAX,Highest sign rank reached,最高店招已达成
+CONTRACT_RANK_NEXT,%d more stamps to upgrade the sign,再获 %d 枚印章升级店招
+珊瑚薄荷店 · 今日也要好好营业,Coral & Mint · Ready for another day,珊瑚薄荷店 · 今日也要好好营业
+白天招待客人，夜晚把奇思妙想调成新品。,Serve by day. Turn wild ideas into new drinks by night.,白天招待客人，夜晚把奇思妙想调成新品。
+最近进度,Recent Progress,最近进度
+欢迎开店,Welcome to Your Shop,欢迎开店
+从第 1 天开始经营你的第一间奶茶店。,Start on Day 1 and build your first milk-tea shop.,从第 1 天开始经营你的第一间奶茶店。
+重新开店,Restart Shop,重新开店
+开始新店,Start New Shop,开始新店
+设置,Settings,设置
+退出游戏,Quit Game,退出游戏
+重新开店？,Restart the Shop?,重新开店？
+确认后会从第 1 天教学开始。,You will restart from the Day 1 tutorial.,确认后会从第 1 天教学开始。
+保留进度,Keep Progress,保留进度
+确认重新开始,Confirm Restart,确认重新开始
+PHASE_CAMPAIGN,First-Shop Report,首店评级
+PHASE_NIGHT,Night Research,夜间研发
+STAFF_SOLO,Solo Shift,独自经营
+MENU_SAVE_SUMMARY,Day %d · %s\n%d Coins · %d Inspiration · Shop %d/%d · Menu %d\nOn duty: %s,第 %d 天  ·  %s\n%d 金币  ·  %d 灵感  ·  店铺 %d/%d  ·  菜单 %d 款\n值班：%s
+MENU_SIGN_SUMMARY,\nSign: %s · %d Stamps,\n店招：%s  ·  印章 %d
+MENU_ROUTE_SUMMARY,\nNew Shop+ Route: %s,\n新店+路线：%s
+MENU_SAVE_RECOVERED,\nRecovered last safe autosave,\n已从最近一次安全自动存档恢复
+ACTION_VIEW_REPORT,View Report,查看评级
+ACTION_CONTINUE_RESEARCH,Continue Research,继续研发
+ACTION_CONTINUE_SHIFT,Continue Shift,继续营业
+MENU_CONTINUE_DAY,%s · Day %d,%s · 第 %d 天
+MENU_NO_SAVE,Continue Shift · No Save,继续营业 · 暂无存档
+MENU_WELCOME_BODY,Start on Day 1 and build your first milk-tea shop.,从第 1 天开始经营你的第一间奶茶店。
+MENU_INPUT_GAMEPAD,Autosave · Controller %s Confirm / %s Back,自动保存 · 手柄 %s 确认 / %s 返回
+MENU_INPUT_KEYBOARD,Autosave · Keyboard/Mouse Enter Confirm / Esc Back,自动保存 · 键鼠 Enter 确认 / Esc 返回
+MENU_RESET_BODY,Your Day %d progress recipes and upgrades will be overwritten.\nAudio motion haptics and language settings will be kept. This cannot be undone.,现在的第 %d 天进度、配方和店铺升级会被覆盖。\n音量、动态、触觉与语言设置会保留。这个操作无法撤销。
+暂停与设置,Pause & Settings,暂停与设置
+键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡,Keyboard: 1–9 Select · Space Shake · Esc Pause\nTouch: Tap ingredients the shake button and order cards,键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡
+减少动态效果,Reduce Motion,减少动态效果
+关闭镜头震动、飞金币、杯体晃动和顾客待机动作。,Disables camera shake flying coins cup wobble and customer idle motion.,关闭镜头震动、飞金币、杯体晃动和顾客待机动作。
+触觉反馈,Haptic Feedback,触觉反馈
+手机轻震与手柄震动；关闭后不影响声音和动画。,Phone taps and controller rumble. Disabling this does not affect audio or motion.,手机轻震与手柄震动；关闭后不影响声音和动画。
+显示与按键,Display & Controls,显示与按键
+重新查看新手教学,Replay Tutorial,重新查看新手教学
+返回主菜单,Return to Main Menu,返回主菜单
+继续游戏,Resume Game,继续游戏
+返回主菜单？,Return to Main Menu?,返回主菜单？
+留在这里,Stay Here,留在这里
+确认返回,Confirm Return,确认返回
+显示修改立即生效；键盘快捷键可重映射，手柄保持 A/B/X/Y/Menu 标准布局。,Display changes apply immediately. Keyboard actions can be rebound; controllers keep the A/B/X/Y/Menu layout.,显示修改立即生效；键盘快捷键可重映射，手柄保持 A/B/X/Y/Menu 标准布局。
+窗口模式,Window Mode,窗口模式
+窗口分辨率,Window Resolution,窗口分辨率
+键盘快捷键,Keyboard Shortcuts,键盘快捷键
+恢复默认按键,Restore Default Keys,恢复默认按键
+返回设置,Back to Settings,返回设置
+SETTINGS_TITLE_DAY,Pause & Settings,暂停与设置
+SETTINGS_TITLE_NIGHT,Lab Settings,研究室设置
+SETTINGS_TITLE_MENU,Settings,设置
+SETTINGS_RESUME_DAY,Resume Game,继续游戏
+SETTINGS_RESUME_NIGHT,Resume Research,继续研究
+SETTINGS_RETURN_MENU,Return to Main Menu,返回主菜单
+SETTINGS_CONFIRM_NIGHT,Unfinished cups from tonight will be cleared. Completed research upgrades and the signed contract are preserved.,本晚尚未试做的杯子会被清空；已经完成的研发、店铺升级与签约委托仍会保留。
+SETTINGS_CONFIRM_DAY,This shift has not settled. Returning restores the state before opening and does not keep today's income.,当前营业尚未结算。返回后会恢复到本日开店前，不会重复保留本日收入。
+SETTINGS_CONTROLS_MENU_GAMEPAD,D-pad: Navigate · %s Confirm · %s Back\nMusic SFX motion haptics and language save immediately.,手柄：十字键导航 · %s 确认 · %s 返回\n音乐、音效、动态、触觉与语言偏好会立即保存。
+SETTINGS_CONTROLS_MENU_KEYBOARD,Keyboard/Mouse: Arrows Navigate · Enter Confirm · Esc Back\nMusic SFX motion haptics and language save immediately.,键鼠：方向键导航 · Enter 确认 · Esc 返回\n音乐、音效、动态、触觉与语言偏好会立即保存。
+SETTINGS_CONTROLS_NIGHT_GAMEPAD,D-pad: Navigate · %s Confirm · %s Back to Lab\nAll settings save immediately.,手柄：十字键导航 · %s 确认 · %s 返回研究室\n所有设置会立即保存。
+SETTINGS_CONTROLS_NIGHT_KEYBOARD,Keyboard: %s Settings · Esc Back · Mouse/Touch Select Ingredients\nAll settings save immediately.,键盘：%s 打开设置 · Esc 返回 · 鼠标或触控选择原料\n所有设置会立即保存。
+SETTINGS_CONTROLS_DAY_GAMEPAD,D-pad: Navigate · %s Confirm · %s Tea · %s Pearls · %s Shake · %s Staff · %s Pause\nTouch controls remain fully available.,手柄：十字键导航 · %s 确认 · %s 茶桶 · %s 珍珠锅 · %s 摇茶 · %s 店员 · %s 暂停\n触控操作仍然完整可用。
+SETTINGS_CONTROLS_DAY_KEYBOARD,Keyboard: 1–9 Select · %s Tea · %s Pearls · %s Shake · %s Staff · %s Pause\nMouse: flick side to side to shake · Touch: shake device or tap.,键盘：1–9 选择 · %s 茶桶 · %s 珍珠锅 · %s 摇茶 · %s 店员 · %s 暂停\n鼠标：左右甩动摇茶 · 触控：摇晃设备或点击按钮
+SETTINGS_MUSIC,Music  %d%%,背景音乐  %d%%
+SETTINGS_SFX,SFX  %d%%,操作音效  %d%%
+SETTINGS_REBIND_BUTTON,%s · Click to Rebind,%s  ·  点击重设
+SETTINGS_MODE_CHANGED,Display mode changed to %s.,显示模式已切换为%s。
+SETTINGS_RESOLUTION_CHANGED,Window resolution changed to %s.,窗口分辨率已切换为 %s。
+SETTINGS_PRESS_NEW_KEY,Press a new key · Esc to cancel,请按新的键盘按键 · Esc 取消
+SETTINGS_WAITING_INPUT,Waiting for input…,等待输入…
+SETTINGS_BINDINGS_RESET,Restored Esc / Space / F defaults.,已恢复 Esc / 空格 / F 默认按键。
+SETTINGS_REBIND_CANCELLED,Key rebind cancelled.,已取消按键重设。
+SETTINGS_MODIFIER_REJECTED,Modifier keys cannot be bound alone. Press a regular key.,修饰键不能单独绑定，请按一个普通按键。
+SETTINGS_KEY_CONFLICT,%s is already used for %s. Choose another key.,%s 已用于%s，请换一个按键。
+SETTINGS_KEY_CHANGED,%s changed to %s.,%s 已改为 %s。
+BINDING_PAUSE,Pause / Settings,暂停 / 设置
+BINDING_SHAKE,Shake,摇茶
+BINDING_STAFF,Interact with Staff,互动店员
+DISPLAY_MODE_WINDOWED,Windowed,窗口化
+DISPLAY_MODE_BORDERLESS,Borderless Window,无边框窗口
+DISPLAY_MODE_FULLSCREEN,Fullscreen,全屏
+KEY_SPACE,Space,空格
+KEY_UNSET,Unassigned,未设置
+INPUT_CLICK_ENTER,Click / Enter,点击 / Enter
+暂停,Pause,暂停
+重置杯子,Reset Cup,重置杯子
+今日经营事件,Today's Business Event,今日经营事件
+知道了 · 开门营业,Got It · Open the Shop,知道了 · 开门营业
+DAY_SECONDS_SHORT,%ds,%d秒
+DAY_HUD_COSTS_NEXT,Stock%d · Rent D%d,补货%d · 租金D%d
+DAY_HUD_COSTS_TODAY,Stock%d · Rent≤%d,补货%d · 租金≤%d
+DAY_TOMORROW_EVENT,Tomorrow · %s,明日预告 · %s
+DAY_ACTIVE_CONTRACT,Today's Contract · %s · %s,今日委托 · %s · %s
+DAY_MISSING_BASE,?Tea Base,?茶底
+DAY_MISSING_MILK,?Milk,?奶基
+DAY_CUP_SEALED,  Sealed,  已封口
+DAY_CUP_STATUS,Current Cup · %s · %s%s,当前杯 · %s · %s%s
+DAY_CUP_REWORKED, · Reworked ×%d, · 返工 ×%d
+DAY_CUP_CLEAN, · Clean Build, · 无返工
+DAY_RESET_CUP,Reset Cup,重置杯子
+DAY_RESET_CUP_WASTE,Reset · Waste ¥%d,重置 · 损耗 ¥%d
+DAY_CONTEXT_SEALED,Sealed · Review the target order then confirm delivery,封口完成 · 核对目标订单后确认交付
+DAY_NEXT_DELIVER_GAMEPAD,Next: Focus an Order to Review · %s Deliver,下一步：聚焦订单核对 · %s 交付
+DAY_NEXT_DELIVER_TOUCH,Next: Review the Matching Order · Confirm to Deliver,下一步：核对对应订单 · 确认交付
+DAY_ORDER_DELIVER_GAMEPAD,%s · Deliver Here,%s · 交付到此
+DAY_ORDER_DELIVER_POINTER,Click/Tap · Deliver Here,点击 · 交付到此
+DAY_ORDER_REVIEW_GAMEPAD,Select · Review Order,选择 · 核对订单
+DAY_ORDER_REVIEW_POINTER,Click/Tap · Review Order,点击 · 核对订单
+DAY_CONTEXT_BASE,Choose Tea Base,选择茶底
+DAY_NEXT_BASE,Next: Choose Tea Base,下一步：选择茶底
+DAY_CONTEXT_MILK,Choose Milk,选择奶基
+DAY_NEXT_MILK,Next: Choose Milk,下一步：选择奶基
+DAY_CONTEXT_TOPPING,Choose Toppings (%d/%d),选择小料（%d/%d）
+DAY_NEXT_TOPPING,Next: Choose Toppings,下一步：选择小料
+DAY_CONTEXT_SUGAR,Choose Sugar Level,选择糖度
+DAY_NEXT_SUGAR,Next: Confirm Sugar Level,下一步：确认糖度
+DAY_CONTEXT_SHAKE,Shake and Seal,摇匀并封口
+DAY_NEXT_SHAKE,Next: %s Shake %d/%d,下一步：%s 摇匀 %d/%d
+DAY_NEXT_SHAKE_POINTER,Next: %s or Flick Side to Side · %d/%d,下一步：%s 或左右快速甩动 · %d/%d
+DAY_NEXT_SHAKE_MOBILE,Next: Shake Device or Tap · %d/%d,下一步：摇晃设备或点击 · %d/%d
+DAY_SHAKE_BUTTON,%s / Shake  %d/%d,%s / 摇匀  %d/%d
+DAY_SHAKE_BUTTON_MOBILE,Tap / Shake  %d/%d,点击 / 摇匀  %d/%d
+DAY_SHAKE_GESTURE_HINT,Mouse: flick side to side · Mobile: shake device · Tap remains available,鼠标：左右快速甩动 · 手机：摇晃设备 · 始终可点击按钮
+DAY_CONFIRM_SUFFIX, · %s Confirm, · %s 确认
+DAY_STAFF_ON_DUTY,%s · On Duty,%s · 今日值班
+DAY_STAFF_RESTING,%s · Rest Day,%s · 今日休整
+DAY_STAFF_RESTING_STATUS,Wage shortfall %d · All staff effects paused today,少发工资 %d · 今日全部员工效果暂停
+DAY_STAFF_RETURNS,Returns Day %d,第 %d 天复工
+DAY_STAFF_TRAIT,Trait · %s,特质 · %s
+DAY_STAFF_TRAIT_HIDDEN,Trait · Hidden,特质 · 尚未揭晓
+DAY_STAFF_SLACKER_IDLE,Slacking · Back Queue Support Paused,正在摸鱼 · 后排照看暂停
+DAY_STAFF_SLACKER_WORKING,Watching Back Queue · Patience Drain -30%,照看后排 · 耐心消耗 -30%
+DAY_STAFF_SOCIAL,Warming Up the Queue · Patience +20% / Traffic +12%,热场中 · 耐心 +20% / 客流 +12%
+DAY_STAFF_PERFECTIONIST,Correct Cup +2 Coins · Mistake Guard: %s · +1 Shake,正确杯 +2 金币 · 错杯保护：%s · 多摇 1 下
+DAY_STAFF_ADAPTING,Settling into the Role,适应岗位中
+DAY_STAFF_WAKE,Wake %s · F,拍醒 %s · F
+DAY_STAFF_INTERACT,Interact with 3D Staff,点击 3D 店员互动
+STATE_USED,Used,已用
+STATE_READY,Ready,可用
+DAY_ORDER_CRITIC,Critic · %d,评论家 · %d
+DAY_ORDER_INFLUENCER,Influencer · %d,网红 · %d
+DAY_ORDER_GROUP,Group · %d/%d,团单 · %d/%d
+DAY_ORDER_REGULAR,Order %d,订单 %d
+DAY_ORDER_SUGAR,· %s,· %s
+DAY_HUD_TIME,Day %d · %ds,第 %d 天 · %ds
+DAY_HUD_PERFECT,Perfect %d,完美 %d
+DAY_HUD_SHOP,Shop %d/%d,店铺 %d/%d
+DAY_FEEDBACK_INCOMPLETE,Choose a tea base milk and sugar level first!,先取 茶底/奶基，点糖罐调糖度！
+DAY_FEEDBACK_SEALED,Sealed! Review the customer's order then confirm delivery.,封口完成！核对顾客订单后确认交付
+DAY_FEEDBACK_REWORK,Rework ×%d · The drink can still sell but Perfect is lost,返工 ×%d · 仍可售出，但本杯不再计完美
+DAY_FEEDBACK_DISCARDED,Cup discarded · ¥%d stock loss,已倒杯 · 原料损耗 ¥%d
+DAY_REWARD_COINS,+%d Coins,+%d 金币
+DAY_REWARD_TIP, · Tip %d, · 小费 %d
+DAY_REWARD_REASON, · %s, · %s
+DAY_REWARD_BUZZ, +%d Buzz, +%d 话题
+DAY_REWARD_STAFF, · Staff Check +%d, · 店员复核 +%d
+DAY_REWARD_COMBO, · %d Combo, · %d 连击
+DAY_REWARD_GROUP_NEXT, · Next Group Drink, · 团单下一杯
+DAY_REWARD_REWORKED, · Reworked · Perfect streak reset, · 返工杯 · 完美连击中断
+DAY_FEEDBACK_WRONG,Wrong drink! The customer gives you another chance… Combo lost.,做错了！顾客皱着眉再给你一次机会……连击中断
+DAY_CUSTOMER_LEFT,Waited too long and left!,等太久，走了！
+DAY_STAFF_REVEAL_GUARD,Stopped a wrong drink before delivery: one save remains today,在出杯前拦下错单：今天还能保护这一次
+DAY_STAFF_GUARD_SAVED,%s stopped the wrong drink · Patience and combo preserved,%s 拦下了错杯 · 顾客耐心和连击都保住了
+DAY_STAFF_REVEAL_SOCIAL,Befriended the whole queue at opening: Patience +20% and traffic +12%,一开门就和整条队伍聊熟了：耐心 +20%，客流也快了 12%
+DAY_STAFF_REVEAL_PERFECTIONIST,Checking every drink: blocks one mistake daily but adds one shake,开始逐杯复核：每天拦下 1 次错杯，但每杯多摇 1 下
+DAY_STAFF_REVEAL_SLACKER,Stared at the sealer: back-queue support stops while slacking; tap to wake,盯着封口机出了神：摸鱼时后排照看失效，点击店员拍醒
+DAY_STAFF_SLACKING_ALERT,%s is slacking again · Tap or press F to wake,%s 又摸鱼了 · 点击店员或按 F 拍醒
+DAY_STAFF_TRAIT_REVEALED,Trait Revealed · %s: %s,特质觉醒 · %s：%s
+DAY_STAFF_WAKE_SUCCESS,Awake · %s is watching the back queue again,拍醒成功 · %s 重新照看后排顾客
+DAY_STAFF_ALREADY_WORKING,%s: I'm working seriously!,%s：我在认真值班呢！
+REWARD_CRITIC_REVIEW,Critic Review,评论家好评
+REWARD_INFLUENCER_POST,Influencer Post,网红推荐
+REWARD_GROUP_COMPLETE,Group Ticket Complete,团单完成
+REWARD_LIGHT_BONUS,Light-Drink Bonus,轻饮加成
+REWARD_TREND_BONUS,Trending Bonus,热搜加成
+REWARD_SPECIAL_COMPLETE,Special Order Complete,特殊订单完成
+DAY_RESULT_TITLE,Day %d Closed,第 %d 天打烊
+DAY_RESULT_VERDICT_0,Still Warming Up · Try Again Tomorrow,还在热身，明天再来
+DAY_RESULT_VERDICT_1,Found Your Footing,站稳脚跟
+DAY_RESULT_VERDICT_2,Goal Reached,目标达成
+DAY_RESULT_VERDICT_3,Today's Signature Shop,今日招牌店
+DAY_RESULT_STARS,%d-Star Rating,%d 星评价
+DAY_RESULT_GOAL,Today's Goal,今日目标
+DAY_RESULT_REVENUE,Shift Revenue,今日营收
+DAY_RESULT_REVENUE_DETAIL,Featured sales %d · Event +%d,主推销售 %d · 事件 +%d
+DAY_RESULT_PERFECT,Perfect Drinks,完美出杯
+DAY_RESULT_LOST,%d Customers Lost,气走 %d 位
+DAY_RESULT_CRAFT_DETAIL,%d%% clean · %d rework\n%d lost,干净率 %d%% · 返工 %d\n流失 %d
+DAY_RESULT_COMBO,Best Combo,最高连击
+DAY_RESULT_INSPIRATION,Inspiration +%d Today,今日灵感 +%d
+DAY_LEDGER_TITLE,Operating Ledger · Stars still use gross revenue,经营账本 · 星级仍按毛营收计算
+DAY_LEDGER_GROSS,Gross,毛营收
+DAY_LEDGER_STOCK,Stock,补货
+DAY_LEDGER_WAGE,Wage,工资
+DAY_LEDGER_RENT,Rent,周租
+DAY_LEDGER_NET,Net,净经营
+DAY_LEDGER_NEXT_RENT,Next rent · Day %d · base %d,下次周租 · 第 %d 天 · 基准 %d
+DAY_LEDGER_WASTE, · waste %d, · 损耗 %d
+DAY_LEDGER_RELIEF, · startup relief +%d, · 新店扶持 +%d
+DAY_RESULT_THREE_STAR,Three-Star Bonus: +3 Inspiration,三星奖励：额外 +3 灵感
+DAY_RESULT_DARK_MENU,Dark Menu: %d Sales · Buzz +%d,黑暗菜单：成交 %d 单，话题度 +%d
+DAY_RESULT_EVENT_COINS,%s: Bonus +%d Coins,%s：额外 +%d 金币
+DAY_RESULT_BUZZ,Buzz +%d,话题度 +%d
+DAY_RESULT_SPECIAL,%s ×%d,%s %d 次
+DAY_RESULT_WAGE,%s Wage -%d Coins,%s 日薪 -%d 金币
+DAY_RESULT_WAGE_SHORTFALL,%s wage %d/%d · rests Day %d,%s 工资实付 %d/%d · 第 %d 天休整
+DAY_RESULT_STAFF_REST_COMPLETE,%s rested today · returns Day %d,%s 今日休整完成 · 第 %d 天复工
+DAY_RESULT_STAFF_BONUS,Staff Check +%d Coins,员工复核 +%d 金币
+DAY_RESULT_STAFF_WAKES,Staff Woken %d Times,拍醒店员 %d 次
+DAY_RESULT_STAFF_RESCUES,Wrong Drinks Stopped %d Times,店员拦下错杯 %d 次
+DAY_RESULT_CONTRACT_SUCCESS,Contract Complete: +1 Stamp · +%d Inspiration · %d Coins Refunded,委托完成：+1 印章 · +%d 灵感 · 返还 %d 金币
+DAY_RESULT_CONTRACT_FAILED,Contract Failed: %d-Coin Fee Not Refunded,委托未完成：签约费 %d 金币不返还
+DAY_RESULT_NO_REWARDS,Keep serving steadily to raise your rating and upgrade faster.,继续稳定出杯，可提高星级与升级速度。
+DAY_RESULT_UNLOCKS,New Tomorrow · %s,明日新原料  ·  %s
+LIST_SEPARATOR,"; ",、
+DAY_RESULT_ENDLESS_HINT,%d Coins · Sign %s / %d Stamps · Choose Tomorrow's Contract in the Lab,现有 %d 金币  ·  店招 %s / %d 枚  ·  研发室可签下一份委托
+DAY_RESULT_UPGRADE_HINT,%d Coins · Buy Shop Upgrades in the Lab,现有 %d 金币  ·  研发室可购买店铺升级
+DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
+跳过教学,Skip Tutorial,跳过教学
+TUTORIAL_PROGRESS,Tutorial  %d / %d,新手教学  %d / %d
+TUTORIAL_1_TITLE,Read the Current Order,先读当前订单
+TUTORIAL_1_BODY,Order cards on the left list tea milk toppings and sugar. The coral outline marks the active order; select another card to switch.,左侧订单卡会列出茶底、奶基、小料和糖度。珊瑚描边表示正在制作的订单；点击其他卡片即可切换。
+TUTORIAL_1_HINT,Keyboard players can press 1 2 or 3 to switch orders.,键盘玩家也可以按 1、2、3 切换订单。
+TUTORIAL_2_TITLE,Keep Both Prep Stations Moving,让两个备料工位同时运转
+TUTORIAL_2_BODY,Tea stock is tracked by tea base while pearls use their own pot. Start either timer while serving; collect in the golden window for a quality and coin bonus. Late batches still work but overcooked batches lower the drink price.,茶底按口味分别备货，珍珠使用独立锅。制杯时也能让两条计时同时运行；黄金窗口收取可提高品质并获得金币奖励，偏晚仍可用，过熟则会压低售价。
+TUTORIAL_2_HINT,Q controls the tea vat and E controls the pearl pot. Their buttons also support touch.,Q 操作茶桶，E 操作珍珠锅；也可直接点击或触摸对应按钮。
+TUTORIAL_3_TITLE,Follow the Center Steps,跟着中央步骤制作
+TUTORIAL_3_BODY,The center panel shows only the ingredient needed now. Choose tea milk toppings and sugar in order. If tea or pearls run out the matching prep station tells you exactly what to refill.,中央面板只显示当前需要的原料。依次选择茶底、奶基、小料和糖度；茶底或珍珠缺货时，对应备料工位会明确提示补哪一项。
+TUTORIAL_3_HINT,Numbers before buttons map to keyboard keys 1–9.,按钮前的数字对应键盘 1–9。
+TUTORIAL_4_TITLE,Shake Seal Then Deliver,摇匀、封口、再交付
+TUTORIAL_4_BODY,After all ingredients are ready shake the cup. Flick the mouse side to side or shake a mobile device; the button and shortcut always remain available. Reworked drinks still sell but are not Perfect. Once sealed review the correct order then confirm delivery.,材料齐全后摇匀杯子。鼠标可左右快速甩动、手机可摇晃设备；按钮和快捷键始终可用。返工杯仍可售出但不计完美；封口后核对正确订单再确认交付。
+TUTORIAL_4_HINT,Mouse: flick side to side · Mobile: shake device · %s remains available.,鼠标：左右快速甩动 · 手机：摇晃设备 · 也可按%s键
+TUTORIAL_5_TITLE,Get Stronger Every Day,每天都会变得更强
+TUTORIAL_5_BODY,Fast correct drinks and golden batches improve tips combos and research resources. After closing use coins for shop upgrades and inspiration for night research.,快速正确出杯与黄金批次能提高小费、连击和研发资源。打烊后用金币升级店铺，再用灵感在夜间研发新品。
+TUTORIAL_5_HINT,The goal is not to max everything at once. Make tomorrow smoother than today.,目标不是一次全满，而是让下一天比今天更顺手。
+TUTORIAL_START,Open the Shop,开始营业
+TUTORIAL_NEXT,Next,下一步
+TUTORIAL_SHAKE_HINT,Mouse: flick side to side · Mobile: shake device · %s remains available.,鼠标：左右快速甩动 · 手机：摇晃设备 · 也可按%s键
+TUTORIAL_GAMEPAD_1,Controller: Use the D-pad to move focus and %s to select an order.,手柄：十字键切换焦点，%s 选择订单。
+TUTORIAL_GAMEPAD_2,Controller: %s operates the tea vat and %s operates the pearl pot without leaving the current cup.,手柄：%s 操作茶桶，%s 操作珍珠锅，无需离开当前制杯步骤。
+TUTORIAL_GAMEPAD_3,Controller: Use the D-pad to move focus and %s to confirm an ingredient.,手柄：十字键移动焦点，%s 确认原料。
+TUTORIAL_GAMEPAD_4,Controller: %s shakes quickly. After sealing select an order and press %s to deliver.,手柄：%s 快速摇茶；封口后选中订单并按 %s 交付。
+TUTORIAL_GAMEPAD_5,Controller and keyboard/mouse support the same full shop flow.,手柄与键鼠拥有相同的完整经营流程。
+COMMON_COINS,%d Coins,%d 金币
+COMMON_CUPS,%d Cups,%d 杯
+COMMON_TIMES,%d Times,%d 次
+店铺升级,Shop Upgrades,店铺升级
+返回研发室,Back to Lab,返回研发室
+把白天赚到的金币变成效率：每项升级都会直接改变下一次营业。,Turn daytime earnings into efficiency. Every upgrade changes your next shift.,把白天赚到的金币变成效率：每项升级都会直接改变下一次营业。
+UPGRADE_COMFORT_NAME,Lounge Comfort,等候区软装
+UPGRADE_COMFORT_DESCRIPTION,Soft seats and warm lighting give waiting customers more patience.,舒适座椅和柔光装饰，让排队顾客更有耐心。
+UPGRADE_COMFORT_EFFECT_1,Patience +18%,耐心 +18%
+UPGRADE_COMFORT_EFFECT_2,Patience +36%,耐心 +36%
+UPGRADE_COMFORT_EFFECT_3,Patience +54%,耐心 +54%
+UPGRADE_SHAKER_NAME,Auto Shaker,自动摇茶机
+UPGRADE_SHAKER_DESCRIPTION,A better motor and sealer reduce the shakes needed for every drink.,升级电机和封口模组，减少每杯需要的摇茶操作。
+UPGRADE_SHAKER_EFFECT_1,4 Shakes per Cup,每杯摇 4 次
+UPGRADE_SHAKER_EFFECT_2,3 Shakes per Cup,每杯摇 3 次
+UPGRADE_SHAKER_EFFECT_3,2 Shakes per Cup,每杯摇 2 次
+UPGRADE_SMART_SUGAR_NAME,Smart Sugar Station,智能糖控台
+UPGRADE_SMART_SUGAR_DESCRIPTION,After milk is selected the current order sugar level is matched automatically.,选好奶基后自动匹配当前订单糖度，少一步也少一次失误。
+UPGRADE_SMART_SUGAR_EFFECT_1,Auto-Match Sugar Level,自动匹配糖度
+UPGRADE_TIP_JAR_NAME,Signature Tip Jar,招牌小费罐
+UPGRADE_TIP_JAR_DESCRIPTION,Better service presentation earns an extra tip for every correct drink.,提升服务仪式感，正确出杯会获得额外小费。
+UPGRADE_TIP_JAR_EFFECT_1,+1 Coin per Cup,每杯额外 +1 金币
+UPGRADE_TIP_JAR_EFFECT_2,+2 Coins per Cup,每杯额外 +2 金币
+UPGRADE_TIP_JAR_EFFECT_3,+3 Coins per Cup,每杯额外 +3 金币
+UPGRADE_LEVEL,Level %d / %d,等级 %d / %d
+UPGRADE_CURRENT_EFFECT,Current: %s,当前：%s
+UPGRADE_NEXT_EFFECT,Next: %s,升级后：%s
+UPGRADE_MAXED,Max Level,已满级
+UPGRADE_BUY,Buy · %d Coins,购买 · %d 金币
+UPGRADE_RESERVE_SUMMARY,Day %d reserve · Wage %d + Rent %d · Safe to invest %d,第 %d 天预留 · 工资 %d + 租金 %d · 可安心投入 %d
+UPGRADE_RESERVE_RISK,Buying leaves %d coins below the %d-coin reserve.,购买后仅余 %d，低于 %d 金币预留。
+UPGRADE_SUCCESS,%s upgraded. It takes effect next shift.,%s 已升级，明天营业立即生效。
+UPGRADE_NOT_ENOUGH,Not enough coins. Build combos and serve quickly tomorrow.,金币不足，明天多完成连击和快速出杯吧。
+员工招聘 · 1 个岗位,Staff Hiring · 1 Position,员工招聘 · 1 个岗位
+数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。,Stats define basic ability. Traits reveal through real events after hiring. Every benefit has a visible tradeoff.,数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。
+STAFF_XIAOMAN_NAME,Xiaoman,小满
+STAFF_XIAOMAN_INTRO,My strength is value for money. My weakness is… wait what did you say?,我的优点是性价比，缺点是……嗯？你说什么？
+STAFF_TAOZI_NAME,Taozi,桃子
+STAFF_TAOZI_INTRO,There is nobody on this street I cannot chat with.,这条街上没有我聊不下来的客人。
+STAFF_ACHENG_NAME,Acheng,阿澄
+STAFF_ACHENG_INTRO,The straw must align with the cup logo. It is a matter of principle.,吸管必须对准杯标，这是原则问题。
+STAFF_CANDIDATE_WAGE,Candidate · Daily Wage %d,候选店员 · 日薪 %d
+STAFF_INTRO_TITLE,Introduction,自我介绍
+STAFF_QUOTE,“%s”,“%s”
+STAFF_TRAIT_HIDDEN,Trait: Hidden,特质：尚未揭晓
+STAFF_HIRE,Hire · %d Coins,录用 · %d 金币
+STAFF_ON_DUTY,Currently on Duty,当前在岗
+STAFF_REST_SCHEDULED,Next Shift · Rest Day %d,下个班次 · 第 %d 天休整
+STAFF_REST_COMPLETE,Rest Complete · Returns Day %d,休整完成 · 第 %d 天复工
+STAFF_WAGE_DAYS,Daily Wage %d Coins · %d Days Worked,日薪 %d 金币 · 已值班 %d 天
+STAFF_WAGE_SHORTFALL_STATUS,Wage shortfall %d · No wage or debt on Day %d rest,少发工资 %d · 第 %d 天休整不计工资也不留债
+STAFF_WAGE_REST_STATUS,No wage today · Returns Day %d,今日不计工资 · 第 %d 天复工
+STAFF_TRAIT_REVEALED,Trait Revealed · %s,已觉醒特质 · %s
+STAFF_TRAIT_UNREVEALED,Trait Not Yet Revealed,特质尚未揭晓
+STAFF_JOINED_QUOTE,Said on Hiring: “%s”,入职时说： “%s”
+STAFF_DISMISS_CONFIRM,Click Again to Confirm Dismissal,再次点击确认解除合同
+STAFF_DISMISS,Dismiss · %d Coins,解除合同 · %d 金币
+STAFF_STAT_SPEED,Speed,手速
+STAFF_STAT_CARE,Care,细心
+STAFF_STAT_CHARM,Charm,亲和
+STAFF_HIRE_SUCCESS,%s joined the team. Watch for their first special behavior tomorrow.,%s 已入职。明天留意店员的第一次特殊表现。
+STAFF_HIRE_FAILED,Cannot hire. Check the open position and your coins.,无法录用：请检查岗位与金币。
+STAFF_DISMISS_WARNING,You will pay the hiring cost again. Click once more to confirm.,解除后需要重新支付录用费。再次点击以确认。
+STAFF_DISMISS_SUCCESS,The position is open. You can choose another candidate.,岗位已空出，可以重新选择候选人。
+TRAIT_UNKNOWN_NAME,Unknown Trait,未知特质
+TRAIT_SLACKER_NAME,Slacker,摸鱼大师
+TRAIT_SOCIAL_KING_NAME,Social Butterfly,社牛
+TRAIT_PERFECTIONIST_NAME,Perfectionist,强迫症
+STAFF_TRAIT_HIDDEN_SUMMARY,Trait hidden · Their introduction contains a clue,特质尚未揭晓 · 自我介绍里藏着线索
+TRAIT_SLACKER_EFFECT,Back-queue patience drain -30% · May slack off and needs a wake-up tap,后排耐心消耗 -30% · 会突然摸鱼，需点击拍醒
+TRAIT_SOCIAL_KING_EFFECT,All patience +20% · Arrivals 12% faster for more traffic and pressure,全场耐心 +20% · 到店间隔 -12%，客流与压力同增
+TRAIT_PERFECTIONIST_EFFECT,Correct cup +2 coins · Blocks 1 wrong cup daily · +1 shake per cup,正确出杯 +2 金币、每天拦下 1 杯错单 · 每杯多摇 1 下
+STAFF_TRAIT_UNKNOWN_EFFECT,No staff effect recorded,尚未记录员工效果
+商圈经营委托,District Contracts,商圈经营委托
+第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。,After Day 15 sign one contract each night. The fee is paid immediately. Success returns some coins and awards a sign stamp. Failure returns nothing.,第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。
+ENDLESS_SIGN_RANK,Sign · %s | %d Stamps | %s,店招 · %s  ｜  印章 %d  ｜  %s
+ENDLESS_TARGET_DAY,Day %d · %s,第 %d 天 · %s
+ENDLESS_REWARD,Success: +1 Stamp · +%d Inspiration · Refund %d Coins\nFailure: Contract Fee Lost,成功：+1 印章 · +%d 灵感 · 返还 %d 金币\n失败：签约费不返还
+ENDLESS_SIGNED,Signed · Active Tomorrow,已签约 · 明日生效
+ENDLESS_OTHER_SIGNED,Another Contract Already Signed,本晚已签其他委托
+ENDLESS_SIGN_COST,Sign · %d Coins,签约 · %d 金币
+ENDLESS_TRAFFIC_DELTA,Arrival Interval -%d%%,客流间隔 -%d%%
+ENDLESS_TRAFFIC_NORMAL,Normal Traffic,标准客流
+ENDLESS_PATIENCE_DELTA,Patience %+d%%,耐心 %+d%%
+ENDLESS_PATIENCE_NORMAL,Normal Patience,标准耐心
+ENDLESS_PRESSURE,Contract Pressure · %s · %s,委托压力 · %s · %s
+ENDLESS_SIGN_SUCCESS,Signed successfully. Tomorrow's HUD now shows the target. Reloading will not charge the fee again.,签约成功。目标已写入明日 HUD，签约费不会因退出或读档重复扣除。
+ENDLESS_SIGN_FAILED,Cannot sign. Check your coins or whether another contract is already signed tonight.,无法签约：请检查金币余额，或本晚是否已经选择了委托。
+CAMPAIGN_TITLE_C,Corner Sprout,街角新芽
+CAMPAIGN_VERDICT_C,Your first shop is stable. Make the sign shine brighter next round.,第一间店已经站稳，下一轮把招牌做得更响亮。
+CAMPAIGN_TITLE_B,Neighborhood Favorite,社区口碑店
+CAMPAIGN_VERDICT_B,The shop has a clear identity. Chase more three-star days and hit drinks next round.,店铺拥有清晰特色，下一轮可以更主动追逐高星与爆款。
+CAMPAIGN_TITLE_A,Popular Signature Shop,人气招牌店
+CAMPAIGN_VERDICT_A,Service and menu identity are taking shape. Finish the upgrades to reach landmark status.,稳定服务与特色菜单都已成形，再补齐升级就能冲击名店。
+CAMPAIGN_TITLE_S,City-Limited Landmark,城市限定名店
+CAMPAIGN_VERDICT_S,Service research and management now form a strong loop. Guests travel here on purpose.,手速、研发与经营形成了漂亮闭环，客人已经会专程而来。
+CAMPAIGN_EYEBROW,First Shop · 14-Day Report,第一家店 · 14 天经营报告
+CAMPAIGN_RATING,First-Shop Rating,首店评级
+CAMPAIGN_DIMENSIONS,Business Dimensions,经营维度
+CAMPAIGN_DIM_CRAFT,Craft & Operations,制作与运营
+CAMPAIGN_DIM_CRAFT_DETAIL,Perfect %d · Equipment %d/%d,完美 %d 杯 · 设备 %d/%d
+CAMPAIGN_DIM_CREATIVITY,Research & Creativity,研发创造
+CAMPAIGN_DIM_CREATIVITY_DETAIL,Collection %d · Menu %d,图鉴 %d · 菜单 %d 款
+CAMPAIGN_DIM_MOMENTUM,Business Momentum,经营势能
+CAMPAIGN_DIM_MOMENTUM_DETAIL,Balance %d · Buzz %d,结余 %d · 话题 %d
+CAMPAIGN_DIM_JOURNEY,Journey,旅程表现
+CAMPAIGN_DIM_JOURNEY_DETAIL,Days %d/%d · Stars %d,记录 %d/%d 天 · 累计 %d 星
+CAMPAIGN_HIGHLIGHT_SERVED,Served,服务
+CAMPAIGN_HIGHLIGHT_REVENUE,Total Revenue,累计营收
+CAMPAIGN_HIGHLIGHT_SPECIAL,Special Orders,特殊订单
+CAMPAIGN_HIGHLIGHT_COMBO,Best Combo,最佳连击
+CAMPAIGN_TEAM,Team · %s on Duty %d Days · ,团队 · %s值班 %d 天  ·  
+CAMPAIGN_LEGACY,Sign Legacy · %d Runs · Best %s / %d,店招荣誉 · 已完成 %d 轮  ·  历史最佳 %s / %d 分
+CAMPAIGN_ROUTES_CLEARED, · Routes %d/%d,  ·  路线通关 %d/%d
+CAMPAIGN_CONTINUE,Continue · Start Day 15,继续经营 · 开启第 15 天
+CAMPAIGN_NEW_SHOP,Open New Shop +,带着店招开新店 +
+CAMPAIGN_RETURN_TITLE,Return to Title,返回标题
+CAMPAIGN_CONFIRM_TITLE,Open a New Shop with Your Sign?,带着店招开新店？
+CAMPAIGN_CONFIRM_BODY,Recipes equipment and current progress reset while your best rating remains.\nA new %s shop inherits %d coins and %d inspiration; skips the tutorial; and takes an 8%% higher goal.,本轮配方、设备和经营进度会重置，但历史最佳评级永久保留。\n%s 评级的新店继承 %d 金币与 %d 灵感；跳过教学；每日目标提高 8%%。
+LEGACY_ROUTE_SELECT_TITLE,Choose one sign route · Clear all three for a complete legacy,选择一条店招路线 · 通关三条路线完成店招荣誉
+LEGACY_ROUTE_CARD,%s %s\n%s\n%s,%s %s\n%s\n%s
+LEGACY_ROUTE_RUSH_NAME,Turnover District,翻台街区
+LEGACY_ROUTE_RUSH_SHORT,Turnover,翻台
+LEGACY_ROUTE_RUSH_RISK,Arrivals +12%,到店速度 +12%
+LEGACY_ROUTE_RUSH_REWARD,Every 3 correct cups +1 Coin,每 3 杯正确出杯 +1 金币
+LEGACY_ROUTE_RUSH_SUMMARY,Keep the queue moving: every third correct cup pays +1 coin while customers refill 12% faster.,让队列持续周转：每 3 杯正确出杯 +1 金币，但顾客补位速度提高 12%。
+LEGACY_ROUTE_RUSH_CALENDAR,Second week opens with Group Visit → Lunch Rush.,第二周从结伴到店 → 午间热浪开场。
+LEGACY_ROUTE_PRECISION_NAME,Reputation District,口碑街区
+LEGACY_ROUTE_PRECISION_SHORT,Reputation,口碑
+LEGACY_ROUTE_PRECISION_RISK,Customer patience -12%,顾客耐心 -12%
+LEGACY_ROUTE_PRECISION_REWARD,Fast service earns +1 Coin,高耐心交付 +1 金币
+LEGACY_ROUTE_PRECISION_SUMMARY,Protect first impressions: patience is 12% shorter and cups delivered above 70% patience earn +1 coin.,守住第一印象：耐心缩短 12%；在耐心 70% 以上交付可额外获得 1 金币。
+LEGACY_ROUTE_PRECISION_CALENDAR,Second week opens with Critic Day → Light-Drink Trend.,第二周从探店日 → 轻饮风向开场。
+LEGACY_ROUTE_TREND_NAME,Trend District,潮流街区
+LEGACY_ROUTE_TREND_SHORT,Trend,潮流
+LEGACY_ROUTE_TREND_RISK,Each hot feature adds 6% traffic,每款热卖带来 +6% 客流
+LEGACY_ROUTE_TREND_REWARD,Trend-match sales earn +3 Coins,风向契合杯额外 +3 金币
+LEGACY_ROUTE_TREND_SUMMARY,Read tomorrow's trend: hot features attract 6% traffic each and every matching featured sale earns +3 coins.,读懂明日风向：每款热卖带来 6% 客流；每杯契合风向的主推额外 +3 金币。
+LEGACY_ROUTE_TREND_CALENDAR,Second week opens with Camera Visit → Brown-Sugar Trend.,第二周从镜头来访 → 黑糖热搜开场。
+CAMPAIGN_CONFIRM_NOTE,You can also go back and continue endless operation after Day 15.,也可以返回，继续第 15 天后的无限经营。
+CAMPAIGN_CANCEL,Think Again,再想想
+CAMPAIGN_CONFIRM,Confirm New Shop +,确认开启新店 +
+DAY_HUD_ROUTE,%s · %s,%s · %s
+DAY_ROUTE_PROGRESS_RUSH,Sign +%d · Cycle %d/3,店招 +%d · 周转 %d/3
+DAY_ROUTE_PROGRESS_PRECISION,Sign +%d · Fast %d,店招 +%d · 快交 %d
+DAY_ROUTE_PROGRESS_TREND,Sign +%d · Match %d,店招 +%d · 契合 %d
+DAY_SECONDS_ROUTE_READY,%ds · +1,%d秒 · +1
+DAY_ROUTE_PATIENCE_TOOLTIP,The purple tick marks the 70% reputation-bonus threshold.,紫色刻度表示 70% 口碑奖励门槛。
+DAY_ROUTE_ACTIVE,New Shop+ · %s — %s,新店+ · %s —— %s
+DAY_REWARD_ROUTE, · Sign +%d (%s), · 店招 +%d（%s）
+DAY_RESULT_ROUTE_BONUS,%s · Sign-route bonus +%d Coins,%s · 店招路线额外 +%d 金币
+CAMPAIGN_CHALLENGE_CRAFT,Finish equipment upgrades to handle rushes and group orders smoothly,补齐设备升级，让高峰和团单周转更从容
+CAMPAIGN_CHALLENGE_CREATIVITY,Expand the collection and menu to create a true signature,扩充图鉴与正式菜单，做出真正的店铺招牌
+CAMPAIGN_CHALLENGE_MOMENTUM,Build coins and buzz to turn traffic into long-term momentum,积累金币与话题度，把流量转成长期经营势能
+CAMPAIGN_CHALLENGE_JOURNEY,Earn more three-star days and stabilize the whole journey,追逐更多三星日，稳定完成整段经营旅程
+CAMPAIGN_NEXT_CHALLENGE,Next-Run Challenge · %s,下一轮挑战 · %s
+TIER_普通,Regular,普通
+TIER_招牌,Signature,招牌
+TIER_爆款,Hit,爆款
+RECIPE_CLASSIC_BOBA_NAME,Classic Boba Milk Tea,经典珍珠奶茶
+RECIPE_CLASSIC_BOBA_DESC,The dependable flavor where everything began.,一切的起点，喝不腻的味道。
+RECIPE_BROWN_SUGAR_BOBA_NAME,Brown-Sugar Boba Milk,黑糖珠撞奶
+RECIPE_BROWN_SUGAR_BOBA_DESC,Tiger stripes and a sweetness that hits the heart.,虎纹挂壁，甜到心颤。
+RECIPE_JASMINE_COCO_NAME,Jasmine Double Coconut,茉莉椰椰
+RECIPE_JASMINE_COCO_DESC,Jasmine fragrance meets a double wave of coconut.,茉莉清香撞上双重椰意。
+RECIPE_TARO_BOBA_NAME,Taro Boba Oolong,芋泥啵啵乌龙
+RECIPE_TARO_BOBA_DESC,Silky taro and springy boba make a filling cup.,绵密芋泥配弹牙珍珠，一杯管饱。
+RECIPE_OAT_BOBA_BLACK_NAME,Oat Boba Black Tea,燕麦啵啵红茶
+RECIPE_OAT_BOBA_BLACK_DESC,Black tea lifts the warm fragrance of oats.,谷物香被红茶托起来，暖乎乎的一杯。
+RECIPE_RED_BEAN_PUDDING_NAME,Red Bean Pudding Milk Tea,红豆布丁奶茶
+RECIPE_RED_BEAN_PUDDING_DESC,A generous cup loaded enough to block the straw.,料多到吸管会堵的实在款。
+RECIPE_JASMINE_PURE_NAME,First-Love Jasmine,初恋茉莉
+RECIPE_JASMINE_PURE_DESC,Crisp and clean like a first love.,清清爽爽，像初恋一样干净。
+RECIPE_COCO_BOBA_NAME,Coconut Boba,生椰啵啵
+RECIPE_COCO_BOBA_DESC,Coconut wraps around tea while boba swings inside.,椰香裹着茶香，珍珠在里面荡秋千。
+RECIPE_OOLONG_PUDDING_NAME,Oolong Pudding,布丁乌龙
+RECIPE_OOLONG_PUDDING_DESC,A whole tender pudding hides in roasted tea aroma.,炭焙香里藏了一整颗嫩布丁。
+RECIPE_TARO_COCO_NAME,Coconut Taro,生椰芋泥
+RECIPE_TARO_COCO_DESC,A double hit of purple taro and silky coconut white.,紫色绵密与椰白丝滑的双层暴击。
+RECIPE_XIANGCAI_FANTASY_NAME,Cilantro Rhapsody,香菜狂想曲
+RECIPE_XIANGCAI_FANTASY_DESC,A green boba tea that feels like nature slapped you awake.,翠绿的珍珠奶茶，喝一口仿佛被大自然扇了一巴掌。
+RECIPE_ZHEERGEN_RAGE_NAME,Fish-Mint Revenge,折耳根の逆袭
+RECIPE_ZHEERGEN_RAGE_DESC,A southwest special that divides drinkers into the furious and the addicted.,西南限定。喝完的人分成两派：暴怒的，和上瘾的。
+RECIPE_SWEET_SALT_HORROR_NAME,Sweet-Savory Horror,甜咸双煞
+RECIPE_SWEET_SALT_HORROR_DESC,Brown sugar cilantro and coconut milk turn three good things into one crime.,黑糖的甜、香菜的冲、椰奶的滑，三个好人凑成了一桩惨案。
+AFFINITY_CARAMEL_ROBUST,Caramel and strong black tea weave into something special!,焦香和红茶的醇厚缠在一起，有点东西！
+AFFINITY_TROPICAL_TROPICAL,Double coconut sends you straight to an island!,椰香翻倍，一口回到海岛！
+AFFINITY_ROASTED_CREAMY,Roasted tea meets creamy milk with surprising depth…,炭焙香撞上奶香，意外地醇……
+AFFINITY_FLORAL_PURE,Crisp and clean with fully opened jasmine aroma.,清清爽爽，茉莉香完全舒展开了。
+AFFINITY_CLASSIC_CREAMY,A classic flavor that feels reassuring.,经典的味道，让人安心。
+AFFINITY_GRAINY_ROBUST,Black tea lifts the grain aroma into a warm cup.,谷物香被红茶托起来了，暖乎乎的。
+AFFINITY_FLORAL_HEAVY,Heavy toppings crush the jasmine fragrance…,茉莉的清香全被厚重的料压死了……
+AFFINITY_CARAMEL_LIGHT,Brown-sugar sweetness fights the light tea and becomes cloying.,黑糖甜腻和清茶完全不搭，喝着发齁。
+AFFINITY_GRAINY_GRAINY,All that grainy texture turns the drink cloudy like porridge…,全是渣渣感，口感浑浊得像粥……
+AFFINITY_TROPICAL_ROASTED,Coconut and roasted notes fight in a very strange way.,椰香和炭焙味打架，说不上来的怪。
+AFFINITY_WEIRD_CREAMY,Something vegetable-like is floating through the milk aroma??,奶香里飘着一股……菜味？？
+AFFINITY_WEIRD_CARAMEL,Sweet and sharp fight in your mouth. Despair wins.,甜的和冲的在嘴里打架，赢的是绝望。
+AFFINITY_WEIRD_WEIRD,Was this really meant for humans?!,这真的是给人喝的东西吗？！
+FLAVOR_AROMA,Aroma,香气
+FLAVOR_SWEET,Sweet,甜度
+FLAVOR_RICH,Rich,醇厚
+FLAVOR_FRESH,Fresh,清爽
+FLAVOR_CHEW,Chew,嚼感
+SLOT_BASE,Tea Base,茶底
+SLOT_MILK,Milk,奶基
+SLOT_TOPPING,Topping,小料
+SLOT_SUGAR,Sugar Level,糖度
+茶底,Tea Base,茶底
+奶基,Milk,奶基
+小料(≤2),Toppings (≤2),小料(≤2)
+糖度,Sugar,糖度
+当前试作配方,Current Trial Recipe,当前试作配方
+明日经营预告,Tomorrow's Business,明日经营预告
+风味反馈,Flavor Feedback,风味反馈
+收工睡觉,Close Lab,收工睡觉
+给新品起个名字…,Name the New Drink…,给新品起个名字…
+上架新品,Submit New Drink,上架新品
+NIGHT_WELCOME,The shop is closed. Tonight make something nobody has tasted before.,打烊了。今晚，调一杯没人喝过的东西。
+NIGHT_TRY,Trial Cup · %d Inspiration,试做一杯 · 消耗 %d 灵感
+NIGHT_STAFF_LOCKED,Hiring · Unlocks Day %d,招聘 · 第 %d 天解锁
+NIGHT_STAFF_CURRENT,Staff · %s,员工 · %s
+NIGHT_STAFF_REST_NEXT,Staff · %s · rests Day %d,员工 · %s · 第 %d 天休整
+NIGHT_STAFF_HIRE,Hire Staff · 1 Position,招聘店员 · 1 个岗位
+NIGHT_SIGNED,Signed,已签约
+NIGHT_CONTRACT_ACTIVE,Contract · %s,经营委托 · %s
+NIGHT_CONTRACT_CHOOSE,Contract · Choose Tomorrow's Challenge,经营委托 · 选择明日挑战
+NIGHT_SELECT_TOOLTIP,Select: %s,选择：%s
+NIGHT_SELECTED_TOOLTIP,Selected: %s,已选择：%s
+NIGHT_HUD,Day %d · Research Lab | Tonight %d · Saved %d,第 %d 天 · 研发室 ｜ 今晚 %d · 留存 %d
+NIGHT_BUDGET_TOOLTIP,Tonight holds at most %d active inspiration. Unused saved inspiration returns to reserve when you close.,每晚最多装入 %d 点活跃灵感；收工时未用的持久灵感会退回留存。
+NIGHT_BOOK,Collection %d/%d | Dark %d/%d | Testing %d,图鉴 %d/%d ｜ 黑暗配方 %d/%d ｜ 检验中 %d
+NIGHT_NO_TOPPINGS,No Toppings,无小料
+NIGHT_SELECTION,%s · %s · %s · %s,%s  ·  %s  ·  %s  ·  %s
+NIGHT_BASE_UNSELECTED,Tea Base Unselected,茶底未选
+NIGHT_MILK_UNSELECTED,Milk Unselected,奶基未选
+NIGHT_SUGAR_UNSELECTED,Sugar Unselected,糖度未选
+NIGHT_TOMORROW_CONTRACT,Signed Contract · %s · %s,已签委托 · %s · %s
+NIGHT_TOMORROW_UNSIGNED,Tomorrow's Contract · Not Signed,明日委托 · 尚未签约
+NIGHT_INCOMPLETE,Select a tea base milk and sugar level before making a trial cup.,先把 茶底/奶基/糖度 选齐再试做。
+NIGHT_SYNERGY,Synergy · %s,协同 · %s
+NIGHT_CLASH,Clash · %s,冲突 · %s
+NIGHT_RECIPE_REPEAT,You already know “%s”. The flavor is stable.,……这不就是你的《%s》嘛，味道稳定。
+NIGHT_RECIPE_DISCOVERED,Legendary Recipe “%s” discovered and listed immediately!,传说配方《%s》诞生，免检上架！
+NIGHT_LEGENDARY_TIER,Legendary Recipe · %s,传说配方 · %s
+NIGHT_DARK_REPEAT,You made “%s” again. Why?,……又做了一杯《%s》，何苦呢。
+NIGHT_DARK_DISCOVERED,Dark Legend discovered · Buzz +%d!,黑暗传说降临，话题度 +%d！
+NIGHT_DARK_ADDED,Added to the dark menu.,已挂上黑暗菜单。
+NIGHT_DARK_FULL,Dark menu full (%d slots). Choose a slot to replace.,黑暗菜单已满（%d 格），请选择要替换的槽位。
+NIGHT_DARK_LEGEND,Dark Legend,黑暗传说
+NIGHT_FLAVOR_FEEDBACK,Flavor Feedback · %s,风味反馈 · %s
+NIGHT_FEEDBACK_HIGH_AROMA,The aroma is overpowering…,香得冲鼻子，有点上头过度了……
+NIGHT_FEEDBACK_HIGH_SWEET,So sweet that two sips feel cloying…,齁得慌，喝两口就腻了……
+NIGHT_FEEDBACK_HIGH_RICH,Too heavy and throat-coating.,太厚重了，糊嗓子。
+NIGHT_FEEDBACK_HIGH_FRESH,Too thin to hold back the tea bitterness.,太寡了，压不住茶涩。
+NIGHT_FEEDBACK_HIGH_CHEW,Too many toppings. Is this sweet porridge?,料塞得太满，这是在喝八宝粥吗？
+NIGHT_FEEDBACK_LOW_AROMA,Almost no aroma. Nothing memorable.,没什么香气，平平无奇。
+NIGHT_FEEDBACK_LOW_SWEET,Thin and bland like dishwater.,寡淡，像在喝刷锅水。
+NIGHT_FEEDBACK_LOW_RICH,Watery and thin.,水味很重，单薄。
+NIGHT_FEEDBACK_LOW_FRESH,Dull and greasy after each sip.,闷闷的，喝完嘴里发腻。
+NIGHT_FEEDBACK_LOW_CHEW,One-note texture with no bite.,口感单薄，一滑到底。
+NIGHT_FEEDBACK_BALANCED,Flavor Feedback · Balanced but missing a memorable hook.,风味反馈 · 挺平衡的一杯，就是……少了点记忆点。
+NIGHT_CLUE_SUGAR,Clue · The ingredients work but the sugar level feels wrong…,线索 · 配料没问题，但甜度好像不太对……
+NIGHT_CLUE_SLOT,Clue · A familiar shadow appears… try another [%s]?,线索 · 隐约有个熟悉的影子……换一种【%s】试试？
+NIGHT_CLUE_CLOSE,Clue · Almost there… adjust a topping or the sugar level.,线索 · 就差一口气……换个小料或糖度微调下？
+NIGHT_DARK_HINT,Hint · You are approaching something… indescribable.,暗示 · 你在接近某种……不可名状的东西。
+NIGHT_QUALITY_SCORE,%s (Quality %d),%s（品质分 %d）
+NIGHT_NAME_NEW,Name the New Drink,新品待命名
+NIGHT_SHELF_READY,◎ Quality %d · Ready,◎ 品质 %d · 可上架
+NIGHT_NAME_INSTRUCTION,Name it and send it to a three-night market test.,起个名字送去市场检验（3 天逐晚揭晓）。
+NIGHT_MYSTERY_DRINK,Mystery Mix #%d,谜之特调 #%d
+NIGHT_DARK_MENU_ADDED,Dark Menu · “%s” added · Buzz +1.,黑暗菜单 · 已挂上《%s》，话题度 +1。
+NIGHT_DARK_MENU_DISCARD,Dark Menu · Full. Choose which listed drink this candidate replaces.,黑暗菜单 · 已满，请选择这杯候选要替换的在售饮品。
+NIGHT_GRADE_EXCELLENT,◎ Excellent!,◎ 优秀！
+NIGHT_GRADE_GOOD,○ Good but not a signature yet.,○ 不错，但还称不上招牌。
+NIGHT_GRADE_MEDIOCRE,△ Mediocre… probably ignored.,△ 平庸……大概会无人问津。
+NIGHT_GRADE_FAILED,✗ Failed!,✗ 翻车了！
+NIGHT_MARKET_TEST_STARTED,Market Test · “%s” begins a 3-night test. Scores reveal each night!,市场检验 ·《%s》进入 3 天检验期，每晚结算揭晓评分！
+NIGHT_SETTLEMENT_TITLE,Day %d Complete · Market Test Results:,第 %d 天结束 · 市场检验结算：
+NIGHT_TEST_SCORE,Test · “%s” Day %d: %d Points,检验 ·《%s》第%d天：%d 分
+NIGHT_TEST_HIT,Hit · “%s” priced at ¥%d and listed!,爆款 ·《%s》定价 ¥%d，正式上架！
+NIGHT_TEST_SIGNATURE,Signature · “%s” priced at ¥%d and listed!,招牌 ·《%s》定价 ¥%d，正式上架！
+NIGHT_TEST_REGULAR,Regular · “%s” priced at ¥%d and listed.,普通 ·《%s》定价 ¥%d，上架。
+NIGHT_TEST_FAILED,Low Sales · “%s” averaged %.0f. Removed with 3 inspiration refunded.,滞销 ·《%s》均分 %.0f，下架并返还 3 灵感。
+NIGHT_NO_TESTS,(No new drinks are currently being tested),(今晚没有在检验中的新品)
+NIGHT_CAMPAIGN_READY,\nThe 14-day run is complete · Your first-shop rating is ready.,\n十四天营业完成 · 首店评级已经生成。
+NIGHT_TOMORROW_AGAIN,\nTomorrow is another day.,\n明天又是一天。
+NIGHT_VIEW_RATING,View First-Shop Rating,查看首店评级
+NIGHT_START_DAY,Start Day %d,开启第 %d 天
+INGREDIENT_BLACK_TEA_SHORT,Assam,阿萨姆
+INGREDIENT_GREEN_TEA_SHORT,Jasmine,茉莉
+INGREDIENT_OOLONG_SHORT,Oolong,乌龙
+INGREDIENT_NONE_SHORT,No Milk,纯茶
+INGREDIENT_FRESH_MILK_SHORT,Fresh,鲜奶
+INGREDIENT_COCONUT_MILK_SHORT,Coconut,生椰
+INGREDIENT_OAT_MILK_SHORT,Oat,燕麦
+INGREDIENT_BOBA_SHORT,Boba,珍珠
+INGREDIENT_COCONUT_JELLY_SHORT,Coco,椰果
+INGREDIENT_PUDDING_SHORT,Pudding,布丁
+INGREDIENT_TARO_SHORT,Taro,芋泥
+INGREDIENT_RED_BEAN_SHORT,Red Bean,红豆
+INGREDIENT_BROWN_SUGAR_SHORT,Brown,黑糖冻
+INGREDIENT_XIANGCAI_SHORT,Cilantro,香菜
+INGREDIENT_ZHEERGEN_SHORT,Fish Mint,折耳根
+SUGAR_0_SHORT,None,无糖
+SUGAR_30_SHORT,30%,三分糖
+SUGAR_50_SHORT,50%,五分糖
+SUGAR_70_SHORT,70%,七分糖
+SUGAR_100_SHORT,Full,全糖
+EVENT_CALM_HUD,Steady,平稳
+EVENT_LUNCH_RUSH_HUD,Rush,热浪
+EVENT_LIGHT_DRINKS_HUD,Light Drinks,轻饮
+EVENT_BROWN_SUGAR_TREND_HUD,Brown Sugar,黑糖
+EVENT_CRITIC_DAY_HUD,Critic,探店
+EVENT_INFLUENCER_DAY_HUD,Camera,镜头
+EVENT_GROUP_DAY_HUD,Groups,结伴
+今天的挑战,Today's Challenge,今天的挑战
+今天的机会,Today's Opportunity,今天的机会
+DAY_CONTRACT_FALLBACK,Business Challenge,经营挑战
+DAY_SMART_SUGAR_MATCHED,Smart Sugar · Matched %s,智能糖控：已匹配%s
+DAY_NOT_SEALED,Seal the cup first!,还没封口呢！
+RECIPE_BOOK_TITLE,Recipe Journal,配方图鉴
+RECIPE_BOOK_SUBTITLE,Discovered recipes reveal exact formulas. Rumors guide your next experiment without spoiling every ingredient.,已发现配方会显示精确公式。传闻只指明研究方向，不会直接泄露全部原料。
+RECIPE_BOOK_PROGRESS,Legendary %d/%d · Dark %d/%d,传说 %d/%d · 黑暗 %d/%d
+RECIPE_BOOK_TAB_REGULAR,Legendary Recipes %d/%d,传说配方 %d/%d
+RECIPE_BOOK_TAB_DARK,Dark Legends %d/%d,黑暗传说 %d/%d
+RECIPE_BOOK_CLOSE,Back to Lab,返回研发室
+RECIPE_BOOK_CLEAR_TARGET,Clear Target,清除目标
+RECIPE_BOOK_NO_TARGET,No research target · Choose a rumor to guide tonight's trial,尚未设定研究目标 · 选择一条传闻来规划今晚试作
+RECIPE_BOOK_TARGET,Research Target · %s,研究目标 · %s
+RECIPE_BOOK_UNKNOWN,Undiscovered Recipe #%d,未发现配方 #%d
+RECIPE_BOOK_DARK_UNKNOWN,Dark Rumor #%d,黑暗传闻 #%d
+RECIPE_BOOK_LOCKED_DAY,More ingredients unlock by Day %d,第 %d 天将解锁更多相关原料
+RECIPE_BOOK_DISCOVERED,DISCOVERED,已发现
+RECIPE_BOOK_RUMOR,RESEARCH RUMOR,研究传闻
+RECIPE_BOOK_FORMULA,Tea %s · Milk %s\nToppings %s · Sugar %s,茶底 %s · 奶基 %s\n小料 %s · 糖度 %s
+RECIPE_BOOK_SUGAR_RANGE,%s – %s,%s – %s
+RECIPE_BOOK_SET_TARGET,Set Research Target,设为研究目标
+RECIPE_BOOK_TARGET_SET,Target Set,目标已锁定
+RECIPE_BOOK_TARGET_SUCCESS,Research target set: %s,研究目标已设定：%s
+RECIPE_BOOK_TARGET_CLEARED,Research target cleared,研究目标已清除
+RECIPE_BOOK_DARK_BADGE,Buzz +%d,话题度 +%d
+RECIPE_BOOK_TIER,«%s»,《%s》
+RECIPE_BOOK_TAB_RESEARCH,Pairings %d/%d,相性 %d/%d
+RESEARCH_SUBTITLE,Try a tea-and-milk pair once to reveal its affinity. Ingredient Lv3+ strengthens its main flavor.,每组茶底与奶基试作一次即可点亮相性。原料达到 Lv3 后会强化主风味。
+RESEARCH_STATUS_COMPLETE,Pairing notebook complete · Permanent nightly inspiration +%d,相性图鉴已完成 · 每晚永久灵感 +%d
+RESEARCH_STATUS_PROGRESS,Pairing notebook %d/%d · Complete it for permanent nightly inspiration +%d,相性图鉴 %d/%d · 全部点亮后每晚永久灵感 +%d
+RESEARCH_PAIR_MATRIX,Tea × Milk,茶底 × 奶基
+RESEARCH_RANK_PERFECT,Perfect Match,绝配
+RESEARCH_RANK_GOOD,Good Match,相合
+RESEARCH_RANK_NEUTRAL,Neutral,普通
+RESEARCH_RANK_CLASH,Clash,相冲
+RESEARCH_PAIR_SCORE,Affinity %s,相性 %s
+RESEARCH_PAIR_UNTRIED,Try it tonight,今晚试试看
+RESEARCH_PAIR_UNKNOWN_TOOLTIP,Use this tea and milk together in the night lab to reveal their affinity.,在夜间研发室同时使用这款茶底与奶基即可点亮相性。
+RESEARCH_PAIR_NEUTRAL_NOTE,No strong synergy or clash. A flexible neutral base.,没有明显相成或相冲，是一组灵活的普通搭配。
+RESEARCH_MASTERY_TITLE,Mastery %d/%d at Lv3+,熟练度 %d/%d 达到 Lv3+
+RESEARCH_MASTERY_LEVEL,%s · Lv%d,%s · Lv%d
+RESEARCH_MASTERY_XP,XP %d/%d,经验 %d/%d
+RESEARCH_MASTERY_EFFECT_ACTIVE,Main flavor +1,主风味 +1
+RESEARCH_MASTERY_EFFECT_LOCKED,Main flavor bonus at Lv%d,Lv%d 解锁主风味加成
+NIGHT_PAIR_DISCOVERED,Pairing logged · %s × %s · %s,相性点亮 · %s × %s · %s
+NIGHT_PAIR_MASTERY,Pairing notebook complete · Permanent nightly inspiration +%d,相性图鉴完成 · 每晚永久灵感 +%d
+LAB_BRIEF_TITLE,Lab Brief,研究单
+LAB_BRIEF_TITLE_ACTIVE,Lab Brief · Reward +%d inspiration,研究单 · 完成奖励 +%d 灵感
+LAB_BRIEF_TITLE_COMPLETE,Lab Brief complete · +%d claimed,研究单已完成 · 已领取 +%d
+LAB_BRIEF_PAIR,Try %s × %s,试作 %s × %s
+LAB_BRIEF_MASTERY,Practice with %s,使用%s练习
+LAB_BRIEF_BALANCED,Create a cup with quality ≥ %d,做出品质 ≥ %d 的饮品
+LAB_BRIEF_PROGRESS,%s · %d/%d,%s · %d/%d
+LAB_BRIEF_COMPLETE,New brief arrives next night,下一晚将有新研究单
+LAB_BRIEF_NONE,No active brief,暂无研究单
+LAB_BRIEF_REWARD,Lab brief complete · Inspiration +%d · %s,研究单完成 · 灵感 +%d · %s
+MARKET_SETTLEMENT_TITLE,Day %d · Market Test,第 %d 天 · 市场检验
+MARKET_SETTLEMENT_SUBTITLE,Three nightly scores decide the final tier and menu price. Results are locked when the lab closes.,连续三晚评分决定最终定级与菜单价。收工时结果即锁定。
+MARKET_SETTLEMENT_SUMMARY,%d results · %d finalized,本次 %d 款 · 定级 %d 款
+MARKET_SETTLEMENT_SUMMARY_NONE,No active tests,暂无检验
+MARKET_SETTLEMENT_SCORE,%d pts,%d 分
+MARKET_SETTLEMENT_STAGE,Night %d/%d,第 %d/%d 晚
+MARKET_SETTLEMENT_TESTING,Average %d · %s · Keep testing tomorrow,均分 %d · %s · 明晚继续检验
+MARKET_SETTLEMENT_TREND_UP,Up %d,上涨 %d
+MARKET_SETTLEMENT_TREND_DOWN,Down %d,回落 %d
+MARKET_SETTLEMENT_TREND_FLAT,Stable,持平
+MARKET_SETTLEMENT_HIT,HIT · Average %d · Menu price %d · Listed,爆款 · 均分 %d · 菜单价 %d · 已上架
+MARKET_SETTLEMENT_SIGNATURE,SIGNATURE · Average %d · Menu price %d · Listed,招牌 · 均分 %d · 菜单价 %d · 已上架
+MARKET_SETTLEMENT_REGULAR,REGULAR · Average %d · Menu price %d · Listed,普通 · 均分 %d · 菜单价 %d · 已上架
+MARKET_SETTLEMENT_FAILED,LOW SALES · Average %d · Not listed · Inspiration +%d,滞销 · 均分 %d · 未上架 · 灵感 +%d
+MARKET_SETTLEMENT_EMPTY,No new drinks are currently being tested. Use tonight to explore a new formula.,今晚没有正在检验的新品。下一晚可以尝试研发新配方。
+MARKET_SETTLEMENT_TOMORROW,The lab is locked for tonight. Tomorrow's business awaits.,今晚研发已锁定，明日继续营业。
+MARKET_SETTLEMENT_CAMPAIGN,The first-shop report is ready.,首店经营报告已生成。
+NIGHT_CURRENT_RECIPE,Current Trial Recipe,当前试作配方
+NIGHT_CURRENT_RECIPE_TARGET,Current Trial · Target: %s,当前试作 · 目标：%s
+NIGHT_TARGET_COMPLETE,Research Target Complete · %s,研究目标完成 · %s
+RECIPE_CLASSIC_BOBA_HINT,A comforting classic pairs robust tea with a chewy favorite.,醇厚茶香需要一位最经典的弹牙搭档。
+RECIPE_BROWN_SUGAR_BOBA_HINT,Tiger stripes need dark sweetness and more than one chewy layer.,虎纹挂壁需要深色甜香，也需要不止一层嚼感。
+RECIPE_JASMINE_COCO_HINT,A floral tea wants a double coconut echo.,花香茶想要一场双重椰意的回声。
+RECIPE_TARO_BOBA_HINT,A roasted base meets one silky and one springy topping.,炭焙香会遇见一份绵密与一份弹牙。
+RECIPE_OAT_BOBA_BLACK_HINT,Grain aroma rises best over a robust tea.,谷物香需要一款有筋骨的茶底托起来。
+RECIPE_RED_BEAN_PUDDING_HINT,Two filling dessert toppings belong in a familiar milk tea.,两种饱腹甜品小料正在寻找最熟悉的奶茶底。
+RECIPE_JASMINE_PURE_HINT,Keep it light: floral tea with no dairy and low sugar.,保持轻盈：花香纯茶与低甜度才是方向。
+RECIPE_COCO_BOBA_HINT,A classic chewy topping floats in a tropical milk tea.,经典弹牙小料正在热带奶香里荡秋千。
+RECIPE_OOLONG_PUDDING_HINT,Roasted tea hides a soft yellow dessert.,炭焙茶香里藏着一份嫩黄甜品。
+RECIPE_TARO_COCO_HINT,Purple silk and coconut white make a layered signature.,紫色绵密与椰白丝滑会形成漂亮分层。
+RECIPE_XIANGCAI_FANTASY_HINT,A green herb is lurking near jasmine and pearls.,一抹绿色香草正潜伏在茉莉与珍珠附近。
+RECIPE_ZHEERGEN_RAGE_HINT,A southwest root wants grain aroma and almost no sweetness.,西南根茎气息想要谷物香，也几乎不需要甜味。
+RECIPE_SWEET_SALT_HORROR_HINT,The darkest sweetness meets a sharp herb in coconut milk.,最深色的甜香会在椰奶里撞上一味锋利香草。
+DAY_ORDER_MENU,★ %s,★ %s
+ORDER_HINT_MENU,Featured · ¥%d · %s,主推新品 · ¥%d · %s
+DAY_REWARD_MENU, · Featured “%s”, · 主推《%s》
+DAY_RESULT_MENU_SALES,Featured menu · %d cups sold for ¥%d,主推菜单 · 售出 %d 杯共 ¥%d
+NIGHT_MENU_PILL,Featured %d/%d · Hot %d,主推 %d/%d · 热卖 %d
+MENU_BOARD_TITLE,Tomorrow's Featured Menu,明日主推菜单
+MENU_BOARD_PROGRESS,%d/%d slots · %d hot,%d/%d 槽 · %d 款热卖
+MENU_BOARD_SUBTITLE,Choose up to three recipes. Featured drinks become real customer orders and use their menu price.,最多选择三款。主推饮品会成为真实顾客订单，并按研发菜单价结算。
+MENU_BOARD_TRAFFIC,Fresh releases attract customers sooner · Current arrival speed +%d%%,上新热度会让顾客更早到店 · 当前到店速度 +%d%%
+MENU_BOARD_FORECAST,Tomorrow: %s · %d featured matches · Arrival speed +%d%%,明日：%s · %d 款主推契合 · 到店速度 +%d%%
+MENU_BOARD_EVENT_MATCH,Tomorrow's trend match · +%d Coins per sale,契合明日风向 · 每杯额外 +%d 金币
+MENU_BOARD_EVENT_NEUTRAL,Normal demand tomorrow,明日常规需求
+MENU_BOARD_CLOSE,Back to Lab,返回研发室
+MENU_BOARD_FEATURED,FEATURED TOMORROW,明日主推
+MENU_BOARD_AVAILABLE,AVAILABLE,可主推
+MENU_BOARD_LEGACY,LEGACY ITEM,旧版配方
+MENU_BOARD_META,%s · ¥%d · %s,%s · ¥%d · %s
+MENU_BOARD_SALES,Lifetime featured sales · %d cups,累计主推销量 · %d 杯
+MENU_BOARD_FEATURE,Feature Tomorrow,加入明日主推
+MENU_BOARD_REMOVE,Remove from Featured,移出主推
+MENU_BOARD_UPDATED,Featured menu updated,明日主推已更新
+MENU_BOARD_FULL,All three slots are full. Remove one featured drink first.,三个主推槽已满，请先移出一款。
+MENU_BOARD_MINIMUM,Keep at least one featured drink on the menu.,主推菜单至少保留一款。
+MENU_BOARD_INVALID,This legacy item has no recoverable formula and cannot be ordered.,该旧版新品缺少可恢复公式，无法生成订单。
+MENU_BOARD_LEGACY_FORMULA,Legacy formula unavailable · Keep for collection credit,旧版配方公式不可恢复 · 保留收藏计数
+MENU_BOARD_HOT_DAYS,Hot for %d more days,热卖剩余 %d 天
+MENU_BOARD_EVERGREEN,Evergreen,常驻
+MENU_BOARD_TAB_FEATURED,Featured Menu,主推菜单
+MENU_BOARD_TAB_DARK,Dark Menu,黑暗菜单
+DARK_BOARD_TITLE,Dark Menu Slots,黑暗菜单槽位
+DARK_BOARD_PROGRESS,%d/%d slots · %d order-ready,%d/%d 槽 · %d 款可接单
+DARK_BOARD_SUBTITLE,These three drinks generate real novelty orders. Completed sales create buzz; unlisted drinks stop appearing.,这三款饮品会生成真实猎奇订单。完成成交才获得话题度；下架后不再出现。
+DARK_BOARD_IMPACT,One novelty order every %d arrivals · Banked buzz can raise tomorrow's arrival speed by %d%%,每 %d 位顾客出现一单猎奇需求 · 已结转话题可令明日到店速度 +%d%%
+DARK_BOARD_CANDIDATE,New candidate: %s · %s · Choose a slot to replace,新候选：%s · %s · 请选择要替换的槽位
+DARK_BOARD_SLOT,DARK SLOT %d,黑暗槽位 %d
+DARK_BOARD_META,Novelty price ¥%d · %d real sales,猎奇价 ¥%d · 真实成交 %d 杯
+DARK_BOARD_REPLACE,Replace This Slot,替换此槽
+DARK_BOARD_UNLIST,Unlist Drink,下架饮品
+DARK_BOARD_EMPTY_SLOT,Dark Slot %d · Empty,黑暗槽位 %d · 空
+DARK_BOARD_EMPTY_HINT,Discover a failed experiment or dark legend in the lab to list it here.,在研发室发现翻车试作或黑暗传说后即可上架。
+DARK_BOARD_ADD_CANDIDATE,List Candidate Here,在此槽上架候选
+DARK_BOARD_REPLACED,Dark menu slot replaced. The new drink can be ordered tomorrow.,黑暗菜单已替换；新饮品明日可被点单。
+DARK_BOARD_REMOVED,Drink unlisted. This slot is ready for another discovery.,饮品已下架；该槽可接纳下一项发现。
+DAY_ORDER_DARK,DARK · %s,黑 · %s
+DAY_REWARD_DARK, · Dark Sale +%d Buzz, · 黑暗成交 +%d 话题
+DAY_REWARD_BATCH_GOLDEN, · Golden Batch +%d, · 黄金批次 +%d
+DAY_REWARD_BATCH_POOR, · Overcooked batch · Price -%d, · 批次过熟 · 售价 -%d
+DAY_PREP_TEA_TITLE,Tea Vat · %s stock %d,茶桶 · %s库存 %d
+DAY_PREP_PEARL_TITLE,Pearl Pot · stock %d,珍珠锅 · 库存 %d
+DAY_PREP_EMPTY,Idle · prep the active order,空闲 · 可备当前订单
+DAY_PREP_BREWING,Brewing · %ds to ready,熬煮中 · %d秒后可收
+DAY_PREP_GOLDEN,Golden window · %ds left,黄金窗口 · 剩余%d秒
+DAY_PREP_LATE,Late window · %ds left,偏熟窗口 · 剩余%d秒
+DAY_PREP_SPOILED,Overcooked · collect or discard,已过熟 · 收取或弃置
+DAY_PREP_START_TEA,Brew Active Tea,煮当前茶底
+DAY_PREP_START_PEARL,Cook Pearls,煮一锅珍珠
+DAY_PREP_WAIT,Keep Working…,继续制杯…
+DAY_PREP_COLLECT_GOLDEN,Collect Golden Batch,收取黄金批次
+DAY_PREP_COLLECT_LATE,Collect Late Batch,收取偏熟批次
+DAY_PREP_COLLECT_SPOILED,Collect Overcooked Batch,收取过熟批次
+DAY_PREP_TEA_STARTED,%s is brewing · keep serving while it runs,开始煮%s · 计时期间可继续制杯
+DAY_PREP_PEARL_STARTED,Pearls started · both stations now run independently,珍珠已下锅 · 两个工位会独立计时
+DAY_PREP_COLLECTED_GOLDEN,Golden batch collected · %d servings,黄金时机收取 · 入库 %d 份
+DAY_PREP_COLLECTED_LATE,Late batch collected · %d servings,略晚收取 · 入库 %d 份
+DAY_PREP_COLLECTED_SPOILED,Overcooked batch collected · %d servings will lower quality,过熟批次入库 · %d 份会降低品质
+DAY_PREP_TEA_EMPTY,%s is out · start its tea vat batch,缺少%s库存 · 请先开煮茶桶
+DAY_PREP_PEARL_EMPTY,Pearls are out · start the pearl pot,珍珠库存不足 · 请先开煮珍珠锅
+DAY_BATCH_GOLDEN, · Golden Batch, · 黄金批次
+DAY_BATCH_STANDARD, · Standard Batch, · 稳定批次
+DAY_BATCH_POOR, · Overcooked Batch, · 过熟批次
+ORDER_HINT_MENU_MATCH,Menu ¥%d · Trend +%d · %s,菜单 ¥%d · 风向 +%d · %s
+REWARD_MENU_EVENT_MATCH,Featured trend match,主推契合风向

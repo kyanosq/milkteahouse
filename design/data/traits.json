@@ -1,0 +1,145 @@
+[
+  {
+    "id": "pure_fool",
+    "name": "清澈又愚蠢",
+    "emoji": "🌟",
+    "rarity": "rare",
+    "wage_mult": 0.5,
+    "stat_mods": { "speed": 0, "care": -2, "charm": 1 },
+    "hooks": [
+      { "type": "no_stamina_drain", "note": "热情满格，体力不衰减" },
+      { "type": "wrong_ingredient", "chance": 0.10, "clue_chance": 0.15,
+        "note": "随机做错配料；错杯命中隐藏组合时 15% 产生研发线索，需玩家在研发台复现确认才入图鉴" }
+    ],
+    "hint_line": "我这个人吧，就是特别实诚，什么都愿意学！",
+    "event_lines": [
+      "（把黑糖舀进了茉莉纯茶）诶？这个不是糖吗？",
+      "老板！我今天一杯都没做错！……大概。",
+      "这杯做错了？可是……客人说好喝诶？"
+    ]
+  },
+  {
+    "id": "social_phobia",
+    "name": "社恐",
+    "emoji": "🤐",
+    "rarity": "common",
+    "wage_mult": 1.0,
+    "stat_mods": { "speed": 3, "care": 0, "charm": -3 },
+    "hooks": [
+      { "type": "freeze_on_talk", "duration": 2.0,
+        "note": "被顾客搭话时僵住 2 秒" }
+    ],
+    "hint_line": "那个……我可以只在后厨干活吗……",
+    "event_lines": [
+      "（顾客问味道怎么样）…………（僵住）",
+      "（悄悄把成品推到取餐口，转身就跑）"
+    ]
+  },
+  {
+    "id": "social_king",
+    "name": "社牛",
+    "emoji": "📢",
+    "rarity": "common",
+    "wage_mult": 1.1,
+    "stat_mods": { "speed": -2, "care": 0, "charm": 3 },
+    "hooks": [
+      { "type": "attract_customer", "per_hour": 1, "note": "每小时自动拉 1 位顾客" },
+      { "type": "patience_bonus", "mult": 1.2, "note": "全场顾客耐心 +20%" },
+      { "type": "forget_order", "chance": 0.05, "note": "聊嗨了忘记出单" }
+    ],
+    "hint_line": "哥！这条街上没有我聊不下来的客人！",
+    "event_lines": [
+      "美女你这个发色绝了，配我们家黑糖珠撞奶正好！",
+      "（聊了十分钟）啊？刚才点的是啥来着？"
+    ]
+  },
+  {
+    "id": "perfectionist",
+    "name": "强迫症",
+    "emoji": "🔍",
+    "rarity": "common",
+    "wage_mult": 1.2,
+    "stat_mods": { "speed": 0, "care": 5, "charm": 0 },
+    "hooks": [
+      { "type": "zero_mistake", "note": "出错率归零" },
+      { "type": "quality_bonus", "value": 5, "note": "出杯品质分 +5" },
+      { "type": "slow_craft", "mult": 1.2, "note": "单杯耗时 +20%" }
+    ],
+    "hint_line": "吸管必须对准杯子 logo，这是原则问题。",
+    "event_lines": [
+      "等等，这颗珍珠的位置不对。",
+      "（重新贴了三次杯贴）好了，完美。"
+    ]
+  },
+  {
+    "id": "big_eater",
+    "name": "干饭人",
+    "emoji": "🍚",
+    "rarity": "common",
+    "wage_mult": 0.9,
+    "stat_mods": { "speed": 1, "care": 0, "charm": 0 },
+    "hooks": [
+      { "type": "stamina_max_up", "mult": 1.5, "note": "体力上限 +50%" },
+      { "type": "steal_topping", "per_day": 1, "caught_speed_mult": 1.5, "caught_duration": 60,
+        "note": "每天偷吃 1 份小料；被点击抓包后 1 分钟手速 ×1.5" }
+    ],
+    "hint_line": "包吃吗？包吃的话工资好商量。",
+    "event_lines": [
+      "（嚼）唔……这批珍珠煮得不错……（嚼）",
+      "老板你听我解释！这颗布丁它自己掉出来的！"
+    ]
+  },
+  {
+    "id": "night_owl",
+    "name": "夜猫子",
+    "emoji": "🦉",
+    "rarity": "rare",
+    "wage_mult": 1.0,
+    "stat_mods": { "speed": 0, "care": 1, "charm": 0 },
+    "hooks": [
+      { "type": "research_discount", "value": 1, "note": "夜间研发每次试做灵感消耗 -1" },
+      { "type": "morning_debuff", "speed_mult": 0.5, "until_hour": 12,
+        "note": "上午手速减半" }
+    ],
+    "hint_line": "上午的班……能不能商量一下……",
+    "event_lines": [
+      "（上午，扶着操作台打瞌睡）再摇三杯就醒了……",
+      "（深夜两眼放光）老板，我有个配方想法！"
+    ]
+  },
+  {
+    "id": "slacker",
+    "name": "摸鱼大师",
+    "emoji": "🐟",
+    "rarity": "common",
+    "wage_mult": 0.5,
+    "stat_mods": { "speed": 0, "care": 0, "charm": 0 },
+    "hooks": [
+      { "type": "random_idle", "chance": 0.15, "wake_by_tap": true,
+        "note": "随机发呆，需玩家点击拍醒" }
+    ],
+    "hint_line": "我的优点是性价比，缺点是……嗯？你说什么？",
+    "event_lines": [
+      "（盯着封口机出神）它转得好圆啊……",
+      "（被拍醒）啊！我没睡！我在观察珍珠的沉降规律！"
+    ]
+  },
+  {
+    "id": "show_off",
+    "name": "显眼包",
+    "emoji": "🤳",
+    "rarity": "rare",
+    "wage_mult": 1.1,
+    "stat_mods": { "speed": 0, "care": 0, "charm": 2 },
+    "hooks": [
+      { "type": "influencer_visit", "chance_per_day": 0.08, "buzz": 3,
+        "note": "概率吸引网红顾客（大订单 + 话题度+3）" },
+      { "type": "selfie_block", "duration": 3.0, "note": "自拍时挡住操作台 3 秒" }
+    ],
+    "hint_line": "我粉丝三千八了，雇我等于送广告位！",
+    "event_lines": [
+      "家人们！看这个虎纹挂壁！（怼着杯子猛拍）",
+      "老板别动！你入镜了正好，笑一个！"
+    ]
+  }
+]

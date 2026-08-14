@@ -1,0 +1,15 @@
+{
+  "name": "godogen-asset-gen",
+  "displayName": "Godogen Asset Generator",
+  "version": "0.1.0",
+  "description": "Generate game images (Gemini/Grok), GLB 3D models, rigged characters and animated sprites (Tripo3D) from text prompts, with background removal and loop detection.",
+  "descriptionZh": "从文本提示生成游戏图片（Gemini/Grok）、GLB 三维模型、绑骨角色与逐帧动画精灵（Tripo3D），含背景去除与循环帧检测。",
+  "author": { "name": "htdt (packaged by Qoder create-plugin)" },
+  "homepage": "https://github.com/htdt/godogen",
+  "repository": "https://github.com/htdt/godogen",
+  "logo": "./assets/avatar.svg",
+  "keywords": ["qoder-plugin", "skill", "gamedev", "asset-generation", "godot", "3d", "sprites"],
+  "category": "developer-tools",
+  "tags": ["skill", "gamedev", "assets"],
+  "skills": "./skills/"
+}

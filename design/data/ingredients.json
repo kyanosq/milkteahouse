@@ -1,0 +1,463 @@
+{
+  "sugar_levels": [
+    {
+      "value": 0,
+      "name": "无糖",
+      "sweet_mod": -2
+    },
+    {
+      "value": 30,
+      "name": "三分糖",
+      "sweet_mod": -1
+    },
+    {
+      "value": 50,
+      "name": "五分糖",
+      "sweet_mod": 0
+    },
+    {
+      "value": 70,
+      "name": "七分糖",
+      "sweet_mod": 1
+    },
+    {
+      "value": 100,
+      "name": "全糖",
+      "sweet_mod": 2
+    }
+  ],
+  "bases": [
+    {
+      "id": "black_tea",
+      "name": "阿萨姆红茶",
+      "flavor": {
+        "aroma": 2,
+        "sweet": 0,
+        "rich": 2,
+        "fresh": 1,
+        "chew": 0
+      },
+      "tags": [
+        "robust"
+      ],
+      "cost": 2,
+      "unlock_day": 1,
+      "color": "#7a4a1f"
+    },
+    {
+      "id": "green_tea",
+      "name": "茉莉绿茶",
+      "flavor": {
+        "aroma": 3,
+        "sweet": 0,
+        "rich": 1,
+        "fresh": 3,
+        "chew": 0
+      },
+      "tags": [
+        "floral",
+        "light"
+      ],
+      "cost": 2,
+      "unlock_day": 1,
+      "color": "#9fb86a"
+    },
+    {
+      "id": "oolong",
+      "name": "炭焙乌龙",
+      "flavor": {
+        "aroma": 2,
+        "sweet": 0,
+        "rich": 2,
+        "fresh": 2,
+        "chew": 0
+      },
+      "tags": [
+        "roasted"
+      ],
+      "cost": 3,
+      "unlock_day": 3,
+      "color": "#a06a28"
+    }
+  ],
+  "milks": [
+    {
+      "id": "none",
+      "name": "不加奶（纯茶）",
+      "flavor": {
+        "aroma": 0,
+        "sweet": 0,
+        "rich": 0,
+        "fresh": 2,
+        "chew": 0
+      },
+      "tags": [
+        "pure"
+      ],
+      "cost": 0,
+      "unlock_day": 1,
+      "color": ""
+    },
+    {
+      "id": "fresh_milk",
+      "name": "鲜奶",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 1,
+        "rich": 2,
+        "fresh": 0,
+        "chew": 0
+      },
+      "tags": [
+        "creamy"
+      ],
+      "cost": 3,
+      "unlock_day": 1,
+      "color": "#f2e3c8"
+    },
+    {
+      "id": "coconut_milk",
+      "name": "生椰乳",
+      "flavor": {
+        "aroma": 2,
+        "sweet": 2,
+        "rich": 2,
+        "fresh": 1,
+        "chew": 0
+      },
+      "tags": [
+        "tropical",
+        "creamy"
+      ],
+      "cost": 4,
+      "unlock_day": 4,
+      "color": "#f7f2e6"
+    },
+    {
+      "id": "oat_milk",
+      "name": "燕麦奶",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 1,
+        "rich": 1,
+        "fresh": 0,
+        "chew": 1
+      },
+      "tags": [
+        "grainy"
+      ],
+      "cost": 4,
+      "unlock_day": 6,
+      "color": "#e6d3a8"
+    }
+  ],
+  "toppings": [
+    {
+      "id": "boba",
+      "name": "珍珠",
+      "flavor": {
+        "aroma": 0,
+        "sweet": 1,
+        "rich": 1,
+        "fresh": 0,
+        "chew": 3
+      },
+      "tags": [
+        "classic"
+      ],
+      "cost": 1,
+      "unlock_day": 1,
+      "color": "#2a1a12"
+    },
+    {
+      "id": "coconut_jelly",
+      "name": "椰果",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 1,
+        "rich": 0,
+        "fresh": 2,
+        "chew": 2
+      },
+      "tags": [
+        "tropical"
+      ],
+      "cost": 1,
+      "unlock_day": 1,
+      "color": "#f5f0e8"
+    },
+    {
+      "id": "pudding",
+      "name": "布丁",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 2,
+        "rich": 2,
+        "fresh": 0,
+        "chew": 1
+      },
+      "tags": [
+        "creamy"
+      ],
+      "cost": 2,
+      "unlock_day": 2,
+      "color": "#f0c057"
+    },
+    {
+      "id": "taro",
+      "name": "芋泥",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 2,
+        "rich": 3,
+        "fresh": 0,
+        "chew": 2
+      },
+      "tags": [
+        "grainy",
+        "heavy"
+      ],
+      "cost": 3,
+      "unlock_day": 5,
+      "color": "#9a7bb5"
+    },
+    {
+      "id": "red_bean",
+      "name": "蜜红豆",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 2,
+        "rich": 1,
+        "fresh": 0,
+        "chew": 2
+      },
+      "tags": [
+        "grainy",
+        "classic"
+      ],
+      "cost": 2,
+      "unlock_day": 3,
+      "color": "#8a3b2f"
+    },
+    {
+      "id": "brown_sugar",
+      "name": "黑糖冻",
+      "flavor": {
+        "aroma": 2,
+        "sweet": 3,
+        "rich": 2,
+        "fresh": 0,
+        "chew": 2
+      },
+      "tags": [
+        "caramel",
+        "heavy"
+      ],
+      "cost": 3,
+      "unlock_day": 5,
+      "color": "#4a2408"
+    },
+    {
+      "id": "xiangcai",
+      "name": "香菜碎",
+      "flavor": {
+        "aroma": 3,
+        "sweet": 0,
+        "rich": 0,
+        "fresh": 3,
+        "chew": 1
+      },
+      "tags": [
+        "weird"
+      ],
+      "cost": 1,
+      "unlock_day": 7,
+      "color": "#3f7a2e"
+    },
+    {
+      "id": "zheergen",
+      "name": "折耳根",
+      "flavor": {
+        "aroma": 2,
+        "sweet": 0,
+        "rich": 0,
+        "fresh": 2,
+        "chew": 2
+      },
+      "tags": [
+        "weird"
+      ],
+      "cost": 1,
+      "unlock_day": 8,
+      "color": "#c8cabf"
+    }
+  ],
+  "affinities": [
+    {
+      "tags": [
+        "caramel",
+        "robust"
+      ],
+      "type": "synergy",
+      "bonus": {
+        "aroma": 1,
+        "rich": 1
+      },
+      "score": 8,
+      "note": "焦香和红茶的醇厚缠在一起，有点东西！"
+    },
+    {
+      "tags": [
+        "tropical",
+        "tropical"
+      ],
+      "type": "synergy",
+      "bonus": {
+        "aroma": 2
+      },
+      "score": 8,
+      "note": "椰香翻倍，一口回到海岛！"
+    },
+    {
+      "tags": [
+        "roasted",
+        "creamy"
+      ],
+      "type": "synergy",
+      "bonus": {
+        "rich": 1,
+        "aroma": 1
+      },
+      "score": 6,
+      "note": "炭焙香撞上奶香，意外地醇……"
+    },
+    {
+      "tags": [
+        "floral",
+        "pure"
+      ],
+      "type": "synergy",
+      "bonus": {
+        "fresh": 1
+      },
+      "score": 6,
+      "note": "清清爽爽，茉莉香完全舒展开了。"
+    },
+    {
+      "tags": [
+        "classic",
+        "creamy"
+      ],
+      "type": "synergy",
+      "bonus": {
+        "rich": 1
+      },
+      "score": 5,
+      "note": "经典的味道，让人安心。"
+    },
+    {
+      "tags": [
+        "grainy",
+        "robust"
+      ],
+      "type": "synergy",
+      "bonus": {
+        "aroma": 1
+      },
+      "score": 5,
+      "note": "谷物香被红茶托起来了，暖乎乎的。"
+    },
+    {
+      "tags": [
+        "floral",
+        "heavy"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -10,
+      "note": "茉莉的清香全被厚重的料压死了……"
+    },
+    {
+      "tags": [
+        "caramel",
+        "light"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -8,
+      "note": "黑糖甜腻和清茶完全不搭，喝着发齁。"
+    },
+    {
+      "tags": [
+        "grainy",
+        "grainy"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -8,
+      "note": "全是渣渣感，口感浑浊得像粥……"
+    },
+    {
+      "tags": [
+        "tropical",
+        "roasted"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -6,
+      "note": "椰香和炭焙味打架，说不上来的怪。"
+    },
+    {
+      "tags": [
+        "weird",
+        "creamy"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -12,
+      "note": "奶香里飘着一股……菜味？？"
+    },
+    {
+      "tags": [
+        "weird",
+        "caramel"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -10,
+      "note": "甜的和冲的在嘴里打架，赢的是绝望。"
+    },
+    {
+      "tags": [
+        "weird",
+        "weird"
+      ],
+      "type": "clash",
+      "bonus": {},
+      "score": -15,
+      "note": "这真的是给人喝的东西吗？！"
+    }
+  ],
+  "balance_bands": {
+    "aroma": [
+      2,
+      8
+    ],
+    "sweet": [
+      3,
+      7
+    ],
+    "rich": [
+      3,
+      7
+    ],
+    "fresh": [
+      1,
+      5
+    ],
+    "chew": [
+      2,
+      6
+    ]
+  }
+}

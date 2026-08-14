@@ -1,0 +1,32 @@
+[
+  {
+    "id": "xiaoman",
+    "name": "小满",
+    "speed": 6,
+    "care": 4,
+    "charm": 6,
+    "wage": 6,
+    "trait_id": "slacker",
+    "intro": "我的优点是性价比，缺点是……嗯？你说什么？"
+  },
+  {
+    "id": "taozi",
+    "name": "桃子",
+    "speed": 4,
+    "care": 6,
+    "charm": 8,
+    "wage": 12,
+    "trait_id": "social_king",
+    "intro": "这条街上没有我聊不下来的客人。"
+  },
+  {
+    "id": "acheng",
+    "name": "阿澄",
+    "speed": 5,
+    "care": 9,
+    "charm": 4,
+    "wage": 14,
+    "trait_id": "perfectionist",
+    "intro": "吸管必须对准杯标，这是原则问题。"
+  }
+]

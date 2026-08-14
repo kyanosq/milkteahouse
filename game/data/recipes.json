@@ -1,0 +1,122 @@
+[
+  {
+    "id": "classic_boba",
+    "name": "经典珍珠奶茶",
+    "base": "black_tea",
+    "milk": "fresh_milk",
+    "toppings": ["boba"],
+    "sugar": [50, 70],
+    "tier": "普通",
+    "price": 12,
+    "hype_days": 4,
+    "desc": "一切的起点，喝不腻的味道。"
+  },
+  {
+    "id": "brown_sugar_boba",
+    "name": "黑糖珠撞奶",
+    "base": "black_tea",
+    "milk": "fresh_milk",
+    "toppings": ["boba", "brown_sugar"],
+    "sugar": [70, 100],
+    "tier": "爆款",
+    "price": 18,
+    "hype_days": 6,
+    "desc": "虎纹挂壁，甜到心颤。"
+  },
+  {
+    "id": "jasmine_coco",
+    "name": "茉莉椰椰",
+    "base": "green_tea",
+    "milk": "coconut_milk",
+    "toppings": ["coconut_jelly"],
+    "sugar": [30, 50],
+    "tier": "招牌",
+    "price": 15,
+    "hype_days": 5,
+    "desc": "茉莉清香撞上双重椰意。"
+  },
+  {
+    "id": "taro_boba",
+    "name": "芋泥啵啵乌龙",
+    "base": "oolong",
+    "milk": "fresh_milk",
+    "toppings": ["taro", "boba"],
+    "sugar": [30, 50],
+    "tier": "招牌",
+    "price": 16,
+    "hype_days": 5,
+    "desc": "绵密芋泥配弹牙珍珠，一杯管饱。"
+  },
+  {
+    "id": "oat_boba_black",
+    "name": "燕麦啵啵红茶",
+    "base": "black_tea",
+    "milk": "oat_milk",
+    "toppings": ["boba"],
+    "sugar": [30, 50],
+    "tier": "普通",
+    "price": 13,
+    "hype_days": 4,
+    "desc": "谷物香被红茶托起来，暖乎乎的一杯。"
+  },
+  {
+    "id": "red_bean_pudding",
+    "name": "红豆布丁奶茶",
+    "base": "black_tea",
+    "milk": "fresh_milk",
+    "toppings": ["red_bean", "pudding"],
+    "sugar": [50, 70],
+    "tier": "普通",
+    "price": 14,
+    "hype_days": 4,
+    "desc": "料多到吸管会堵的实在款。"
+  },
+  {
+    "id": "jasmine_pure",
+    "name": "初恋茉莉",
+    "base": "green_tea",
+    "milk": "none",
+    "toppings": ["coconut_jelly"],
+    "sugar": [0, 30],
+    "tier": "普通",
+    "price": 10,
+    "hype_days": 4,
+    "desc": "清清爽爽，像初恋一样干净。"
+  },
+  {
+    "id": "coco_boba",
+    "name": "生椰啵啵",
+    "base": "black_tea",
+    "milk": "coconut_milk",
+    "toppings": ["boba"],
+    "sugar": [50, 70],
+    "tier": "招牌",
+    "price": 15,
+    "hype_days": 5,
+    "desc": "椰香裹着茶香，珍珠在里面荡秋千。"
+  },
+  {
+    "id": "oolong_pudding",
+    "name": "布丁乌龙",
+    "base": "oolong",
+    "milk": "fresh_milk",
+    "toppings": ["pudding"],
+    "sugar": [50, 70],
+    "tier": "普通",
+    "price": 13,
+    "hype_days": 4,
+    "desc": "炭焙香里藏了一整颗嫩布丁。"
+  },
+  {
+    "id": "taro_coco",
+    "name": "生椰芋泥",
+    "base": "black_tea",
+    "milk": "coconut_milk",
+    "toppings": ["taro"],
+    "sugar": [30, 50],
+    "tier": "爆款",
+    "price": 17,
+    "hype_days": 6,
+    "desc": "紫色绵密与椰白丝滑的双层暴击。"
+  }
+]

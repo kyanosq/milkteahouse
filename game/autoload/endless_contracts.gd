@@ -1,0 +1,229 @@
+## Day 15 后的商圈经营委托：把富余金币换成可读的主动挑战与长期店招进度。
+extends Node
+
+const UNLOCK_NIGHT := 15
+const FIRST_TARGET_DAY := 16
+const MAX_COST_STEP := 6
+
+const ITEMS := [
+	{
+		"id": "streak_stage",
+		"name": "黄金连击擂台",
+		"short_name": "连击擂台",
+		"color": "FF6259",
+		"base_cost": 120,
+		"refund_ratio": 0.35,
+		"inspiration": 2,
+		"description": "商圈直播全程盯场。客流与耐心都会收紧，靠稳定连击拿下店招印章。",
+		"challenge": "最高连击达到指定次数",
+		"spawn_mult": 0.92,
+		"patience_mult": 0.94,
+	},
+	{
+		"id": "precision_shift",
+		"name": "零差评品鉴场",
+		"short_name": "零差评",
+		"color": "27B9A7",
+		"base_cost": 150,
+		"refund_ratio": 0.34,
+		"inspiration": 2,
+		"description": "社区评审集中到店。必须保持零气走并完成足够多的完美出杯。",
+		"challenge": "零气走并完成指定完美杯数",
+		"spawn_mult": 0.96,
+		"patience_mult": 0.88,
+	},
+	{
+		"id": "revenue_sprint",
+		"name": "商圈营收冲刺",
+		"short_name": "营收冲刺",
+		"color": "D99A43",
+		"base_cost": 190,
+		"refund_ratio": 0.36,
+		"inspiration": 3,
+		"description": "联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。",
+		"challenge": "营业营收达到签约目标",
+		"spawn_mult": 0.82,
+		"patience_mult": 1.04,
+	},
+]
+
+
+func item(contract_id: String) -> Dictionary:
+	for data in ITEMS:
+		if String(data["id"]) == contract_id:
+			return data
+	return {}
+
+
+func is_unlocked(night_day: int = GameState.day) -> bool:
+	return night_day >= UNLOCK_NIGHT
+
+
+func available_for_day(target_day: int) -> Array[Dictionary]:
+	var offers: Array[Dictionary] = []
+	if target_day < FIRST_TARGET_DAY:
+		return offers
+	for source in ITEMS:
+		var offer: Dictionary = _localized_contract(source)
+		offer["target_day"] = target_day
+		offer["cost"] = cost_for(source, target_day)
+		offer["refund"] = roundi(float(offer["cost"]) * float(source["refund_ratio"]))
+		offer["target"] = target_for(String(source["id"]), target_day)
+		offer["target_text"] = target_text(offer)
+		offers.append(offer)
+	return offers
+
+
+func cost_for(data: Dictionary, target_day: int) -> int:
+	var step := clampi((target_day - FIRST_TARGET_DAY) / 3, 0, MAX_COST_STEP)
+	return int(data["base_cost"]) + step * 15
+
+
+func target_for(contract_id: String, target_day: int) -> int:
+	match contract_id:
+		"streak_stage":
+			return 28 + mini(2, maxi(0, target_day - FIRST_TARGET_DAY) / 12)
+		"precision_shift":
+			return 28 + mini(2, maxi(0, target_day - FIRST_TARGET_DAY) / 12)
+		"revenue_sprint":
+			return ceili(float(goal_for_day(target_day)) * LegacyRoutes.goal_multiplier() * 1.35)
+	return 0
+
+
+func goal_for_day(day_number: int) -> int:
+	# Day 17 后保持有压力但不再无限增长，避免无尽模式必然进入 0 星状态。
+	return mini(380, 80 + 18 * day_number)
+
+
+func target_text(contract: Dictionary) -> String:
+	match String(contract.get("id", "")):
+		"streak_stage":
+			return GameLocale.text("CONTRACT_TARGET_STREAK", [int(contract.get("target", 28))])
+		"precision_shift":
+			return GameLocale.text("CONTRACT_TARGET_PRECISION", [int(contract.get("target", 28))])
+		"revenue_sprint":
+			return GameLocale.text("CONTRACT_TARGET_REVENUE", [int(contract.get("target", 500))])
+	return GameLocale.text("CONTRACT_TARGET_DEFAULT")
+
+
+func sign_contract(contract_id: String, target_day: int, persist := true) -> bool:
+	if target_day < FIRST_TARGET_DAY or not active_contract().is_empty():
+		return false
+	var chosen: Dictionary = {}
+	for offer in available_for_day(target_day):
+		if String(offer["id"]) == contract_id:
+			chosen = offer
+			break
+	if chosen.is_empty() or GameState.coins < int(chosen["cost"]):
+		return false
+	GameState.coins -= int(chosen["cost"])
+	GameState.endless["active"] = chosen
+	GameState.endless["last_result"] = {}
+	if persist:
+		GameState.save_game()
+	return true
+
+
+func active_contract() -> Dictionary:
+	var active: Variant = GameState.endless.get("active", {})
+	return _localized_contract(active) if active is Dictionary and not active.is_empty() else {}
+
+
+func active_for_day(day_number: int) -> Dictionary:
+	var active := active_contract()
+	if int(active.get("target_day", -1)) != day_number:
+		return {}
+	return active
+
+
+func apply_to_event(event: Dictionary, day_number: int) -> Dictionary:
+	var result := event.duplicate(true)
+	var active := active_for_day(day_number)
+	if active.is_empty():
+		return result
+	result["spawn_mult"] = float(result.get("spawn_mult", 1.0)) * float(active.get("spawn_mult", 1.0))
+	result["patience_mult"] = float(result.get("patience_mult", 1.0)) * float(active.get("patience_mult", 1.0))
+	return result
+
+
+func progress_text(contract: Dictionary, stats: Dictionary) -> String:
+	match String(contract.get("id", "")):
+		"streak_stage":
+			return GameLocale.text("CONTRACT_PROGRESS_STREAK", [mini(int(stats.get("best_streak", 0)), int(contract["target"])), int(contract["target"])])
+		"precision_shift":
+			return GameLocale.text("CONTRACT_PROGRESS_PRECISION", [mini(int(stats.get("perfect", 0)), int(contract["target"])), int(contract["target"]), int(stats.get("angry", 0))])
+		"revenue_sprint":
+			return GameLocale.text("CONTRACT_PROGRESS_REVENUE", [mini(int(stats.get("earned", 0)), int(contract["target"])), int(contract["target"])])
+	return GameLocale.text("CONTRACT_PROGRESS_DEFAULT")
+
+
+func requirement_met(contract: Dictionary, stats: Dictionary) -> bool:
+	match String(contract.get("id", "")):
+		"streak_stage":
+			return int(stats.get("best_streak", 0)) >= int(contract.get("target", 28))
+		"precision_shift":
+			return int(stats.get("angry", 0)) == 0 and int(stats.get("perfect", 0)) >= int(contract.get("target", 28))
+		"revenue_sprint":
+			return int(stats.get("earned", 0)) >= int(contract.get("target", 500))
+	return false
+
+
+func resolve(day_number: int, stats: Dictionary, persist := false) -> Dictionary:
+	var contract := active_for_day(day_number)
+	if contract.is_empty():
+		return {}
+	var success := requirement_met(contract, stats)
+	var result := {
+		"day": day_number,
+		"id": String(contract["id"]),
+		"name": String(contract["name"]),
+		"success": success,
+		"cost": int(contract["cost"]),
+		"refund": int(contract["refund"]) if success else 0,
+		"inspiration": int(contract["inspiration"]) if success else 0,
+		"target_text": String(contract["target_text"]),
+	}
+	if success:
+		GameState.coins += int(result["refund"])
+		GameState.inspiration += int(result["inspiration"])
+		GameState.endless["stamps"] = int(GameState.endless.get("stamps", 0)) + 1
+		GameState.endless["completed"] = int(GameState.endless.get("completed", 0)) + 1
+		GameState.endless["streak"] = int(GameState.endless.get("streak", 0)) + 1
+		GameState.endless["best_streak"] = maxi(int(GameState.endless.get("best_streak", 0)), int(GameState.endless["streak"]))
+	else:
+		GameState.endless["failed"] = int(GameState.endless.get("failed", 0)) + 1
+		GameState.endless["streak"] = 0
+	GameState.endless["active"] = {}
+	GameState.endless["last_result"] = result
+	if persist:
+		GameState.save_game()
+	return result
+
+
+func rank_name(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
+	if stamps >= 12:
+		return GameLocale.text("CONTRACT_RANK_GOLD")
+	if stamps >= 7:
+		return GameLocale.text("CONTRACT_RANK_CITY")
+	if stamps >= 3:
+		return GameLocale.text("CONTRACT_RANK_DISTRICT")
+	return GameLocale.text("CONTRACT_RANK_BLOCK")
+
+
+func next_rank_text(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
+	if stamps >= 12:
+		return GameLocale.text("CONTRACT_RANK_MAX")
+	var next := 3 if stamps < 3 else (7 if stamps < 7 else 12)
+	return GameLocale.text("CONTRACT_RANK_NEXT", [next - stamps])
+
+
+func _localized_contract(source: Dictionary) -> Dictionary:
+	var result := source.duplicate(true)
+	var prefix := "CONTRACT_%s_" % String(source.get("id", "")).to_upper()
+	result["name"] = GameLocale.text(prefix + "NAME")
+	result["short_name"] = GameLocale.text(prefix + "SHORT")
+	result["description"] = GameLocale.text(prefix + "DESCRIPTION")
+	result["challenge"] = GameLocale.text(prefix + "CHALLENGE")
+	if result.has("target"):
+		result["target_text"] = target_text(result)
+	return result
