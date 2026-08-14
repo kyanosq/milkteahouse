@@ -291,7 +291,9 @@ func _apply_save_data(data: Dictionary) -> void:
 	campaign_claimed = bool(data.get("campaign_claimed", false))
 	var loaded_route := String(data.get("new_shop_route", ""))
 	new_shop_route = loaded_route if loaded_route in VALID_NEW_SHOP_ROUTES else ""
-	var loaded_legacy: Dictionary = data.get("legacy", {})
+	# 存档只保证了顶层是字典；嵌套字段损坏时退回默认而不是在加载时崩溃。
+	var legacy_value: Variant = data.get("legacy", {})
+	var loaded_legacy: Dictionary = legacy_value if legacy_value is Dictionary else {}
 	var routes_cleared: Array[String] = []
 	for route_id in loaded_legacy.get("routes_cleared", []):
 		var safe_route := String(route_id)
@@ -305,7 +307,8 @@ func _apply_save_data(data: Dictionary) -> void:
 	}
 	endless = _normalize_endless_state(data.get("endless", {}))
 	tutorial_completed = bool(data.get("tutorial_completed", false))
-	var loaded_settings: Dictionary = data.get("settings", {})
+	var settings_value: Variant = data.get("settings", {})
+	var loaded_settings: Dictionary = settings_value if settings_value is Dictionary else {}
 	# v0.5 and earlier used a single sound slider. Keep that value as the SFX
 	# default so existing players hear the same mix after the split migration.
 	var legacy_sound := clampf(float(loaded_settings.get("sound_volume", 0.75)), 0.0, 1.0)
@@ -320,7 +323,8 @@ func _apply_save_data(data: Dictionary) -> void:
 	settings["resolution"] = loaded_resolution if loaded_resolution in VALID_RESOLUTIONS else "1280x720"
 	var loaded_locale := String(loaded_settings.get("locale", "zh_CN"))
 	settings["locale"] = loaded_locale if loaded_locale in VALID_LOCALES else "zh_CN"
-	var loaded_bindings: Dictionary = loaded_settings.get("key_bindings", {})
+	var bindings_value: Variant = loaded_settings.get("key_bindings", {})
+	var loaded_bindings: Dictionary = bindings_value if bindings_value is Dictionary else {}
 	settings["key_bindings"] = _normalize_key_bindings(loaded_bindings)
 
 

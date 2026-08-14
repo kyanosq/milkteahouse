@@ -133,6 +133,15 @@ func _ready() -> void:
 	assert(GameState.new_shop_route.is_empty())
 	assert(GameState.haptics_enabled(), "missing settings must restore safe haptics default")
 
+	# 顶层能解析但嵌套结构类型错误时必须回退默认而不是在加载时崩溃。
+	GameState._apply_save_data({
+		"legacy": "corrupt", "settings": ["corrupt"], "key_bindings": "corrupt",
+	})
+	assert(GameState.legacy["routes_cleared"].is_empty())
+	assert(int(GameState.legacy["best_score"]) == 0)
+	assert(GameState.settings["sfx_volume"] == 0.75)
+	assert(int(GameState.settings["key_bindings"]["game_pause"]) == KEY_ESCAPE)
+
 	# Real-disk durability: every replacement is validated, the previous valid
 	# snapshot becomes a backup, and a truncated primary restores automatically.
 	var durability_path := "/private/tmp/milkteahouse_save_durability_test.json"
