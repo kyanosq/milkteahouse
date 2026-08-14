@@ -267,6 +267,8 @@ func build_props(day: int, sugar_item: Dictionary) -> void:
 	for c in _props_root.get_children():
 		c.queue_free()
 	_prop_nodes.clear()
+	# 旧道具销毁后不会再发 mouse_exited；清掉悬停来源，避免残留 id 影响新一天的世界标签。
+	_prop_hint_sources.clear()
 
 	var teas := GameData.unlocked(GameData.bases, day)
 	for i in teas.size():

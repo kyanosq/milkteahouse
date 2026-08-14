@@ -16,26 +16,38 @@ var _names: Dictionary = {}
 
 
 func _ready() -> void:
-	var ing: Dictionary = _load_json("res://data/ingredients.json")
+	var ing: Variant = _load_json("res://data/ingredients.json")
+	# assert 在发布模板中会被剥离；主表损坏时给出明确错误并干净退出，
+	# 而不是在 null 上崩溃。其余列表退回空数组保持启动存活。
+	if not (ing is Dictionary):
+		push_error("ingredients.json 缺失或损坏，游戏无法启动")
+		get_tree().quit(1)
+		return
 	bases = ing["bases"]
 	milks = ing["milks"]
 	toppings = ing["toppings"]
 	sugar_levels = ing["sugar_levels"]
 	affinities = ing["affinities"]
 	balance_bands = ing["balance_bands"]
-	recipes = _load_json("res://data/recipes.json")
-	dark_recipes = _load_json("res://data/dark_recipes.json")
-	traits_list = _load_json("res://data/traits.json")
-	staff_list = _load_json("res://data/staff.json")
+	recipes = _json_array("res://data/recipes.json")
+	dark_recipes = _json_array("res://data/dark_recipes.json")
+	traits_list = _json_array("res://data/traits.json")
+	staff_list = _json_array("res://data/staff.json")
 	for item in bases + milks + toppings:
 		_names[item["id"]] = item["name"]
 
 
 func _load_json(path: String) -> Variant:
 	var text := FileAccess.get_file_as_string(path)
-	var data: Variant = JSON.parse_string(text)
-	assert(data != null, "数据表解析失败: " + path)
-	return data
+	return JSON.parse_string(text)
+
+
+func _json_array(path: String) -> Array:
+	var data: Variant = _load_json(path)
+	if data is Array:
+		return data
+	push_error("数据表缺失或损坏: " + path)
+	return []
 
 
 ## 按天数过滤已解锁原料
