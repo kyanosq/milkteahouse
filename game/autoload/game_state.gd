@@ -20,6 +20,7 @@ var night_budget_day: int = 0
 var night_performance_remaining: int = 0 # 当晚装入、但尚未被试作消耗的持久灵感
 var perfect_total: int = 0
 var xp: Dictionary = {}          # 原料熟练度 { id: xp }
+var day_open: Dictionary = {}    # 未结算白天的开店经济快照（防重玩重复收入）
 var affinity_seen: Array = []    # 已在夜间试作过的 茶底|奶基 组合
 var discovered: Array = []       # 传说配方 id
 var dark_discovered: Array = []  # 黑暗传说 id
@@ -107,6 +108,7 @@ func _save_snapshot() -> Dictionary:
 		"new_shop_route": new_shop_route,
 		"legacy": legacy, "endless": endless,
 		"tutorial_completed": tutorial_completed, "settings": settings,
+		"day_open": day_open,
 	}
 
 
@@ -193,6 +195,16 @@ func has_save() -> bool:
 	return _read_save_data(SAVE_PATH) != null or _read_save_data(SAVE_BACKUP_PATH) != null
 
 
+## 白天收入实时入账，而设置/语言切换会在日中写完整存档；记录开店时的经济
+## 快照，恢复未结算的白天时回滚到快照，保证“重玩当天”不能重复赚取已入账收入。
+func mark_day_open() -> void:
+	day_open = {
+		"day": day, "coins": coins, "buzz": buzz,
+		"inspiration": inspiration, "perfect_total": perfect_total,
+		"xp": xp.duplicate(true),
+	}
+
+
 func reset_progress() -> void:
 	# A fresh shop should not erase accessibility/audio preferences.
 	var kept_settings := settings.duplicate(true)
@@ -229,7 +241,9 @@ func reset_progress() -> void:
 	legacy = kept_legacy
 	endless = _new_endless_state()
 	tutorial_completed = false
+	day_open = {}
 	settings = kept_settings
+	mark_day_open()
 	save_game()
 
 
@@ -326,6 +340,16 @@ func _apply_save_data(data: Dictionary) -> void:
 	var bindings_value: Variant = loaded_settings.get("key_bindings", {})
 	var loaded_bindings: Dictionary = bindings_value if bindings_value is Dictionary else {}
 	settings["key_bindings"] = _normalize_key_bindings(loaded_bindings)
+	# 未结算白天的存档包含日中已入账收入；回到开店快照，重玩当天只能重新赚取。
+	var open_value: Variant = data.get("day_open", {})
+	day_open = open_value if open_value is Dictionary else {}
+	if phase == "day" and int(day_open.get("day", 0)) == day:
+		coins = maxi(0, int(day_open.get("coins", coins)))
+		buzz = maxi(0, int(day_open.get("buzz", buzz)))
+		inspiration = maxi(0, int(day_open.get("inspiration", inspiration)))
+		perfect_total = maxi(0, int(day_open.get("perfect_total", perfect_total)))
+		var open_xp: Variant = day_open.get("xp", {})
+		xp = open_xp.duplicate(true) if open_xp is Dictionary else xp
 
 
 func _new_endless_state() -> Dictionary:
@@ -749,6 +773,7 @@ func finalize_campaign() -> Dictionary:
 func continue_after_campaign() -> void:
 	day = maxi(day + 1, 15)
 	phase = "day"
+	mark_day_open()
 	save_game()
 
 
@@ -767,6 +792,8 @@ func start_new_shop_plus(route_id := "rush") -> Dictionary:
 	inspiration = int(bonus["inspiration"])
 	new_shop_route = safe_route
 	tutorial_completed = true
+	# 重标记：New Shop+ 的起步奖金属于合法开店余额，不能被快照回滚抹掉。
+	mark_day_open()
 	save_game()
 	var result := bonus.duplicate(true)
 	result["route"] = safe_route

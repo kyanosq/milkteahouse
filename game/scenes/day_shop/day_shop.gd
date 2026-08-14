@@ -2197,6 +2197,9 @@ func _remove_customer(c: Dictionary, served := false) -> void:
 
 func _start_day() -> void:
 	MenuCatalog.ensure_normalized()
+	# 恢复未结算的白天时 GameState 已回滚到开店快照；新的一天才重新标记。
+	if int(GameState.day_open.get("day", 0)) != GameState.day:
+		GameState.mark_day_open()
 	active_contract = EndlessContracts.active_for_day(GameState.day)
 	day_event = EndlessContracts.apply_to_event(DailyEvents.event_for_day(GameState.day), GameState.day)
 	time_left = DAY_LENGTH
@@ -2247,6 +2250,12 @@ func _end_day() -> void:
 	pause_button.visible = false
 	for c in customers.duplicate():
 		_remove_customer(c)
+	# 打烊瞬间在制的杯子与手动弃杯同样计入成本/损耗，不能白拿一杯原料。
+	if _cup_has_contents():
+		var leftover_cost := _current_cup_cost()
+		if leftover_cost > 0:
+			stock_cost += leftover_cost
+			waste_cost += leftover_cost
 	var menu_income := menu_sales_revenue
 	MenuCatalog.advance_day(GameState.day, menu_sales_by_id)
 	var dark_orders := dark_sales_count

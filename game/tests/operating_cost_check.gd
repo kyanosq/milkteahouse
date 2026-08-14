@@ -113,6 +113,19 @@ func _ready() -> void:
 	assert(shop.stock_cost == stock_before_discard + discard_cost)
 	assert(shop.waste_cost == waste_before_discard + discard_cost)
 	assert(shop.reset_button.disabled and not shop._cup_has_contents())
+
+	# 打烊瞬间在制的杯子必须与手动弃杯一样计入成本/损耗。
+	shop._on_base(GameData.bases[0])
+	shop._on_milk(GameData.milks[1])
+	var leftover_cost: int = shop._current_cup_cost()
+	var stock_before_end: int = shop.stock_cost
+	var waste_before_end: int = shop.waste_cost
+	shop._end_day()
+	assert(shop.stock_cost == stock_before_end + leftover_cost,
+		"end-of-day must charge the in-flight cup as stock")
+	assert(shop.waste_cost == waste_before_end + leftover_cost,
+		"end-of-day must charge the in-flight cup as waste")
+	assert(not shop.running)
 	shop.queue_free()
 	GameState.settings = original_settings
 	TranslationServer.set_locale(GameState.locale())

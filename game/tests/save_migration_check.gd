@@ -142,6 +142,26 @@ func _ready() -> void:
 	assert(GameState.settings["sfx_volume"] == 0.75)
 	assert(int(GameState.settings["key_bindings"]["game_pause"]) == KEY_ESCAPE)
 
+	# 日中存档包含已入账收入；恢复未结算的白天必须回滚到开店快照，堵住重玩重复收入。
+	GameState._apply_save_data({
+		"day": 12, "phase": "day", "coins": 520, "buzz": 9, "inspiration": 14,
+		"perfect_total": 27, "xp": {"black_tea": 9},
+		"day_open": {"day": 12, "coins": 300, "buzz": 4, "inspiration": 6,
+			"perfect_total": 22, "xp": {"black_tea": 3}},
+	})
+	assert(GameState.coins == 300 and GameState.buzz == 4, "same-day resume must roll back banked income")
+	assert(GameState.inspiration == 6 and GameState.perfect_total == 22)
+	assert(GameState.xp == {"black_tea": 3})
+	GameState._apply_save_data({"day": 12, "phase": "day", "coins": 520})
+	assert(GameState.coins == 520, "a save without a day-open snapshot must keep loaded values")
+	GameState._apply_save_data({"day": 13, "phase": "day", "coins": 520,
+		"day_open": {"day": 12, "coins": 300}})
+	assert(GameState.coins == 520, "a stale day-open snapshot must not roll back a new day")
+	GameState._apply_save_data({"day": 12, "phase": "night", "coins": 520,
+		"day_open": {"day": 12, "coins": 300}})
+	assert(GameState.coins == 520, "night-phase saves must never roll back economy")
+	GameState.day_open = {}
+
 	# Real-disk durability: every replacement is validated, the previous valid
 	# snapshot becomes a backup, and a truncated primary restores automatically.
 	var durability_path := "/private/tmp/milkteahouse_save_durability_test.json"

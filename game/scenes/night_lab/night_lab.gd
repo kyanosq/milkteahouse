@@ -1124,6 +1124,8 @@ func _next_day() -> void:
 		return
 	GameState.day += 1
 	GameState.phase = "day"
+	# 先标记开店快照再存档：无论玩家是否在日中写过存档，恢复当天都能回滚。
+	GameState.mark_day_open()
 	GameState.save_game()
 	get_tree().change_scene_to_file("res://scenes/day_shop/day_shop.tscn")
 
