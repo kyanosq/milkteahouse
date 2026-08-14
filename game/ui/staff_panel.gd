@@ -104,6 +104,9 @@ func _refresh() -> void:
 		_content.add_child(cards)
 		for data in StaffCatalog.candidates():
 			cards.add_child(_candidate_card(data))
+	# 卡片动作会销毁持有焦点的按钮；焦点丢失时回到关闭按钮保住键盘/手柄导航。
+	if visible and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		_close_button.grab_focus()
 
 
 func _candidate_card(data: Dictionary) -> PanelContainer:
@@ -276,7 +279,8 @@ func _dismiss() -> void:
 		_dismiss_armed = true
 		_feedback.text = GameLocale.text("STAFF_DISMISS_WARNING")
 		_feedback.add_theme_color_override("font_color", CORAL)
-		_refresh()
+		# 确认按钮在将销毁的卡片内：延迟刷新，避免在 pressed 回调里 free 自身。
+		call_deferred("_refresh")
 		return
 	if StaffCatalog.dismiss():
 		_dismiss_armed = false

@@ -199,12 +199,15 @@ func _refresh() -> void:
 		child.free()
 	if _show_research:
 		_build_research_page()
-		return
-	_cards.columns = 3
-	_cards.add_theme_constant_override("v_separation", 10)
-	var collection := RecipeJournal.recipes(_show_dark)
-	for index in collection.size():
-		_cards.add_child(_recipe_card(collection[index], index))
+	else:
+		_cards.columns = 3
+		_cards.add_theme_constant_override("v_separation", 10)
+		var collection := RecipeJournal.recipes(_show_dark)
+		for index in collection.size():
+			_cards.add_child(_recipe_card(collection[index], index))
+	# 卡片动作会销毁持有焦点的按钮；焦点丢失时回到关闭按钮保住键盘/手柄导航。
+	if visible and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		_close_button.grab_focus()
 
 
 func _build_research_page() -> void:
@@ -418,7 +421,8 @@ func _set_target(recipe_id: String) -> void:
 		_feedback.text = GameLocale.text("RECIPE_BOOK_TARGET_SUCCESS", [RecipeJournal.target_display_name()])
 		_feedback.add_theme_color_override("font_color", MINT)
 		target_changed.emit(recipe_id)
-		_refresh()
+		# 按钮在将销毁的卡片内：延迟刷新，避免在 pressed 回调里 free 自身。
+		call_deferred("_refresh")
 
 
 func _clear_target() -> void:

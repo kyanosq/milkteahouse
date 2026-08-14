@@ -159,6 +159,7 @@ func _refresh() -> void:
 		_refresh_dark()
 	else:
 		_refresh_featured()
+	_restore_focus()
 
 
 func _refresh_featured() -> void:
@@ -379,7 +380,7 @@ func _replace_dark(slot: int) -> void:
 	else:
 		_feedback.text = GameLocale.text("MENU_BOARD_INVALID")
 		_feedback.add_theme_color_override("font_color", CORAL)
-	_refresh()
+	call_deferred("_refresh")
 
 
 func _remove_dark(slot: int) -> void:
@@ -387,7 +388,7 @@ func _remove_dark(slot: int) -> void:
 		_feedback.text = GameLocale.text("DARK_BOARD_REMOVED")
 		_feedback.add_theme_color_override("font_color", MINT)
 		menu_changed.emit()
-	_refresh()
+	call_deferred("_refresh")
 
 
 func _toggle_item(item_id: String, active: bool) -> void:
@@ -406,11 +407,18 @@ func _toggle_item(item_id: String, active: bool) -> void:
 		_:
 			_feedback.text = GameLocale.text("MENU_BOARD_INVALID")
 			_feedback.add_theme_color_override("font_color", CORAL)
-	_refresh()
+	call_deferred("_refresh")
 
 
 func visible_card_count() -> int:
 	return _cards.get_child_count()
+
+
+## 卡片按钮的 pressed 回调里不能同步 free 自己所在的卡片；动作后用延迟刷新，
+## 并在焦点随卡片销毁丢失时回到关闭按钮，保住手柄/键盘导航。
+func _restore_focus() -> void:
+	if visible and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		_close_button.grab_focus()
 
 
 func _layout_overscan() -> void:
