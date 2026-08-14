@@ -17,6 +17,11 @@ const HudStreakIcon := preload("res://assets/icons/hud/streak.png")
 
 const DAY_LENGTH := 120.0
 const SHAKE_DECAY := 1.2
+const SHAKE_GRACE_SECONDS := 0.5
+## 三星线 = 目标的 1.4 倍（与 _end_day 判星共用，显示与判定不会漂移）。
+const STAR_GOAL_MULT := 1.4
+## 耐心秒数标签的色档（与条填充、小费档位共用阈值 0.7/0.4）。
+const PATIENCE_BAND_COLORS := [Color("E5484D"), Color("D99A43"), Color("27B9A7")]
 
 var time_left := DAY_LENGTH
 var running := false
@@ -64,6 +69,7 @@ var cup_sugar: Variant = null
 var sugar_index := 2           # 默认五分糖
 var sugar_confirmed := false
 var shake_progress := 0.0
+var _shake_grace_left := 0.0
 var cup_sealed := false
 var cup_corrections := 0
 var cup_tea_quality := 1
@@ -133,12 +139,35 @@ var _order_progress_styles: Dictionary = {}
 var _card_panel_active: StyleBoxFlat
 var _card_panel_idle: StyleBoxFlat
 var _card_fill_healthy: StyleBoxFlat
+var _card_fill_warn: StyleBoxFlat
 var _card_fill_low: StyleBoxFlat
 var _info_inputs: Array = []
+var _flash_tween: Tween
+var _streak_tween: Tween
 var _prep_tea_title_inputs: Array = [-1]
 var _prep_pearl_title_inputs: Array = [-1]
 var _prep_tea_inputs: Array = []
 var _prep_pearl_inputs: Array = []
+var _prep_fill_styles: Dictionary = {}
+
+
+func _prep_fill_style(state: String) -> StyleBoxFlat:
+	# 进度条填充随批次状态换色：煮制青、黄金金、过晚琥珀、变质红——
+	# 技巧窗口用颜色读，不必盯住 12px 状态文本。
+	if _prep_fill_styles.has(state):
+		return _prep_fill_styles[state]
+	var style := StyleBoxFlat.new()
+	match state:
+		PrepBatchModel.STATE_GOLDEN:
+			style.bg_color = Color("F5C351")
+		PrepBatchModel.STATE_LATE:
+			style.bg_color = Color("D99A43")
+		PrepBatchModel.STATE_SPOILED:
+			style.bg_color = Color("E5484D")
+		_:
+			style.bg_color = Color("8C67B5")
+	_prep_fill_styles[state] = style
+	return style
 var _context_panel_target_visible := true
 var _context_panel_tween: Tween
 
@@ -163,9 +192,12 @@ func _process(delta: float) -> void:
 	time_left -= delta
 	_update_staff(delta)
 	_update_prep_batches(delta)
-	# 摇茶衰减
+	# 摇茶衰减：每次有效摇动后有短暂宽限，衰减只在停顿后才生效。
 	if not cup_sealed and shake_progress > 0.0:
-		shake_progress = maxf(0.0, shake_progress - SHAKE_DECAY * delta)
+		if _shake_grace_left > 0.0:
+			_shake_grace_left = maxf(0.0, _shake_grace_left - delta)
+		else:
+			shake_progress = maxf(0.0, shake_progress - SHAKE_DECAY * delta)
 		stage.cup.update_cup(cup_base, cup_milk, cup_tops, cup_sugar,
 			shake_progress / float(_shakes_needed()), cup_sealed)
 	shake_bar.value = shake_progress
@@ -185,14 +217,29 @@ func _process(delta: float) -> void:
 		c["patience"] -= delta * (1.0 if i == 0 else 0.5) * (1.0 if i == 0 else rear_drain_mult)
 		var ratio: float = c["patience"] / c["max_patience"]
 		c["patience_bar"].value = ratio * 100.0
-		# 秒数文本只在整数秒或“就绪”状态切换时重建，避免逐帧本地化格式化。
+		var band := 2 if ratio > 0.70 else (1 if ratio > 0.40 else 0)
+		var prev_band := int(c.get("patience_band", 2))
+		if band != prev_band:
+			c["patience_band"] = band
+			# 注意：这是“转换门控”而非时间冷却——耐心单调递减时两者等价；
+			# 若未来引入耐心回复机制，需改为时间冷却防止提示音连发。
+			if band < prev_band and i == 0:
+				# 队首掉档给一次听觉预警：琥珀档轻响、红档提醒——离场不再是突然袭击。
+				if band == 1:
+					Sfx.play("select", 0.72)
+				else:
+					Sfx.play("customer_leave", 1.4)
+					Haptics.play("warning")
+		# 秒数文本只在整数秒、就绪状态或色档切换时重建，避免逐帧本地化格式化。
 		var seconds_left := ceili(c["patience"])
 		var ready_flag := route_ready and ratio > 0.70
-		if seconds_left != int(c.get("label_second", -1)) or ready_flag != bool(c.get("label_route", false)):
+		if seconds_left != int(c.get("label_second", -1)) or ready_flag != bool(c.get("label_route", false)) \
+				or band != prev_band:
 			c["label_second"] = seconds_left
 			c["label_route"] = ready_flag
 			c["patience_label"].text = GameLocale.text("DAY_SECONDS_ROUTE_READY", [seconds_left]) \
 				if ready_flag else GameLocale.text("DAY_SECONDS_SHORT", [seconds_left])
+			c["patience_label"].add_theme_color_override("font_color", PATIENCE_BAND_COLORS[band])
 		_style_order_card(c, c == active_customer)
 		if c["patience"] <= 0.0:
 			leavers.append(c)
@@ -381,6 +428,11 @@ func _build_ui() -> void:
 
 	feedback_label = Label.new()
 	feedback_label.position = Vector2(438, 290)
+	# 奖励明细最多拼 9 段；限定宽度+两行换行，避免从 438px 起跑的长句被视口截断。
+	feedback_label.custom_minimum_size = Vector2(760, 0)
+	feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	feedback_label.max_lines_visible = 2
+	feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	feedback_label.add_theme_font_size_override("font_size", 26)
 	feedback_label.modulate.a = 0.0
 	ui_frame.add_child(feedback_label)
@@ -753,9 +805,20 @@ func _day_goal_pill(hud: HBoxContainer) -> Label:
 	hud_goal_text.modulate = Color(0.30, 0.22, 0.18, 0.72)
 	row.add_child(hud_goal_text)
 	hud_goal_bar = ProgressBar.new()
-	hud_goal_bar.max_value = 100.0
+	# 条宽到 140%：三星线就是条的尽头，目标线留一个刻度——打烊前仍有冲刺牵引。
+	hud_goal_bar.max_value = STAR_GOAL_MULT * 100.0
 	hud_goal_bar.show_percentage = false
 	hud_goal_bar.custom_minimum_size = Vector2(0, 7)
+	var goal_tick := ColorRect.new()
+	goal_tick.color = Color(0.19, 0.13, 0.11, 0.45)
+	goal_tick.anchor_left = 1.0 / STAR_GOAL_MULT
+	goal_tick.anchor_right = 1.0 / STAR_GOAL_MULT
+	goal_tick.anchor_top = 0.0
+	goal_tick.anchor_bottom = 1.0
+	goal_tick.offset_left = -1.0
+	goal_tick.offset_right = 1.0
+	goal_tick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud_goal_bar.add_child(goal_tick)
 	stack.add_child(hud_goal_bar)
 	return label
 
@@ -773,9 +836,25 @@ func _init_prep_inventory() -> void:
 
 
 func _update_prep_batches(delta: float) -> void:
+	var prev_tea_state: String = tea_batch.state()
+	var prev_pearl_state: String = pearl_batch.state()
 	tea_batch.advance(delta)
 	pearl_batch.advance(delta)
+	# 黄金窗开启与变质是需要立刻注意的转换：一声轻响/一声提醒，不再只靠 12px 文本。
+	_play_prep_transition_cue(tea_batch.state(), prev_tea_state)
+	_play_prep_transition_cue(pearl_batch.state(), prev_pearl_state)
 	_refresh_prep_ui()
+
+
+func _play_prep_transition_cue(state: String, prev: String) -> void:
+	if state == prev:
+		return
+	if state == PrepBatchModel.STATE_GOLDEN:
+		Sfx.play("coin", 1.3)
+		Haptics.play("confirm")
+	elif state == PrepBatchModel.STATE_SPOILED:
+		Sfx.play("bad", 0.9)
+		Haptics.play("warning")
 
 
 func _active_tea_id() -> String:
@@ -833,6 +912,7 @@ func _configure_prep_controls(batch, state_label: Label, progress: ProgressBar,
 			return
 		_prep_pearl_inputs = inputs
 	button.disabled = false
+	progress.add_theme_stylebox_override("fill", _prep_fill_style(state))
 	match state:
 		PrepBatchModel.STATE_EMPTY:
 			state_label.text = GameLocale.text("DAY_PREP_EMPTY")
@@ -1063,6 +1143,8 @@ func _on_shake() -> void:
 		Haptics.play("warning")
 		return
 	shake_progress += 1.0
+	# 衰减宽限：刚摇过的半秒内不衰减，避免连点时“按了计数却没涨”的漏桶手感。
+	_shake_grace_left = SHAKE_GRACE_SECONDS
 	stage.cup.play_shake()
 	Sfx.play("shake", randf_range(0.9, 1.15))
 	Haptics.play("shake")
@@ -1119,6 +1201,7 @@ func _on_reset_cup_pressed() -> void:
 
 func _reset_cup() -> void:
 	_shake_gesture.reset()
+	_shake_grace_left = 0.0
 	cup_base = null
 	cup_milk = null
 	for t in cup_tops:
@@ -1243,20 +1326,25 @@ func _refresh_context_controls() -> void:
 		shake.call_deferred("grab_focus")
 
 
+func _shake_count_display() -> int:
+	# 向上取整显示：一次有效摇动后立即 +1，衰减中也不会出现“倒退”的计数。
+	return mini(ceili(shake_progress), _shakes_needed())
+
+
 func _shake_next_action_text(mobile_override: Variant = null) -> String:
 	if InputPrompts.gamepad_mode:
-		return GameLocale.text("DAY_NEXT_SHAKE", [InputPrompts.shake_hint(), int(shake_progress), _shakes_needed()])
+		return GameLocale.text("DAY_NEXT_SHAKE", [InputPrompts.shake_hint(), _shake_count_display(), _shakes_needed()])
 	var mobile := OS.has_feature("mobile") if mobile_override == null else bool(mobile_override)
 	if mobile:
-		return GameLocale.text("DAY_NEXT_SHAKE_MOBILE", [int(shake_progress), _shakes_needed()])
-	return GameLocale.text("DAY_NEXT_SHAKE_POINTER", [InputPrompts.shake_hint(), int(shake_progress), _shakes_needed()])
+		return GameLocale.text("DAY_NEXT_SHAKE_MOBILE", [_shake_count_display(), _shakes_needed()])
+	return GameLocale.text("DAY_NEXT_SHAKE_POINTER", [InputPrompts.shake_hint(), _shake_count_display(), _shakes_needed()])
 
 
 func _shake_button_text(mobile_override: Variant = null) -> String:
 	var mobile := OS.has_feature("mobile") if mobile_override == null else bool(mobile_override)
 	if mobile and not InputPrompts.gamepad_mode:
-		return GameLocale.text("DAY_SHAKE_BUTTON_MOBILE", [int(shake_progress), _shakes_needed()])
-	return GameLocale.text("DAY_SHAKE_BUTTON", [InputPrompts.shake_hint(), int(shake_progress), _shakes_needed()])
+		return GameLocale.text("DAY_SHAKE_BUTTON_MOBILE", [_shake_count_display(), _shakes_needed()])
+	return GameLocale.text("DAY_SHAKE_BUTTON", [InputPrompts.shake_hint(), _shake_count_display(), _shakes_needed()])
 
 
 func _set_context_panel_visible(show_panel: bool) -> void:
@@ -1989,13 +2077,18 @@ func _style_order_card(c: Dictionary, active: bool) -> void:
 		_card_fill_healthy = StyleBoxFlat.new()
 		_card_fill_healthy.bg_color = Color("27B9A7")
 		_card_fill_healthy.set_corner_radius_all(6)
+		_card_fill_warn = StyleBoxFlat.new()
+		_card_fill_warn.bg_color = Color("D99A43")
+		_card_fill_warn.set_corner_radius_all(6)
 		_card_fill_low = StyleBoxFlat.new()
 		_card_fill_low.bg_color = Color("E5484D")
 		_card_fill_low.set_corner_radius_all(6)
 	var ratio: float = c["patience"] / c["max_patience"]
 	c["bubble"].add_theme_stylebox_override("panel", _card_panel_active if active else _card_panel_idle)
+	# 三档色带与服务费档位一致（>0.7 满小费 / >0.4 低小费 / 以下无小费）：
+	# 掉档即可读出正在损失的钱，而不是 35% 处一次性红转。
 	c["patience_bar"].add_theme_stylebox_override("fill",
-		_card_fill_healthy if ratio > 0.35 else _card_fill_low)
+		_card_fill_healthy if ratio > 0.70 else (_card_fill_warn if ratio > 0.40 else _card_fill_low))
 
 
 func _on_deliver(c: Dictionary) -> void:
@@ -2042,6 +2135,7 @@ func _on_deliver(c: Dictionary) -> void:
 		if flawless:
 			streak += 1
 			best_streak = maxi(best_streak, streak)
+			_pulse_streak_pill()
 		else:
 			streak = 0
 		var combo_bonus := 0
@@ -2149,11 +2243,28 @@ func _on_deliver(c: Dictionary) -> void:
 			return
 		c["patience"] = c["patience"] * 0.65
 		streak = 0
-		_flash(GameLocale.text("DAY_FEEDBACK_WRONG"), Color.ORANGE)
+		_flash(GameLocale.text("DAY_FEEDBACK_WRONG",
+			[_wrong_component_names(order), consumed_cost]), Color.ORANGE)
 		_punch(Vector2(8, 0))
 		Sfx.play("bad")
 		Haptics.play("warning")
 	_reset_cup()
+
+
+## 送错时指明错在哪个组件：顾客重做的代价（倒杯损失）当场可读，而不是只在夜间账本出现。
+func _wrong_component_names(order: Dictionary) -> String:
+	var parts: Array[String] = []
+	if String(cup_base["id"]) != String(order["base"]["id"]):
+		parts.append(GameLocale.text("DAY_COMPONENT_BASE"))
+	if String(cup_milk["id"]) != String(order["milk"]["id"]):
+		parts.append(GameLocale.text("DAY_COMPONENT_MILK"))
+	if int(cup_sugar["value"]) != int(order["sugar"]["value"]):
+		parts.append(GameLocale.text("DAY_COMPONENT_SUGAR"))
+	if not _same_tops(order["tops"]):
+		parts.append(GameLocale.text("DAY_COMPONENT_TOPPING"))
+	if parts.is_empty():
+		parts.append(GameLocale.text("DAY_COMPONENT_BASE"))
+	return GameLocale.text("DAY_FEEDBACK_WRONG_PARTS_SEP").join(parts)
 
 
 func _same_tops(order_tops: Array) -> bool:
@@ -2261,7 +2372,7 @@ func _end_day() -> void:
 	var dark_orders := dark_sales_count
 	# 星级结算：目标达成度换算 0-3 星，3 星额外奖励灵感
 	var stars := 0
-	if earned >= int(goal * 1.4):
+	if earned >= int(goal * STAR_GOAL_MULT):
 		stars = 3
 	elif earned >= goal:
 		stars = 2
@@ -2321,7 +2432,11 @@ func _end_day() -> void:
 	title.add_theme_font_size_override("font_size", 30)
 	title_box.add_child(title)
 	var verdict := Label.new()
-	verdict.text = GameLocale.text("DAY_RESULT_VERDICT_%d" % stars)
+	# 1-2 星判定附带净经营入：星级按毛收入，钱包另算——两个记分牌不再互相矛盾。
+	if stars == 1 or stars == 2:
+		verdict.text = GameLocale.text("DAY_RESULT_VERDICT_%d" % stars, [net_operating])
+	else:
+		verdict.text = GameLocale.text("DAY_RESULT_VERDICT_%d" % stars)
 	verdict.add_theme_font_size_override("font_size", 17)
 	verdict.add_theme_color_override("font_color", Color("27B9A7"))
 	title_box.add_child(verdict)
@@ -2348,15 +2463,27 @@ func _end_day() -> void:
 	goal_label.text = GameLocale.text("DAY_RESULT_GOAL")
 	goal_label.custom_minimum_size = Vector2(88, 0)
 	goal_row.add_child(goal_label)
+	var star_goal := int(goal * STAR_GOAL_MULT)
 	var result_goal := ProgressBar.new()
-	result_goal.max_value = goal
-	result_goal.value = mini(earned, goal)
+	result_goal.max_value = maxi(goal + 1, star_goal)
+	result_goal.value = earned
 	result_goal.show_percentage = false
 	result_goal.custom_minimum_size = Vector2(440, 14)
 	result_goal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# 结算条同样拉到三星线：目标处留刻度，条尾即 3★——判定不再不可见。
+	var result_goal_tick := ColorRect.new()
+	result_goal_tick.color = Color(0.19, 0.13, 0.11, 0.45)
+	result_goal_tick.anchor_left = float(goal) / float(maxi(goal + 1, star_goal))
+	result_goal_tick.anchor_right = float(goal) / float(maxi(goal + 1, star_goal))
+	result_goal_tick.anchor_top = 0.0
+	result_goal_tick.anchor_bottom = 1.0
+	result_goal_tick.offset_left = -1.0
+	result_goal_tick.offset_right = 1.0
+	result_goal_tick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	result_goal.add_child(result_goal_tick)
 	goal_row.add_child(result_goal)
 	var goal_numbers := Label.new()
-	goal_numbers.text = "%d / %d" % [earned, goal]
+	goal_numbers.text = GameLocale.text("DAY_RESULT_GOAL_NUMBERS", [earned, goal, star_goal])
 	goal_numbers.add_theme_font_size_override("font_size", 16)
 	goal_row.add_child(goal_numbers)
 
@@ -2560,8 +2687,8 @@ func _update_info() -> void:
 		return
 	_info_inputs = inputs
 	hud_day.text = GameLocale.text("DAY_HUD_TIME", [GameState.day, int(time_left)])
-	hud_goal_text.text = "%d/%d" % [earned, goal]
-	hud_goal_bar.value = clampf(float(earned) / maxf(float(goal), 1.0) * 100.0, 0.0, 100.0)
+	hud_goal_text.text = GameLocale.text("DAY_HUD_GOAL", [earned, goal, int(goal * STAR_GOAL_MULT)])
+	hud_goal_bar.value = clampf(float(earned) / maxf(float(goal), 1.0) * 100.0, 0.0, STAR_GOAL_MULT * 100.0)
 	hud_coin.text = "%d" % GameState.coins
 	var rent_today := OperatingCosts.rent_base(GameState.day)
 	hud_cost.text = GameLocale.text("DAY_HUD_COSTS_TODAY", [stock_cost, rent_today]) if rent_today > 0 \
@@ -2624,9 +2751,12 @@ func _flash(text: String, color: Color) -> void:
 	feedback_label.add_theme_color_override("font_outline_color", Color(0.15, 0.1, 0.05))
 	feedback_label.add_theme_constant_override("outline_size", 6)
 	feedback_label.modulate.a = 1.0
-	var tw := create_tween()
-	tw.tween_interval(0.9)
-	tw.tween_property(feedback_label, "modulate:a", 0.0, 0.6)
+	# 上一条闪现的补间必须先杀掉，否则新消息会被旧时间表提前淡出。
+	if _flash_tween != null and _flash_tween.is_valid():
+		_flash_tween.kill()
+	_flash_tween = create_tween()
+	_flash_tween.tween_interval(0.9)
+	_flash_tween.tween_property(feedback_label, "modulate:a", 0.0, 0.6)
 
 
 func _fly_coin(text: String, from_pos: Vector2) -> void:
@@ -2649,6 +2779,22 @@ func _fly_coin(text: String, from_pos: Vector2) -> void:
 ## 局部坐标，保证跟随元素在任何窗口尺寸与移动端安全区下都对齐。
 func _window_to_frame(window_pos: Vector2) -> Vector2:
 	return ui_frame.get_global_transform().affine_inverse() * window_pos
+
+
+## 连击是核心技巧回报；每次 +1 让 HUD 药丸弹一下，x3 的时刻不再只是一段子串。
+func _pulse_streak_pill() -> void:
+	if GameState.reduced_motion():
+		return
+	var pill := hud_streak.get_parent().get_parent() as Control
+	if pill == null:
+		return
+	if _streak_tween != null and _streak_tween.is_valid():
+		_streak_tween.kill()
+	pill.scale = Vector2.ONE * 1.0
+	_streak_tween = create_tween()
+	_streak_tween.tween_property(pill, "scale", Vector2.ONE * 1.22, 0.09)
+	_streak_tween.tween_property(pill, "scale", Vector2.ONE, 0.16) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _punch(offset: Vector2) -> void:

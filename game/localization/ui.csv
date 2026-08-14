@@ -241,7 +241,7 @@ DAY_REWARD_STAFF, · Staff Check +%d, · 店员复核 +%d
 DAY_REWARD_COMBO, · %d Combo, · %d 连击
 DAY_REWARD_GROUP_NEXT, · Next Group Drink, · 团单下一杯
 DAY_REWARD_REWORKED, · Reworked · Perfect streak reset, · 返工杯 · 完美连击中断
-DAY_FEEDBACK_WRONG,Wrong drink! The customer gives you another chance… Combo lost.,做错了！顾客皱着眉再给你一次机会……连击中断
+DAY_FEEDBACK_WRONG,Wrong: %s · cup tossed (−%d). The customer gives you another chance… Combo lost.,做错了：%s · 已倒杯（−%d）——顾客皱着眉再给你一次机会……连击中断
 DAY_CUSTOMER_LEFT,Waited too long and left!,等太久，走了！
 DAY_STAFF_REVEAL_GUARD,Stopped a wrong drink before delivery: one save remains today,在出杯前拦下错单：今天还能保护这一次
 DAY_STAFF_GUARD_SAVED,%s stopped the wrong drink · Patience and combo preserved,%s 拦下了错杯 · 顾客耐心和连击都保住了
@@ -260,8 +260,8 @@ REWARD_TREND_BONUS,Trending Bonus,热搜加成
 REWARD_SPECIAL_COMPLETE,Special Order Complete,特殊订单完成
 DAY_RESULT_TITLE,Day %d Closed,第 %d 天打烊
 DAY_RESULT_VERDICT_0,Still Warming Up · Try Again Tomorrow,还在热身，明天再来
-DAY_RESULT_VERDICT_1,Found Your Footing,站稳脚跟
-DAY_RESULT_VERDICT_2,Goal Reached,目标达成
+DAY_RESULT_VERDICT_1,Found Your Footing · Net %d,站稳脚跟 · 净入 %d
+DAY_RESULT_VERDICT_2,Goal Reached · Net %d,目标达成 · 净入 %d
 DAY_RESULT_VERDICT_3,Today's Signature Shop,今日招牌店
 DAY_RESULT_STARS,%d-Star Rating,%d 星评价
 DAY_RESULT_GOAL,Today's Goal,今日目标
@@ -296,7 +296,7 @@ DAY_RESULT_CONTRACT_SUCCESS,Contract Complete: +1 Stamp · +%d Inspiration · %d
 DAY_RESULT_CONTRACT_FAILED,Contract Failed: %d-Coin Fee Not Refunded,委托未完成：签约费 %d 金币不返还
 DAY_RESULT_NO_REWARDS,Keep serving steadily to raise your rating and upgrade faster.,继续稳定出杯，可提高星级与升级速度。
 DAY_RESULT_UNLOCKS,New Tomorrow · %s,明日新原料  ·  %s
-LIST_SEPARATOR,"; ",、
+LIST_SEPARATOR,; ,、
 DAY_RESULT_ENDLESS_HINT,%d Coins · Sign %s / %d Stamps · Choose Tomorrow's Contract in the Lab,现有 %d 金币  ·  店招 %s / %d 枚  ·  研发室可签下一份委托
 DAY_RESULT_UPGRADE_HINT,%d Coins · Buy Shop Upgrades in the Lab,现有 %d 金币  ·  研发室可购买店铺升级
 DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
@@ -802,3 +802,10 @@ DAY_BATCH_STANDARD, · Standard Batch, · 稳定批次
 DAY_BATCH_POOR, · Overcooked Batch, · 过熟批次
 ORDER_HINT_MENU_MATCH,Menu ¥%d · Trend +%d · %s,菜单 ¥%d · 风向 +%d · %s
 REWARD_MENU_EVENT_MATCH,Featured trend match,主推契合风向
+DAY_HUD_GOAL,%d/%d · 3★ at %d,%d/%d · 3★需%d
+DAY_RESULT_GOAL_NUMBERS,%d / %d · 3★ at %d,%d / %d · 3★需%d
+DAY_FEEDBACK_WRONG_PARTS_SEP, & ,、
+DAY_COMPONENT_BASE,base,茶基
+DAY_COMPONENT_MILK,milk,奶基
+DAY_COMPONENT_SUGAR,sugar,糖度
+DAY_COMPONENT_TOPPING,topping,小料

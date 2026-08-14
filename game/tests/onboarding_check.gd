@@ -25,6 +25,18 @@ func _ready() -> void:
 	assert(not shop.tutorial_overlay.visible)
 	assert(shop.running)
 
+	# 三星拉伸必须可见：HUD 目标条延伸到 140%，目标线留刻度，文案披露 3★ 数字。
+	assert(is_equal_approx(float(shop.hud_goal_bar.max_value), 140.0),
+		"goal bar must stretch to the 1.4x star line")
+	assert(shop.hud_goal_bar.get_child_count() == 1,
+		"goal bar must carry the 100% goal tick")
+	shop._update_info()
+	assert(shop.hud_goal_text.text.contains("3★"))
+	# 摇杯计数向上取整：一次有效摇动立刻 +1，衰减中不倒退。
+	shop.shake_progress = 1.2
+	assert(shop._shake_count_display() == 2)
+	shop.shake_progress = 0.0
+
 	var shortcut := InputEventKey.new()
 	shortcut.keycode = KEY_1
 	shortcut.pressed = true

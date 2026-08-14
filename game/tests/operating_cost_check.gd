@@ -100,6 +100,19 @@ func _ready() -> void:
 	assert(shop.streak == 0, "a reworked correct cup must break the Perfect combo")
 	assert(shop.cup_corrections == 0, "the post-delivery system reset must start a clean cup")
 
+	# 送错的反馈必须当场点名错在哪个组件、损失多少——不能只留夜间账本一行。
+	shop._on_base(GameData.bases[1])
+	shop._on_milk(GameData.milks[1])
+	shop._on_sugar(GameData.sugar_levels[2])
+	for _wrong_shake in shop._shakes_needed():
+		shop._on_shake()
+	var wrong_cost: int = shop._current_cup_cost()
+	shop._on_deliver(corrected_customer)
+	assert(shop.feedback_label.text.contains(GameLocale.text("DAY_COMPONENT_BASE")),
+		"wrong delivery must name the mismatched component")
+	assert(shop.feedback_label.text.contains(str(wrong_cost)),
+		"wrong delivery must disclose the tossed-cup loss")
+
 	# Player-initiated discard pays the visible wholesale loss exactly once.
 	shop._on_base(GameData.bases[0])
 	shop._on_milk(GameData.milks[1])

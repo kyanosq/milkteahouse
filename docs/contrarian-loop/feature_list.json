@@ -1,0 +1,45 @@
+{
+  "objective": "Steam 推荐级（特别好评）品质：首小时体验、核心循环公平可读、深度重玩信号、零已知玩法缺陷",
+  "items": [
+    {
+      "id": "F-001",
+      "description": "评审审计完成：三个维度（首小时/循环手感/深度重玩）各有证据支撑的短板清单，写入 reports/",
+      "steps": ["启动三个评审子智能体", "各自运行 autoplay/截图/读码取证", "输出排序的弱点与建议修复"],
+      "priority": "high",
+      "status": "in_progress",
+      "evidence": []
+    },
+    {
+      "id": "F-002",
+      "description": "S1：按审计结果修复最高严重度玩法缺陷，25/25 回归保持绿色",
+      "steps": ["逐项修复并单独提交", "新增回归用例", "跑全套"],
+      "priority": "high",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "F-003",
+      "description": "S2：首小时体验（教学/前期节奏/可读性）改进，newbie bot 指标不劣化且有截图证据",
+      "steps": ["实施改进", "BOT day1-5 指标对比", "冷启动截图"],
+      "priority": "high",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "F-004",
+      "description": "S3：深度/重玩信号（菜单轮换压力、New Shop+ 差异、合约感受）改进，campaign sim 不劣化",
+      "steps": ["实施改进", "RUN_CAMPAIGN=1 全绿", "结算数据对比"],
+      "priority": "medium",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "F-005",
+      "description": "最终评审：Evaluator 子智能体按 Steam 推荐级维度打分全过，报告入库",
+      "steps": ["冷启动取证", "六维评分", "写 evaluations/final.md"],
+      "priority": "high",
+      "status": "pending",
+      "evidence": []
+    }
+  ]
+}
