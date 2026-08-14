@@ -104,6 +104,20 @@ func _ready() -> void:
 	var expected_root_offset := Vector2(maxf((root_size.x - 1280.0) * 0.5, 0.0),
 		maxf((root_size.y - 720.0) * 0.5, 0.0)).floor()
 	assert(shop.ui_frame.position == expected_root_offset)
+	# 跟随元素（摇杯条、金币飞行）必须把窗口坐标换算回 SafeFrame 局部坐标，
+	# 否则超宽/安全区偏移下会错位到作者框架之外。
+	var probe_window := Vector2(960.0, 360.0)
+	shop.ui_frame.position = Vector2(320, 0)
+	await get_tree().process_frame
+	assert(shop._window_to_frame(probe_window) == Vector2(640, 360),
+		"window→frame conversion must apply the safe-frame offset")
+	shop.ui_frame.scale = Vector2.ONE * 0.5
+	await get_tree().process_frame
+	assert(shop._window_to_frame(probe_window) == Vector2(1280, 720),
+		"window→frame conversion must invert safe-frame scaling")
+	shop.ui_frame.position = Vector2.ZERO
+	shop.ui_frame.scale = Vector2.ONE
+	await get_tree().process_frame
 	assert(not shop._context_shortcuts[0].text.begins_with("1"))
 	var focus_style := shop._context_shortcuts[0].get_theme_stylebox("focus") as StyleBoxFlat
 	assert(focus_style != null and focus_style.get_border_width(SIDE_LEFT) == 4)

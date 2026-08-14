@@ -161,7 +161,7 @@ func _process(delta: float) -> void:
 			shake_progress / float(_shakes_needed()), cup_sealed)
 	shake_bar.value = shake_progress
 	shake_bar.visible = not cup_sealed and cup_base != null
-	shake_bar.position = stage.cup_screen_pos() - Vector2(shake_bar.size.x / 2.0, 0)
+	shake_bar.position = _window_to_frame(stage.cup_screen_pos()) - Vector2(shake_bar.size.x / 2.0, 0)
 	# 手机传感器连续采样，但检测器只在有效冲击与冷却窗口后发出一次语义摇动。
 	if _can_gesture_shake() and _shake_gesture.sample_accelerometer(
 		Input.get_accelerometer(), Time.get_ticks_msec()):
@@ -2557,9 +2557,16 @@ func _fly_coin(text: String, from_pos: Vector2) -> void:
 	lbl.position = from_pos
 	ui_frame.add_child(lbl)
 	var tw := create_tween()
-	tw.tween_property(lbl, "position", coin_pill.global_position + Vector2(20, 0), 0.55) \
+	tw.tween_property(lbl, "position", _window_to_frame(coin_pill.global_position) + Vector2(20, 0), 0.55) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.tween_callback(lbl.queue_free)
+
+
+## 3D 舞台铺满整个视口，而 HUD 位于 SafeFrame 的作者坐标系（非 1280×720
+## 视口或存在安全区时二者不重合）。此函数把视口/窗口坐标换算回 SafeFrame
+## 局部坐标，保证跟随元素在任何窗口尺寸与移动端安全区下都对齐。
+func _window_to_frame(window_pos: Vector2) -> Vector2:
+	return ui_frame.get_global_transform().affine_inverse() * window_pos
 
 
 func _punch(offset: Vector2) -> void:
