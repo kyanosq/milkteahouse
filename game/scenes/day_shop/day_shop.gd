@@ -130,6 +130,15 @@ var _resume_after_pause := false
 var _context_shortcuts: Array[Button] = []
 var ui_frame: SafeFrame
 var _order_progress_styles: Dictionary = {}
+var _card_panel_active: StyleBoxFlat
+var _card_panel_idle: StyleBoxFlat
+var _card_fill_healthy: StyleBoxFlat
+var _card_fill_low: StyleBoxFlat
+var _info_inputs: Array = []
+var _prep_tea_title_inputs: Array = [-1]
+var _prep_pearl_title_inputs: Array = [-1]
+var _prep_tea_inputs: Array = []
+var _prep_pearl_inputs: Array = []
 var _context_panel_target_visible := true
 var _context_panel_tween: Tween
 
@@ -168,19 +177,27 @@ func _process(delta: float) -> void:
 		_on_shake()
 	# 顾客耐心：固定订单卡比随 3D 头像漂移更容易扫读，也便于移动端点击。
 	# 排队宽容：只有队首满速掉耐心，后排顾客更能等，避免后期队列雪崩。
-	var queue := customers.duplicate()
-	for i in queue.size():
-		var c: Dictionary = queue[i]
-		var wait_mult := StaffCatalog.waiting_drain_multiplier(staff_state == "working") if i > 0 else 1.0
-		c["patience"] -= delta * (1.0 if i == 0 else 0.5) * wait_mult
+	var rear_drain_mult := StaffCatalog.waiting_drain_multiplier(staff_state == "working")
+	var route_ready := LegacyRoutes.active_id() == "precision"
+	var leavers: Array[Dictionary] = []
+	for i in customers.size():
+		var c: Dictionary = customers[i]
+		c["patience"] -= delta * (1.0 if i == 0 else 0.5) * (1.0 if i == 0 else rear_drain_mult)
 		var ratio: float = c["patience"] / c["max_patience"]
 		c["patience_bar"].value = ratio * 100.0
-		c["patience_label"].text = GameLocale.text("DAY_SECONDS_ROUTE_READY", [ceili(c["patience"])]) \
-			if LegacyRoutes.active_id() == "precision" and ratio > 0.70 \
-			else GameLocale.text("DAY_SECONDS_SHORT", [ceili(c["patience"])])
+		# 秒数文本只在整数秒或“就绪”状态切换时重建，避免逐帧本地化格式化。
+		var seconds_left := ceili(c["patience"])
+		var ready_flag := route_ready and ratio > 0.70
+		if seconds_left != int(c.get("label_second", -1)) or ready_flag != bool(c.get("label_route", false)):
+			c["label_second"] = seconds_left
+			c["label_route"] = ready_flag
+			c["patience_label"].text = GameLocale.text("DAY_SECONDS_ROUTE_READY", [seconds_left]) \
+				if ready_flag else GameLocale.text("DAY_SECONDS_SHORT", [seconds_left])
 		_style_order_card(c, c == active_customer)
 		if c["patience"] <= 0.0:
-			_customer_leave(c, GameLocale.text("DAY_CUSTOMER_LEFT"))
+			leavers.append(c)
+	for c in leavers:
+		_customer_leave(c, GameLocale.text("DAY_CUSTOMER_LEFT"))
 	# 生成顾客
 	spawn_timer -= delta
 	if spawn_timer <= 0.0 and customers.size() < _max_customers():
@@ -779,46 +796,70 @@ func _refresh_prep_ui() -> void:
 	if tea_prep_button == null:
 		return
 	var tea_id := _active_tea_id()
-	var tea_item := RecipeJournal.ingredient(tea_id)
-	var tea_name := GameLocale.ingredient_short_name(tea_item) if not tea_item.is_empty() else "—"
-	tea_prep_title.text = GameLocale.text("DAY_PREP_TEA_TITLE", [tea_name, _tea_stock_count(tea_id)])
-	_configure_prep_controls(tea_batch, tea_prep_state, tea_prep_progress, tea_prep_button, true)
-	pearl_prep_title.text = GameLocale.text("DAY_PREP_PEARL_TITLE", [pearl_stock.size()])
-	_configure_prep_controls(pearl_batch, pearl_prep_state, pearl_prep_progress, pearl_prep_button, false)
+	var tea_title_inputs := [tea_id, _tea_stock_count(tea_id)]
+	if tea_title_inputs != _prep_tea_title_inputs:
+		_prep_tea_title_inputs = tea_title_inputs
+		var tea_item := RecipeJournal.ingredient(tea_id)
+		var tea_name := GameLocale.ingredient_short_name(tea_item) if not tea_item.is_empty() else "—"
+		tea_prep_title.text = GameLocale.text("DAY_PREP_TEA_TITLE", [tea_name, tea_title_inputs[1]])
+	_configure_prep_controls(tea_batch, tea_prep_state, tea_prep_progress, tea_prep_button, true, tea_id)
+	var pearl_title_inputs := [pearl_stock.size()]
+	if pearl_title_inputs != _prep_pearl_title_inputs:
+		_prep_pearl_title_inputs = pearl_title_inputs
+		pearl_prep_title.text = GameLocale.text("DAY_PREP_PEARL_TITLE", [pearl_title_inputs[0]])
+	_configure_prep_controls(pearl_batch, pearl_prep_state, pearl_prep_progress, pearl_prep_button, false, "")
 
 
 func _configure_prep_controls(batch, state_label: Label, progress: ProgressBar,
-		button: Button, tea_station: bool) -> void:
+		button: Button, tea_station: bool, active_tea_id: String) -> void:
 	progress.value = batch.progress() * 100.0
+	# 进度条逐帧更新；状态文本/主题只在状态、剩余秒数或按键提示变化时重建。
+	var shortcut := InputPrompts.prep_tea_hint() if tea_station else InputPrompts.prep_pearl_hint()
+	var seconds := 0
+	var state: String = batch.state()
+	match state:
+		PrepBatchModel.STATE_BREWING:
+			seconds = batch.seconds_to_ready()
+		PrepBatchModel.STATE_GOLDEN, PrepBatchModel.STATE_LATE:
+			seconds = batch.window_seconds_left()
+	var stock_blocked := tea_station and active_tea_id.is_empty()
+	var inputs := [state, seconds, shortcut, stock_blocked]
+	if tea_station:
+		if inputs == _prep_tea_inputs:
+			return
+		_prep_tea_inputs = inputs
+	else:
+		if inputs == _prep_pearl_inputs:
+			return
+		_prep_pearl_inputs = inputs
 	button.disabled = false
-	match batch.state():
+	match state:
 		PrepBatchModel.STATE_EMPTY:
 			state_label.text = GameLocale.text("DAY_PREP_EMPTY")
 			button.text = GameLocale.text("DAY_PREP_START_TEA" if tea_station else "DAY_PREP_START_PEARL")
-			button.disabled = tea_station and _active_tea_id().is_empty()
+			button.disabled = stock_blocked
 		PrepBatchModel.STATE_BREWING:
-			state_label.text = GameLocale.text("DAY_PREP_BREWING", [batch.seconds_to_ready()])
+			state_label.text = GameLocale.text("DAY_PREP_BREWING", [seconds])
 			button.text = GameLocale.text("DAY_PREP_WAIT")
 			button.disabled = true
 		PrepBatchModel.STATE_GOLDEN:
-			state_label.text = GameLocale.text("DAY_PREP_GOLDEN", [batch.window_seconds_left()])
+			state_label.text = GameLocale.text("DAY_PREP_GOLDEN", [seconds])
 			button.text = GameLocale.text("DAY_PREP_COLLECT_GOLDEN")
 		PrepBatchModel.STATE_LATE:
-			state_label.text = GameLocale.text("DAY_PREP_LATE", [batch.window_seconds_left()])
+			state_label.text = GameLocale.text("DAY_PREP_LATE", [seconds])
 			button.text = GameLocale.text("DAY_PREP_COLLECT_LATE")
 		_:
 			state_label.text = GameLocale.text("DAY_PREP_SPOILED")
 			button.text = GameLocale.text("DAY_PREP_COLLECT_SPOILED")
-	var shortcut := InputPrompts.prep_tea_hint() if tea_station else InputPrompts.prep_pearl_hint()
 	button.text = "%s · %s" % [shortcut, button.text]
 	button.accessibility_name = button.text
 	button.tooltip_text = "%s · %s" % [state_label.text, button.text]
 	var state_color := Color("8C67B5")
-	if batch.state() == PrepBatchModel.STATE_GOLDEN:
+	if state == PrepBatchModel.STATE_GOLDEN:
 		state_color = Color("27B9A7")
-	elif batch.state() == PrepBatchModel.STATE_LATE:
+	elif state == PrepBatchModel.STATE_LATE:
 		state_color = Color("D99A43")
-	elif batch.state() == PrepBatchModel.STATE_SPOILED:
+	elif state == PrepBatchModel.STATE_SPOILED:
 		state_color = Color("E5484D")
 	state_label.add_theme_color_override("font_color", state_color)
 
@@ -1349,6 +1390,12 @@ func _on_locale_changed(_locale: String) -> void:
 	active_contract = EndlessContracts.active_for_day(GameState.day)
 	day_event = EndlessContracts.apply_to_event(DailyEvents.event_for_day(GameState.day), GameState.day)
 	_refresh_event_pill()
+	# HUD/备料文本按输入缓存跳过重复重建；语言切换后必须强制重译。
+	_info_inputs = []
+	_prep_tea_title_inputs = [-1]
+	_prep_pearl_title_inputs = [-1]
+	_prep_tea_inputs = []
+	_prep_pearl_inputs = []
 	_refresh_cup()
 	_refresh_prep_ui()
 	_refresh_staff_ui()
@@ -1919,21 +1966,36 @@ func _focus_active_order() -> void:
 func _style_order_card(c: Dictionary, active: bool) -> void:
 	if not is_instance_valid(c.get("bubble")):
 		return
+	# 四种组合的样式在建卡后不再变化；共享缓存实例，避免逐帧分配与主题失效。
+	if _card_panel_active == null:
+		_card_panel_active = StyleBoxFlat.new()
+		_card_panel_active.bg_color = Color(1.0, 0.973, 0.929, 0.97)
+		_card_panel_active.set_corner_radius_all(14)
+		_card_panel_active.set_border_width_all(4)
+		_card_panel_active.border_color = Color("FF6259")
+		_card_panel_active.content_margin_left = 10
+		_card_panel_active.content_margin_right = 10
+		_card_panel_active.content_margin_top = 8
+		_card_panel_active.content_margin_bottom = 8
+		_card_panel_idle = StyleBoxFlat.new()
+		_card_panel_idle.bg_color = Color(1.0, 0.973, 0.929, 0.97)
+		_card_panel_idle.set_corner_radius_all(14)
+		_card_panel_idle.set_border_width_all(2)
+		_card_panel_idle.border_color = Color(0.19, 0.13, 0.11, 0.34)
+		_card_panel_idle.content_margin_left = 10
+		_card_panel_idle.content_margin_right = 10
+		_card_panel_idle.content_margin_top = 8
+		_card_panel_idle.content_margin_bottom = 8
+		_card_fill_healthy = StyleBoxFlat.new()
+		_card_fill_healthy.bg_color = Color("27B9A7")
+		_card_fill_healthy.set_corner_radius_all(6)
+		_card_fill_low = StyleBoxFlat.new()
+		_card_fill_low.bg_color = Color("E5484D")
+		_card_fill_low.set_corner_radius_all(6)
 	var ratio: float = c["patience"] / c["max_patience"]
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(1.0, 0.973, 0.929, 0.97)
-	sb.set_corner_radius_all(14)
-	sb.set_border_width_all(4 if active else 2)
-	sb.border_color = Color("FF6259") if active else Color(0.19, 0.13, 0.11, 0.34)
-	sb.content_margin_left = 10
-	sb.content_margin_right = 10
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
-	c["bubble"].add_theme_stylebox_override("panel", sb)
-	var fill := StyleBoxFlat.new()
-	fill.bg_color = Color("27B9A7") if ratio > 0.35 else Color("E5484D")
-	fill.set_corner_radius_all(6)
-	c["patience_bar"].add_theme_stylebox_override("fill", fill)
+	c["bubble"].add_theme_stylebox_override("panel", _card_panel_active if active else _card_panel_idle)
+	c["patience_bar"].add_theme_stylebox_override("fill",
+		_card_fill_healthy if ratio > 0.35 else _card_fill_low)
 
 
 func _on_deliver(c: Dictionary) -> void:
@@ -2477,6 +2539,17 @@ func _go_night() -> void:
 # ---------------------------------------------------------------- HUD 与反馈
 
 func _update_info() -> void:
+	# HUD 展示值全部由这组输入派生；输入不变时跳过十多次本地化格式化
+	# 与主题覆盖，逐帧只在倒计时秒数真正变化时才重建文本。
+	var inputs := [
+		GameState.day, int(time_left), earned, goal, GameState.coins, stock_cost,
+		GameState.inspiration, perfect, streak, angry, best_streak,
+		route_trigger_count, route_bonus_earned, LegacyRoutes.active_id(),
+		UpgradeCatalog.total_levels(), active_contract.get("id", ""),
+	]
+	if inputs == _info_inputs:
+		return
+	_info_inputs = inputs
 	hud_day.text = GameLocale.text("DAY_HUD_TIME", [GameState.day, int(time_left)])
 	hud_goal_text.text = "%d/%d" % [earned, goal]
 	hud_goal_bar.value = clampf(float(earned) / maxf(float(goal), 1.0) * 100.0, 0.0, 100.0)
