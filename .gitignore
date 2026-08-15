@@ -9,3 +9,9 @@ build/
 
 # Blender backup saves
 *.blend1
+
+# Browser-automation session artifacts
+.playwright-mcp/
+
+# Local Python env for asset tools
+tools/.venv/
