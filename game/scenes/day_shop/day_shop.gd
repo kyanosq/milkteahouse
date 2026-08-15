@@ -1474,6 +1474,7 @@ func _refresh_input_prompts() -> void:
 	_refresh_context_controls()
 	_refresh_prep_ui()
 	_refresh_all_order_action_hints()
+	_refresh_staff_ui()
 
 
 func _on_locale_changed(_locale: String) -> void:
@@ -1541,7 +1542,8 @@ func _update_staff(delta: float) -> void:
 			if not StaffCatalog.trait_revealed():
 				_reveal_staff_trait(GameLocale.text("DAY_STAFF_REVEAL_SLACKER"))
 			else:
-				_flash(GameLocale.text("DAY_STAFF_SLACKING_ALERT", [GameLocale.staff_name(StaffCatalog.current())]), Color("FF6259"))
+				_flash(GameLocale.text("DAY_STAFF_SLACKING_ALERT",
+				[GameLocale.staff_name(StaffCatalog.current()), InputPrompts.staff_hint()]), Color("FF6259"))
 			_refresh_staff_ui()
 
 
@@ -1589,7 +1591,9 @@ func _refresh_staff_ui() -> void:
 		_:
 			staff_status_label.text = GameLocale.text("DAY_STAFF_ADAPTING")
 	staff_action_button.disabled = staff_state != "idle"
-	staff_action_button.text = GameLocale.text("DAY_STAFF_WAKE", [GameLocale.staff_name(StaffCatalog.current())]) if staff_state == "idle" else GameLocale.text("DAY_STAFF_INTERACT")
+	staff_action_button.text = GameLocale.text("DAY_STAFF_WAKE",
+		[GameLocale.staff_name(StaffCatalog.current()), InputPrompts.staff_hint()]) if staff_state == "idle" \
+		else GameLocale.text("DAY_STAFF_INTERACT")
 
 
 func _has_topping(item: Dictionary) -> bool:

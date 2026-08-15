@@ -217,7 +217,7 @@ DAY_STAFF_SLACKER_WORKING,Watching Back Queue · Patience Drain -30%,照看后�
 DAY_STAFF_SOCIAL,Warming Up the Queue · Patience +20% / Traffic +12%,热场中 · 耐心 +20% / 客流 +12%
 DAY_STAFF_PERFECTIONIST,Correct Cup +2 Coins · Mistake Guard: %s · +1 Shake,正确杯 +2 金币 · 错杯保护：%s · 多摇 1 下
 DAY_STAFF_ADAPTING,Settling into the Role,适应岗位中
-DAY_STAFF_WAKE,Wake %s · F,拍醒 %s · F
+DAY_STAFF_WAKE,Wake %s · %s,拍醒 %s · %s
 DAY_STAFF_INTERACT,Interact with 3D Staff,点击 3D 店员互动
 STATE_USED,Used,已用
 STATE_READY,Ready,可用
@@ -248,7 +248,7 @@ DAY_STAFF_GUARD_SAVED,%s stopped the wrong drink · Patience and combo preserved
 DAY_STAFF_REVEAL_SOCIAL,Befriended the whole queue at opening: Patience +20% and traffic +12%,一开门就和整条队伍聊熟了：耐心 +20%，客流也快了 12%
 DAY_STAFF_REVEAL_PERFECTIONIST,Checking every drink: blocks one mistake daily but adds one shake,开始逐杯复核：每天拦下 1 次错杯，但每杯多摇 1 下
 DAY_STAFF_REVEAL_SLACKER,Stared at the sealer: back-queue support stops while slacking; tap to wake,盯着封口机出了神：摸鱼时后排照看失效，点击店员拍醒
-DAY_STAFF_SLACKING_ALERT,%s is slacking again · Tap or press F to wake,%s 又摸鱼了 · 点击店员或按 F 拍醒
+DAY_STAFF_SLACKING_ALERT,%s is slacking again · Tap or press %s to wake,%s 又摸鱼了 · 点击店员或按 %s 拍醒
 DAY_STAFF_TRAIT_REVEALED,Trait Revealed · %s: %s,特质觉醒 · %s：%s
 DAY_STAFF_WAKE_SUCCESS,Awake · %s is watching the back queue again,拍醒成功 · %s 重新照看后排顾客
 DAY_STAFF_ALREADY_WORKING,%s: I'm working seriously!,%s：我在认真值班呢！
