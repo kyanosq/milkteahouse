@@ -16,7 +16,31 @@ func _ready() -> void:
 	assert(DailyEvents.event_for_day(6)["id"] == "critic_day")
 	assert(DailyEvents.event_for_day(7)["id"] == "influencer_day")
 	assert(DailyEvents.event_for_day(8)["id"] == "group_day")
-	assert(DailyEvents.event_for_day(9)["id"] == "lunch_rush")
+	# D4：首战役 Day9+ 借用 trend 表重排——第二周不再是第一周回放。
+	assert(DailyEvents.event_for_day(9)["id"] == "influencer_day")
+	assert(DailyEvents.event_for_day(10)["id"] == "brown_sugar_trend")
+	assert(DailyEvents.event_for_day(11)["id"] == "light_drinks")
+	assert(DailyEvents.event_for_day(12)["id"] == "lunch_rush")
+	assert(DailyEvents.event_for_day(13)["id"] == "critic_day")
+	assert(DailyEvents.event_for_day(14)["id"] == "group_day")
+	# 二遍修饰词：强度弯 + 专属参数 + 变体文案；第一周原样。
+	var day9 := DailyEvents.event_for_day(9)
+	assert(is_equal_approx(float(day9["spawn_mult"]), 0.98 * 0.94),
+		"second pass must apply the 0.94 spawn bend")
+	assert(is_equal_approx(float(day9["patience_mult"]), 1.0 * 0.96),
+		"second pass must apply the 0.96 patience bend")
+	assert(int(day9.get("live_second_bonus", 0)) == 7)
+	assert(day9["name"] == GameLocale.text("EVENT_INFLUENCER_DAY_SP_NAME"))
+	var day12 := DailyEvents.event_for_day(12)
+	assert(int(day12.get("per_order_bonus", 0)) == 1)
+	assert(is_equal_approx(float(day12["spawn_mult"]), 0.72 * 0.94 * 0.90))
+	var day13 := DailyEvents.event_for_day(13)
+	assert(is_equal_approx(float(day13.get("editor_patience_mult", 0.0)), 0.65))
+	var day14 := DailyEvents.event_for_day(14)
+	assert(bool(day14.get("triple_ticket", false)) and int(day14.get("group_bonus", 0)) == 18)
+	var day3 := DailyEvents.event_for_day(3)
+	assert(not day3.has("second_pass") and day3["name"] == GameLocale.text("EVENT_LUNCH_RUSH_NAME"))
+	assert(is_equal_approx(float(day3["spawn_mult"]), 0.72))
 	var expected_routes := {
 		"rush": ["group_day", "lunch_rush", "influencer_day", "critic_day", "light_drinks", "brown_sugar_trend"],
 		"precision": ["critic_day", "light_drinks", "group_day", "brown_sugar_trend", "influencer_day", "lunch_rush"],

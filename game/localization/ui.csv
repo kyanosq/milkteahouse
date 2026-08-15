@@ -827,3 +827,60 @@ MARKET_SETTLEMENT_FORMULA,Formula: %s,配方：%s
 NIGHT_TRY_LOW,Need %d inspiration — earn it from perfect serves and day goals.,灵感不足：还差 %d 点。完美出杯与达成日目标可获得灵感。
 ORDER_HINT_DEFAULT_GAMEPAD,Focus to make this your current order,聚焦即设为当前订单
 ENDLESS_CAREER_STATS,Career · Best streak x%d · Completed %d · Failed %d · Stamps %d,生涯 · 最高连击 x%d · 完成 %d · 失败 %d · 印章 %d
+DAY_GOAL_RELIEF_BADGE, · Recovery Day, · 回暖日
+CAMPAIGN_RELIEF_DAYS, · Recovery days: %d, · 回暖日 %d 天
+INGREDIENT_OSMANTHUS_JELLY,Osmanthus Jelly,桂花冻
+INGREDIENT_OSMANTHUS_JELLY_SHORT,Osmanthus,桂花冻
+INGREDIENT_CHEESE_FOAM,Cheese Foam,芝士奶盖
+INGREDIENT_CHEESE_FOAM_SHORT,Cheese Foam,奶盖
+EVENT_LUNCH_RUSH_SP_NAME,Delivery Rush,外卖爆单
+EVENT_LUNCH_RUSH_SP_HUD,Delivery,外卖
+EVENT_LUNCH_RUSH_SP_HEADLINE,Delivery orders stack on top of the lunch wave — the counter never rests.,外卖单叠上午间人潮，柜台一刻不停。
+EVENT_LUNCH_RUSH_SP_CHALLENGE,Arrivals another 10% faster,到店间隔再缩短 10%
+EVENT_LUNCH_RUSH_SP_BENEFIT,Every correctly served order +1 coin,每单正确出杯额外 +1 金币
+EVENT_LIGHT_DRINKS_SP_NAME,Wellness Wave,养生风潮
+EVENT_LIGHT_DRINKS_SP_HUD,Wellness,养生
+EVENT_LIGHT_DRINKS_SP_HEADLINE,"The light-drink crowd goes full wellness — plain, low-sugar, nothing extra.",轻饮客群全面转向养生：纯茶、低糖、不加料。
+EVENT_LIGHT_DRINKS_SP_CHALLENGE,Even more topping-free orders,无小料订单比例进一步上升
+EVENT_LIGHT_DRINKS_SP_BENEFIT,Topping-free orders pay +4 instead of +2,无小料订单奖励翻倍至 +4 金币
+EVENT_BROWN_SUGAR_TREND_SP_NAME,Limited Batch,限量批次
+EVENT_BROWN_SUGAR_TREND_SP_HUD,Limited,限量
+EVENT_BROWN_SUGAR_TREND_SP_HEADLINE,The brown-sugar batch is small today: brew windows tighten while demand keeps climbing.,今天的黑糖批次有限：备料黄金窗口收紧，需求却还在涨。
+EVENT_BROWN_SUGAR_TREND_SP_CHALLENGE,Golden prep window 25% shorter,备料黄金窗口缩短 25%
+EVENT_BROWN_SUGAR_TREND_SP_BENEFIT,Brown-sugar orders pay +5 instead of +4,含黑糖冻订单奖励提升至 +5 金币
+EVENT_CRITIC_DAY_SP_NAME,Editor's Visit,主编亲临
+EVENT_CRITIC_DAY_SP_HUD,Editor,主编
+EVENT_CRITIC_DAY_SP_HEADLINE,The magazine editor leads this round of critics — impress the headline maker.,本轮探店由杂志主编亲自带队——打动这位头条制造者。
+EVENT_CRITIC_DAY_SP_CHALLENGE,"First critic becomes the Editor: double reward, 35% less patience",首位评论家升级为主编：奖励翻倍、耐心 −35%
+EVENT_CRITIC_DAY_SP_BENEFIT,Editor review pays +16 coins and +2 inspiration,主编好评 +16 金币与 +2 灵感
+EVENT_INFLUENCER_DAY_SP_NAME,Live Marathon,直播间连麦
+EVENT_INFLUENCER_DAY_SP_HUD,Live,直播
+EVENT_INFLUENCER_DAY_SP_HEADLINE,Back-to-back livestream collabs: every second influencer orders an even wilder combo.,探店直播连续连麦：每隔一位网红点出更猎奇的搭配。
+EVENT_INFLUENCER_DAY_SP_CHALLENGE,Every second influencer is a follow-up collab,偶数位网红为连麦返场
+EVENT_INFLUENCER_DAY_SP_BENEFIT,Collab follow-up orders pay +7 extra coins,连麦返场订单额外 +7 金币
+EVENT_GROUP_DAY_SP_NAME,Office Party,公司团建
+EVENT_GROUP_DAY_SP_HUD,Party,团建
+EVENT_GROUP_DAY_SP_HEADLINE,"A whole team books the shop: triple tickets, one at a time.",整个部门包场：三杯团单，一次只接一张。
+EVENT_GROUP_DAY_SP_CHALLENGE,Group tickets need 3 cups; only one party at a time; each cup restores 40% patience,团单需连做 3 杯；同屏仅一张团票；每杯回 40% 耐心
+EVENT_GROUP_DAY_SP_BENEFIT,Completed party ticket pays +18 coins,完成团建整单 +18 金币
+REWARD_EDITOR_REVIEW,Editor headline review,主编头条好评
+REWARD_LIVE_SECOND,Livestream collab follow-up,直播连麦返场
+REWARD_DELIVERY_BONUS,Delivery rush bonus,外卖爆单加成
+POSITIONING_POSITIONING_FLAVOR_NAME,Positioning · Flavor,定位 · 风味
+POSITIONING_POSITIONING_FLAVOR_DESCRIPTION,Fold sugar control into the serving line: no manual sugar step on any order.,把糖度控制并入出品动线：所有订单免手动选糖。
+POSITIONING_POSITIONING_FLAVOR_EFFECT,All orders skip the sugar step (matches Smart Sugar I),全单免选糖（等同智能糖控台一级）
+POSITIONING_POSITIONING_CRAFT_NAME,Positioning · Craft,定位 · 手艺
+POSITIONING_POSITIONING_CRAFT_DESCRIPTION,Lean into handmade craft: the signature seal earns one extra coin on perfect serves.,主打手作感：完美出杯的招牌封口多收 1 金币。
+POSITIONING_POSITIONING_CRAFT_EFFECT,Perfect serves earn +1 extra coin,每次完美出杯额外 +1 金币
+POSITIONING_CHOSEN,Chosen,已选定
+POSITIONING_LOCKED,Unlocks Day %d,第 %d 天解锁
+POSITIONING_TAKEN_OTHER,The other positioning is active,已选择另一条定位
+POSITIONING_PICK_ONE,One-time exclusive pick,一次性互斥选择
+POSITIONING_UNAVAILABLE,Locked,不可选
+POSITIONING_SUCCESS,%s adopted — this shop's identity is set.,已确立「%s」——本店定位就此确定。
+DAY_REWARD_CRAFT, · Craft +%d, · 手艺 +%d
+UPGRADE_COMFORT_EFFECT_4,Patience +66% (diminishing),耐心 +66%（递减）
+UPGRADE_SHAKER_EFFECT_4,1 shake per cup,每杯摇 1 次
+UPGRADE_SMART_SUGAR_EFFECT_2,Matches sugar right after the tea base,选完茶基即匹配糖度
+UPGRADE_TIP_JAR_EFFECT_4,+4 coins per cup,每杯额外 +4 金币
+CAMPAIGN_POSITIONING, · Positioning: %s, · 店铺定位：%s

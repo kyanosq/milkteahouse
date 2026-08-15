@@ -221,7 +221,7 @@ func _build_dressing() -> void:
 		var comfort := _add_upgrade_visual("comfort", "comfort.glb", comfort_level,
 			Vector3(-1.72, 0.01, 1.58), 0.58)
 		comfort.rotation_degrees.y = -12.0
-	if UpgradeCatalog.has_smart_sugar():
+	if UpgradeCatalog.auto_sugar_after_milk():
 		_add_upgrade_visual("smart_sugar", "smart_sugar.glb", 1,
 			Vector3(1.49, 0.985, 0.48), 0.72)
 	var tip_level := UpgradeCatalog.level("tip_jar")
@@ -289,7 +289,7 @@ func build_props(day: int, sugar_item: Dictionary) -> void:
 		var bin_lbl: Label3D = _prop_nodes[tops[i]["id"]].get_node("NameLabel")
 		bin_lbl.font_size = 34
 	# 智能糖控启用后糖度会自动匹配；移除五个手动泵，避免视觉冗余和错误交互暗示。
-	if not UpgradeCatalog.has_smart_sugar():
+	if not UpgradeCatalog.auto_sugar_after_milk():
 		for i in GameData.sugar_levels.size():
 			var lv: Dictionary = GameData.sugar_levels[i].duplicate()
 			lv["id"] = "sugar_%d" % int(lv["value"])

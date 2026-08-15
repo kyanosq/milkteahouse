@@ -371,13 +371,14 @@ func _finish_campaign() -> void:
 
 
 func _validate_campaign(summary: Dictionary) -> bool:
-	# 2026-08-15 再基线：S1 摇杯衰减宽限（合同约定的手感修复）让低熟练画像
-	# 密封少 ~2 次按压、出杯更快——careful 从 A/30★/80-180 迁移到 S/33★/500-550，
-	# balanced 现金上限抬至 2360。门禁仍是逐项精确钉定，非放松。
+	# 2026-08-15 批次2 再基线（D1②高级档 + D4 二遍强度弯/修饰词 + D5 封顶宽限）：
+	# 14 级树刻意跨满战役（finish_day=0，10/14 为新满进度）；新周压力下 careful
+	#（新手画像）允许至多 1 位怒客（238/239 服务）；careful 回到 A（宽限封顶 2★
+	# 保住评级梯度）。门禁仍逐项精确钉定。
 	var expected: Dictionary = {
-		"careful": {"grade": "S", "levels": 9, "finish_day": 0, "stars": 33, "cash_min": 500, "cash_max": 550},
-		"balanced": {"grade": "S", "levels": 10, "finish_day": 10, "stars": 42, "cash_min": 1900, "cash_max": 2360},
-		"growth": {"grade": "S", "levels": 10, "finish_day": 10, "stars": 42, "cash_min": 3500, "cash_max": 4200},
+		"careful": {"grade": "A", "levels": 10, "finish_day": 0, "stars": 34, "cash_min": 30, "cash_max": 60},
+		"balanced": {"grade": "S", "levels": 10, "finish_day": 0, "stars": 42, "cash_min": 2350, "cash_max": 2450},
+		"growth": {"grade": "S", "levels": 10, "finish_day": 0, "stars": 42, "cash_min": 4500, "cash_max": 4610},
 	}[strategy]
 	var failures: Array[String] = []
 	var golden_total := 0
@@ -389,8 +390,9 @@ func _validate_campaign(summary: Dictionary) -> bool:
 		failures.append("served no customers")
 	if golden_total <= 0:
 		failures.append("never collected or sold a golden preparation batch")
-	if int(GameState.campaign_stats.get("angry", 0)) != 0:
-		failures.append("expected no angry customers, got %d" % int(GameState.campaign_stats.get("angry", 0)))
+	var angry_allowance := 1 if strategy == "careful" else 0
+	if int(GameState.campaign_stats.get("angry", 0)) > angry_allowance:
+		failures.append("expected at most %d angry customers, got %d" % [angry_allowance, int(GameState.campaign_stats.get("angry", 0))])
 	if int(GameState.campaign_stats.get("staff_shortfalls", 0)) != 0:
 		failures.append("staff wage shortfall occurred")
 	if String(summary.get("grade", "")) != String(expected["grade"]):

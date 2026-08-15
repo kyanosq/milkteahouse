@@ -290,6 +290,40 @@
       "cost": 1,
       "unlock_day": 8,
       "color": "#c8cabf"
+    },
+    {
+      "id": "osmanthus_jelly",
+      "name": "桂花冻",
+      "flavor": {
+        "aroma": 3,
+        "sweet": 2,
+        "rich": 0,
+        "fresh": 1,
+        "chew": 1
+      },
+      "tags": [
+        "classic"
+      ],
+      "cost": 2,
+      "unlock_day": 10,
+      "color": "#d9a43e"
+    },
+    {
+      "id": "cheese_foam",
+      "name": "芝士奶盖",
+      "flavor": {
+        "aroma": 1,
+        "sweet": 2,
+        "rich": 3,
+        "fresh": 0,
+        "chew": 0
+      },
+      "tags": [
+        "classic"
+      ],
+      "cost": 2,
+      "unlock_day": 12,
+      "color": "#f5e3c3"
     }
   ],
   "affinities": [

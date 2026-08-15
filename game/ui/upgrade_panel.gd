@@ -12,6 +12,7 @@ const CREAM := Color("FFF8ED")
 const COCOA := Color("30201D")
 
 var _cards: HBoxContainer
+var _positioning_row: HBoxContainer
 var _coin_label: Label
 var _reserve_label: Label
 var _feedback: Label
@@ -33,8 +34,8 @@ func _ready() -> void:
 
 func _build() -> void:
 	_panel = PanelContainer.new()
-	_panel.position = Vector2(92, 108)
-	_panel.custom_minimum_size = Vector2(1096, 500)
+	_panel.position = Vector2(92, 66)
+	_panel.custom_minimum_size = Vector2(1096, 588)
 	add_child(_panel)
 
 	var root := VBoxContainer.new()
@@ -81,6 +82,10 @@ func _build() -> void:
 	_cards.add_theme_constant_override("separation", 12)
 	root.add_child(_cards)
 
+	_positioning_row = HBoxContainer.new()
+	_positioning_row.add_theme_constant_override("separation", 12)
+	root.add_child(_positioning_row)
+
 	_feedback = Label.new()
 	_feedback.custom_minimum_size = Vector2(0, 26)
 	_feedback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -115,6 +120,89 @@ func _refresh() -> void:
 		child.free()
 	for data in UpgradeCatalog.items():
 		_cards.add_child(_upgrade_card(data))
+	# 互斥定位对（D1②）：Day11 起展示，二选一；已选定位的另一张永久禁用。
+	for child in _positioning_row.get_children():
+		child.free()
+	for source in UpgradeCatalog.positionings():
+		_positioning_row.add_child(_positioning_card(source))
+
+
+## 定位卡：紧凑横条（与四张升级卡分栏），互斥 + Day11 解锁门。
+func _positioning_card(data: Dictionary) -> PanelContainer:
+	var chosen := UpgradeCatalog.positioning()
+	var mine := chosen == String(data["id"])
+	var card := PanelContainer.new()
+	card.custom_minimum_size = Vector2(530, 132)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(1.0, 0.985, 0.955, 1.0)
+	sb.set_corner_radius_all(14)
+	sb.set_border_width_all(2)
+	sb.border_color = CORAL if mine else Color(COCOA.r, COCOA.g, COCOA.b, 0.14)
+	sb.content_margin_left = 14
+	sb.content_margin_right = 14
+	sb.content_margin_top = 10
+	sb.content_margin_bottom = 10
+	card.add_theme_stylebox_override("panel", sb)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	card.add_child(row)
+	var text_box := VBoxContainer.new()
+	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_box.add_theme_constant_override("separation", 2)
+	row.add_child(text_box)
+	var name := Label.new()
+	name.text = String(data["name"])
+	name.add_theme_font_size_override("font_size", 19)
+	text_box.add_child(name)
+	var effect := Label.new()
+	effect.text = String(data["effect"])
+	effect.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	effect.add_theme_font_size_override("font_size", 13)
+	effect.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.8)
+	text_box.add_child(effect)
+	var state := Label.new()
+	state.add_theme_font_size_override("font_size", 12)
+	if mine:
+		state.text = GameLocale.text("POSITIONING_CHOSEN")
+		state.add_theme_color_override("font_color", CORAL)
+	elif not UpgradeCatalog.positioning_unlocked():
+		state.text = GameLocale.text("POSITIONING_LOCKED", [int(data["unlock_day"])])
+	elif not chosen.is_empty():
+		state.text = GameLocale.text("POSITIONING_TAKEN_OTHER")
+	else:
+		state.text = GameLocale.text("POSITIONING_PICK_ONE")
+		state.add_theme_color_override("font_color", MINT)
+	text_box.add_child(state)
+	var buy := Button.new()
+	buy.custom_minimum_size = Vector2(150, 54)
+	buy.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if mine:
+		buy.text = GameLocale.text("POSITIONING_CHOSEN")
+		buy.disabled = true
+	elif not UpgradeCatalog.positioning_unlocked() or not chosen.is_empty():
+		buy.text = GameLocale.text("POSITIONING_UNAVAILABLE")
+		buy.disabled = true
+	else:
+		buy.text = GameLocale.text("UPGRADE_BUY", [int(data["cost"])])
+		buy.disabled = GameState.coins < int(data["cost"])
+		buy.pressed.connect(_on_buy_positioning.bind(String(data["id"])))
+	row.add_child(buy)
+	return card
+
+
+func _on_buy_positioning(positioning_id: String) -> void:
+	if UpgradeCatalog.buy_positioning(positioning_id):
+		var data: Dictionary = {}
+		for source in UpgradeCatalog.positionings():
+			if String(source["id"]) == positioning_id:
+				data = source
+		_feedback.text = GameLocale.text("POSITIONING_SUCCESS", [String(data.get("name", ""))])
+		_feedback.add_theme_color_override("font_color", MINT)
+		call_deferred("_refresh")
+	else:
+		_feedback.text = GameLocale.text("UPGRADE_NOT_ENOUGH")
+		_feedback.add_theme_color_override("font_color", CORAL)
 
 
 func _upgrade_card(data: Dictionary) -> PanelContainer:
@@ -207,7 +295,7 @@ func _layout_overscan() -> void:
 	position = -_safe_offset
 	size = geometry["size"]
 	if _panel != null:
-		_panel.position = _safe_offset + Vector2(92, 108)
+		_panel.position = _safe_offset + Vector2(92, 66)
 
 
 func _on_locale_changed(_locale: String) -> void:

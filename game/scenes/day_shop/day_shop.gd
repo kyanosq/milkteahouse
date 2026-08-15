@@ -36,9 +36,11 @@ var angry := 0
 var streak := 0            # 当前连击：连续完美出杯，做错/气走顾客归零
 var best_streak := 0
 var goal := 0              # 今日营收目标（星级结算用）
+var goal_relief := false   # 回暖日：目标 ×0.85 且星级封顶 2★（D5）
 var day_event: Dictionary = {}
 var active_contract: Dictionary = {}
 var spawned_count := 0
+var _kind_spawn_counts := {}
 var event_bonus_earned := 0
 var event_buzz_earned := 0
 var route_bonus_earned := 0
@@ -826,8 +828,10 @@ func _day_goal_pill(hud: HBoxContainer) -> Label:
 # ---------------------------------------------------------------- 直接操纵
 
 func _init_prep_inventory() -> void:
-	tea_batch = PrepBatchModel.new("tea", 8.0, 4.0, 6.0, 4)
-	pearl_batch = PrepBatchModel.new("pearl", 10.0, 4.0, 6.0, 4)
+	# 限量批次（黑糖热搜二遍修饰词）：当日黄金窗口缩短 25%，收尾更紧。
+	var golden_scale := float(day_event.get("golden_window_mult", 1.0))
+	tea_batch = PrepBatchModel.new("tea", 8.0, 4.0 * golden_scale, 6.0, 4)
+	pearl_batch = PrepBatchModel.new("pearl", 10.0, 4.0 * golden_scale, 6.0, 4)
 	tea_stock = {}
 	for base in GameData.unlocked(GameData.bases, GameState.day):
 		tea_stock[String(base["id"])] = [1, 1, 1]
@@ -1070,6 +1074,12 @@ func _on_base(item: Dictionary) -> void:
 		cup_sugar = GameData.sugar_levels[sugar_index]
 	Sfx.play("pour_tea")
 	Haptics.play("tap")
+	# 智能糖台高级档：选完茶基即匹配糖度，比奶基后钩子再快一步。
+	if UpgradeCatalog.auto_sugar_after_base() and not sugar_confirmed \
+			and active_customer != null and customers.has(active_customer):
+		_on_sugar(active_customer["order"]["sugar"])
+		_flash(GameLocale.text("DAY_SMART_SUGAR_MATCHED", [GameLocale.ingredient_name(active_customer["order"]["sugar"])]), Color("27B9A7"))
+		return
 	_refresh_cup()
 
 
@@ -1081,7 +1091,7 @@ func _on_milk(item: Dictionary) -> void:
 	cup_milk = item
 	Sfx.play("pour_milk")
 	Haptics.play("tap")
-	if UpgradeCatalog.has_smart_sugar() and not sugar_confirmed \
+	if UpgradeCatalog.auto_sugar_after_milk() and not sugar_confirmed \
 			and active_customer != null and customers.has(active_customer):
 		_on_sugar(active_customer["order"]["sugar"])
 		_flash(GameLocale.text("DAY_SMART_SUGAR_MATCHED", [GameLocale.ingredient_name(active_customer["order"]["sugar"])]), Color("27B9A7"))
@@ -1647,18 +1657,38 @@ func _free_slot() -> int:
 	return 0
 
 
+func _special_spawn_count(kind: String) -> int:
+	return int(_kind_spawn_counts.get(kind, 0))
+
+
 func _spawn_customer() -> void:
 	var day := GameState.day
 	spawned_count += 1
 	var kind := DailyEvents.customer_kind(day_event, spawned_count)
+	# 公司团建（二遍修饰词）：三杯票占位更久——同屏已有团票时这张降级为普通单。
+	if kind == "group" and bool(day_event.get("triple_ticket", false)):
+		for existing in customers:
+			if String(existing.get("kind", "")) == "group":
+				kind = "regular"
+				break
 	var order := _generate_order(day, spawned_count, kind)
 	var orders: Array = [order]
 	if kind == "group":
-		orders.append(_generate_order(day, spawned_count + 1000, kind))
+		# 三杯票（团建修饰词）或默认双杯票。
+		var ticket_size := 3 if bool(day_event.get("triple_ticket", false)) else 2
+		for cup_index in range(1, ticket_size):
+			orders.append(_generate_order(day, spawned_count + 1000 * cup_index, kind))
 	var special := kind != "regular"
 	var featured_order := order.has("menu_item_id")
 	var dark_order := order.has("dark_menu_id")
 	var named_order := featured_order or dark_order
+	# 主编亲临：本日首位评论家升级为主编（奖励 ×2、耐心更低）。
+	var editor := kind == "critic" and bool(day_event.get("editor_patience_mult", false)) \
+		and _special_spawn_count("critic") == 0
+	# 直播间连麦：偶数位网红第二单加价。
+	var live_second := kind == "influencer" and bool(day_event.get("live_second_bonus", false)) \
+		and _special_spawn_count("influencer") % 2 == 1
+	_kind_spawn_counts[kind] = _special_spawn_count(kind) + 1
 
 	var slot := _free_slot()
 	var customer_color := Color.from_hsv(randf(), 0.55, 0.85)
@@ -1745,7 +1775,7 @@ func _spawn_customer() -> void:
 
 	var patience_mult := 1.0
 	if kind == "critic":
-		patience_mult = 0.78
+		patience_mult = 0.65 if editor else 0.78
 	elif kind == "influencer":
 		patience_mult = 0.90
 	elif dark_order:
@@ -1754,6 +1784,7 @@ func _spawn_customer() -> void:
 	var c := {
 		"order": order, "orders": orders, "group_index": 0, "group_total": orders.size(),
 		"patience": patience, "max_patience": patience,
+		"editor": editor, "live_second": live_second,
 		"node": node, "bubble": bubble, "btn": btn, "slot": slot,
 		"patience_bar": patience_bar, "patience_label": patience_label,
 		"order_title": order_title, "order_progress": order_progress,
@@ -2162,8 +2193,9 @@ func _on_deliver(c: Dictionary) -> void:
 		var staff_coins := StaffCatalog.quality_coin_bonus()
 		var route_coins := LegacyRoutes.sale_bonus(order, ratio, streak)
 		var golden_batch_bonus := 2 if clean_build and batch_quality == 2 else 0
+		var perfect_positioning_bonus := UpgradeCatalog.perfect_bonus() if flawless else 0
 		var total_coins := price + tip + combo_bonus + event_coins + staff_coins + route_coins \
-			+ golden_batch_bonus
+			+ golden_batch_bonus + perfect_positioning_bonus
 		var inspiration_gain := (1 if flawless else 0) \
 			+ (1 if combo_bonus > 0 else 0) + (1 if golden_batch_bonus > 0 else 0) + event_inspiration
 		event_bonus_earned += event_coins
@@ -2215,6 +2247,8 @@ func _on_deliver(c: Dictionary) -> void:
 			msg += GameLocale.text("DAY_REWARD_BATCH_POOR", [poor_batch_penalty])
 		if staff_coins > 0:
 			msg += GameLocale.text("DAY_REWARD_STAFF", [staff_coins])
+		if perfect_positioning_bonus > 0:
+			msg += GameLocale.text("DAY_REWARD_CRAFT", [perfect_positioning_bonus])
 		if route_coins > 0:
 			msg += GameLocale.text("DAY_REWARD_ROUTE", [route_coins, String(LegacyRoutes.route().get("short_name", ""))])
 		if combo_bonus > 0:
@@ -2237,7 +2271,7 @@ func _on_deliver(c: Dictionary) -> void:
 			c["group_index"] = int(c["group_index"]) + 1
 			c["order"] = c["orders"][c["group_index"]]
 			c["patience"] = minf(float(c["max_patience"]),
-				float(c["patience"]) + float(c["max_patience"]) * 0.48)
+				float(c["patience"]) + float(c["max_patience"]) * float(day_event.get("group_refill", 0.48)))
 			_render_order_card(c)
 			_style_order_card(c, c == active_customer)
 		else:
@@ -2352,6 +2386,7 @@ func _start_day() -> void:
 	streak = 0
 	best_streak = 0
 	spawned_count = 0
+	_kind_spawn_counts = {}
 	event_bonus_earned = 0
 	event_buzz_earned = 0
 	route_bonus_earned = 0
@@ -2368,6 +2403,13 @@ func _start_day() -> void:
 	waste_cost = 0
 	# 目标仍随天数增长，但不再超过成长系统能追回的范围。
 	goal = ceili(float(EndlessContracts.goal_for_day(GameState.day)) * LegacyRoutes.goal_multiplier())
+	# 回暖日（封顶宽限，D5）：昨天 ≤1★ 的战役非合约局，今日目标 ×0.85（下限 60），
+	# 当日星级封顶 2★——落后玩家有一天喘息，且不侵蚀 A/S/S 精通梯度。
+	goal_relief = GameState.day <= 14 and active_contract.is_empty() \
+		and GameState.yesterday_stars(GameState.day) >= 0 \
+		and GameState.yesterday_stars(GameState.day) <= 1
+	if goal_relief:
+		goal = maxi(60, int(goal * 0.85))
 	shake_bar.max_value = _shakes_needed()
 	spawn_timer = 1.0
 	running = true
@@ -2409,6 +2451,9 @@ func _end_day() -> void:
 		stars = 2
 	elif earned >= int(goal * 0.7):
 		stars = 1
+	# 回暖日封顶 2★（D5）：宽限换喘息不换评级，3★ 与其灵感奖励不发放。
+	if goal_relief and stars == 3:
+		stars = 2
 	if stars == 3:
 		GameState.inspiration += 3
 	var wage_result := StaffCatalog.charge_daily_wage(GameState.day)
@@ -2418,6 +2463,7 @@ func _end_day() -> void:
 	var net_operating := earned - staff_wage - operating_paid
 	var stats := {"earned": earned, "served": served, "perfect": perfect, "angry": angry,
 		"stars": stars, "best_streak": best_streak, "event_id": day_event.get("id", "calm"),
+		"relief": goal_relief,
 		"event_bonus": event_bonus_earned, "event_buzz": event_buzz_earned,
 		"route_bonus": route_bonus_earned,
 		"menu_sales": menu_sales_count, "menu_revenue": menu_sales_revenue,
@@ -2725,13 +2771,16 @@ func _update_info() -> void:
 		GameState.day, int(time_left), earned, goal, GameState.coins, stock_cost,
 		GameState.inspiration, perfect, streak, angry, best_streak,
 		route_trigger_count, route_bonus_earned, LegacyRoutes.active_id(),
-		UpgradeCatalog.total_levels(), active_contract.get("id", ""),
+		UpgradeCatalog.total_levels(), active_contract.get("id", ""), goal_relief,
 	]
 	if inputs == _info_inputs:
 		return
 	_info_inputs = inputs
 	hud_day.text = GameLocale.text("DAY_HUD_TIME", [GameState.day, int(time_left)])
 	hud_goal_text.text = GameLocale.text("DAY_HUD_GOAL", [earned, goal, int(goal * STAR_GOAL_MULT)])
+	if goal_relief:
+		# 回暖日徽标（D5）：折价必须透明，玩家不能误判自己的真实实力。
+		hud_goal_text.text += GameLocale.text("DAY_GOAL_RELIEF_BADGE")
 	hud_goal_bar.value = clampf(float(earned) / maxf(float(goal), 1.0) * 100.0, 0.0, STAR_GOAL_MULT * 100.0)
 	# 术语药丸的悬停说明：首次玩家无法从“店铺0/10 · 完美0 · x0”猜出含义（P1 试玩）。
 	# Label 不接收悬停，提示挂在药丸面板上；语言切换会清空本函数缓存从而重译。

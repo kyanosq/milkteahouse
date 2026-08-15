@@ -60,6 +60,9 @@ func _ready() -> void:
 	GameState.upgrades = {}
 	GameState.staff = {}
 	GameState.endless = GameState._new_endless_state()
+	# 回暖日（D5）：昨天 1★ → 今日目标 ×0.85 且星级封顶 2★。
+	GameState.campaign_stats = GameState._new_campaign_stats()
+	GameState.campaign_stats["day_stars"] = {6: 1}
 	var shop: Control = load("res://scenes/day_shop/day_shop.tscn").instantiate()
 	add_child(shop)
 	await get_tree().process_frame
@@ -142,15 +145,22 @@ func _ready() -> void:
 	var leftover_cost: int = shop._current_cup_cost()
 	var stock_before_end: int = shop.stock_cost
 	var waste_before_end: int = shop.waste_cost
+	# 回暖日封顶（D5）：营收拉到三星线之上，真实结算后当日星数仍必须是 2。
+	shop.earned = int(shop.goal * 2.0)
 	shop._end_day()
 	assert(shop.stock_cost == stock_before_end + leftover_cost,
 		"end-of-day must charge the in-flight cup as stock")
 	assert(shop.waste_cost == waste_before_end + leftover_cost,
 		"end-of-day must charge the in-flight cup as waste")
 	assert(not shop.running)
+	assert(shop.goal_relief, "day 7 after a 1-star day 6 must be a relief day")
+	assert(shop.goal <= 176, "relief day goal must be discounted from the base 206")
+	assert(int(GameState.campaign_stats["day_stars"].get(7, 0)) == 2,
+		"a relief day can never record three stars even at 2x the goal")
+	assert(int(GameState.campaign_stats["relief_days"]) == 1,
+		"relief days must be counted for the campaign report footnote")
 	assert(get_viewport().gui_get_focus_owner() != null,
 		"settlement continue must take focus so gamepad/keyboard can leave the panel")
-	assert(not shop.running)
 	shop.queue_free()
 	GameState.settings = original_settings
 	TranslationServer.set_locale(GameState.locale())

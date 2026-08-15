@@ -71,12 +71,13 @@ func _ready() -> void:
 	GameState.featured_menu = ["legend:classic_boba", "legend:brown_sugar_boba", "legend:jasmine_pure"]
 	assert(MenuCatalog.featured_for_spawn(2, "light_drinks")["id"] == "legend:jasmine_pure",
 		"a matching drink must receive the first weighted demand slot")
+	# 用一周目事件日（day4 轻饮 / day5 黑糖）钉定叠加语义；Day10/11 已是二遍修饰词局。
 	var light_order := MenuCatalog.order_for_item(jasmine_pure, 2, "light_drinks")
 	assert(int(light_order.get("menu_event_bonus", 0)) == 6)
-	assert(int(DailyEvents.order_bonus(DailyEvents.event_for_day(10), {
+	assert(int(DailyEvents.order_bonus(DailyEvents.event_for_day(4), {
 		"kind": "regular", "order": light_order})["coins"]) == 6)
 	var trend_order := MenuCatalog.order_for_item(brown_sugar, 2, "brown_sugar_trend")
-	assert(int(DailyEvents.order_bonus(DailyEvents.event_for_day(11), {
+	assert(int(DailyEvents.order_bonus(DailyEvents.event_for_day(5), {
 		"kind": "regular", "order": trend_order})["coins"]) == 6,
 		"trend formula and featured match bonuses must stack visibly")
 

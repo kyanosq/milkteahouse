@@ -161,6 +161,18 @@ func _build_report() -> void:
 	legacy_line.text = team_text + GameLocale.text("CAMPAIGN_LEGACY", [
 		int(GameState.legacy.get("campaigns_completed", 0)), String(GameState.legacy.get("best_grade", "-")), int(GameState.legacy.get("best_score", 0))]) \
 		+ GameLocale.text("CAMPAIGN_ROUTES_CLEARED", [LegacyRoutes.completed_count(), LegacyRoutes.IDS.size()])
+	# 回暖日脚注（D5）：用了几天宽限一目了然，评级语境透明。
+	var relief_days := int(GameState.campaign_stats.get("relief_days", 0))
+	if relief_days > 0:
+		legacy_line.text += GameLocale.text("CAMPAIGN_RELIEF_DAYS", [relief_days])
+	# 店铺定位（D1②）：收官报告展示互斥选择。
+	var positioning_id := UpgradeCatalog.positioning()
+	if not positioning_id.is_empty():
+		var positioning_name := ""
+		for source in UpgradeCatalog.positionings():
+			if String(source["id"]) == positioning_id:
+				positioning_name = String(source["name"])
+		legacy_line.text += GameLocale.text("CAMPAIGN_POSITIONING", [positioning_name])
 	legacy_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	legacy_line.add_theme_font_size_override("font_size", 15)
 	legacy_line.add_theme_color_override("font_color", MINT)

@@ -26,14 +26,16 @@ func _ready() -> void:
 	}
 	var mid := GameState.build_campaign_summary()
 	assert(mid["grade"] == "A")
-	assert(int(mid["score"]) == 74)
+	assert(int(mid["score"]) == 71,
+		"1.0 tree (14 levels) re-scales the upgrade subscore: 7/14*15=8 vs 7/10*15=11")
 	GameState.campaign_stats = GameState._new_campaign_stats()
 	GameState.day = 14
 	GameState.phase = "night"
 	GameState.perfect_total = 154
 	GameState.coins = 900
 	GameState.buzz = 20
-	GameState.upgrades = {"comfort": 3, "shaker": 3, "smart_sugar": 2, "tip_jar": 2}
+	# 1.0 树满配（14 级）才能拿满升级分。 
+	GameState.upgrades = {"comfort": 4, "shaker": 4, "smart_sugar": 2, "tip_jar": 4}
 	GameState.discovered = ["classic_boba", "green_cloud", "brown_sugar"]
 	GameState.dark_discovered = ["xiangcai_fantasy", "zheergen_storm"]
 	GameState.menu = [

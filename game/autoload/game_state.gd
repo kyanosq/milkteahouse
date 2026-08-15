@@ -661,6 +661,7 @@ func _new_campaign_stats() -> Dictionary:
 		"operating_costs": 0, "rent_paid": 0, "cost_relief": 0,
 		"route_bonus": 0,
 		"days_completed": 0, "best_streak": 0, "recorded_days": [], "tracking_start_day": 1,
+		"day_stars": {}, "relief_days": 0,
 	}
 
 
@@ -679,6 +680,12 @@ func _normalize_campaign_stats(value: Variant) -> Dictionary:
 	return result
 
 
+func yesterday_stars(day_number: int) -> int:
+	## 前一战役日的星数；未记录（新档/无尽/跨战役）返回 -1。
+	var day_stars: Dictionary = campaign_stats.get("day_stars", {})
+	return int(day_stars.get(day_number - 1, -1))
+
+
 func record_campaign_day(day_number: int, stats: Dictionary) -> void:
 	if day_number < 1 or day_number > 14:
 		return
@@ -686,6 +693,12 @@ func record_campaign_day(day_number: int, stats: Dictionary) -> void:
 	if days.has(day_number):
 		return
 	days.append(day_number)
+	# 逐日星数与回暖日计数：封顶宽限（D5）据此判定与统计。
+	var day_stars: Dictionary = campaign_stats.get("day_stars", {})
+	day_stars[day_number] = int(stats.get("stars", 0))
+	campaign_stats["day_stars"] = day_stars
+	if bool(stats.get("relief", false)):
+		campaign_stats["relief_days"] = int(campaign_stats.get("relief_days", 0)) + 1
 	campaign_stats["recorded_days"] = days
 	campaign_stats["days_completed"] = days.size()
 	campaign_stats["revenue"] = int(campaign_stats.get("revenue", 0)) + int(stats.get("earned", 0))

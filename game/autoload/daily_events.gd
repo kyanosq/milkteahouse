@@ -75,7 +75,8 @@ const ROTATION := [
 	},
 ]
 
-# 首轮事件按原料解锁顺序教学；从 Day 9 起，新店+店招重排同一组六事件。
+# 首轮事件按原料解锁顺序教学；从 Day 9 起，店招路线重排同一组六事件；
+# 无路线的首战役也用 trend 表重排（D4-B），第二遍统一叠加强度弯与修饰词。
 # 每条路线每六天仍恰好出现一次所有事件，避免某条路线因奖励事件更多而占优。
 const ROUTE_ROTATIONS := {
 	"rush": ["group_day", "lunch_rush", "influencer_day", "critic_day", "light_drinks", "brown_sugar_trend"],
@@ -83,18 +84,64 @@ const ROUTE_ROTATIONS := {
 	"trend": ["influencer_day", "brown_sugar_trend", "light_drinks", "lunch_rush", "critic_day", "group_day"],
 }
 
+## 二遍修饰词（D4）：Day9+ 每个事件的第二轮换一种玩法——数值等价带内改规则，
+## 不做纯数值皮肤。参数由 day_shop/order_bonus 消费。
+const SECOND_PASS := {
+	"lunch_rush": {
+		"per_order_bonus": 1, "spawn_mult": 0.90,
+	},
+	"light_drinks": {
+		"notopping_bonus": 4,
+	},
+	"brown_sugar_trend": {
+		"golden_window_mult": 0.75, "brown_bonus": 5,
+	},
+	"critic_day": {
+		"editor_patience_mult": 0.65, "editor_reward_mult": 2.0,
+	},
+	"influencer_day": {
+		"live_second_bonus": 7,
+	},
+	"group_day": {
+		"triple_ticket": true, "group_refill": 0.40, "group_bonus": 18,
+	},
+}
+
 
 func event_for_day(day: int) -> Dictionary:
 	if day <= 2:
 		return _localized_event(CALM.duplicate(true))
 	var slot := (day - 3) % ROTATION.size()
-	if day >= 9 and LegacyRoutes.is_active():
-		var schedule: Array = ROUTE_ROTATIONS.get(LegacyRoutes.active_id(), [])
+	var base_event: Dictionary = {}
+	if day >= 9:
+		# D4-B：Day9+ 一律重排；无路线时借用 trend 表，首战役第二周不再是第一周的回放。
+		var schedule: Array = ROUTE_ROTATIONS.get(LegacyRoutes.active_id(),
+			ROUTE_ROTATIONS["trend"])
 		if schedule.size() == ROTATION.size():
-			var routed := _event_by_id(String(schedule[slot]))
-			if not routed.is_empty():
-				return _localized_event(routed)
-	return _localized_event(ROTATION[slot].duplicate(true))
+			base_event = _event_by_id(String(schedule[slot]))
+	if base_event.is_empty():
+		base_event = ROTATION[slot]
+	var event: Dictionary = base_event.duplicate(true)
+	if day >= 9:
+		_apply_second_pass(event)
+	return _localized_event(event)
+
+
+## 二遍强度弯（D4-A）+ 修饰词合并（D4-修饰词）：换玩法不改总强度带。
+func _apply_second_pass(event: Dictionary) -> void:
+	event["spawn_mult"] = float(event.get("spawn_mult", 1.0)) * 0.94
+	event["patience_mult"] = float(event.get("patience_mult", 1.0)) * 0.96
+	var mod: Dictionary = SECOND_PASS.get(String(event.get("id", "")), {})
+	if mod.is_empty():
+		return
+	event["second_pass"] = true
+	var patch := mod.duplicate(true)
+	# 修饰词倍率是“再”乘（规格：到店再 −10%），不能覆盖强度弯。
+	for mult_key in ["spawn_mult", "patience_mult"]:
+		if patch.has(mult_key):
+			event[mult_key] = float(event.get(mult_key, 1.0)) * float(patch[mult_key])
+			patch.erase(mult_key)
+	event.merge(patch, true)
 
 
 func next_event(day: int) -> Dictionary:
@@ -169,25 +216,36 @@ func modify_order(event: Dictionary, order: Dictionary, unlocked_toppings: Array
 func order_bonus(event: Dictionary, customer: Dictionary) -> Dictionary:
 	var kind := String(customer.get("kind", "regular"))
 	if kind == "critic":
-		return {"coins": 8, "inspiration": 1, "reason": GameLocale.text("REWARD_CRITIC_REVIEW")}
+		# 主编亲临（二遍修饰词）：首位评论家奖励 ×2，其余评论家不变。
+		if bool(customer.get("editor", false)):
+			var mult := float(event.get("editor_reward_mult", 2.0))
+			return {"coins": int(8.0 * mult), "inspiration": int(1.0 * mult),
+				"buzz": 0, "reason": GameLocale.text("REWARD_EDITOR_REVIEW")}
+		return {"coins": 8, "inspiration": 1, "buzz": 0, "reason": GameLocale.text("REWARD_CRITIC_REVIEW")}
 	if kind == "influencer":
+		if bool(customer.get("live_second", false)):
+			return {"coins": 5 + int(event.get("live_second_bonus", 7)), "inspiration": 0,
+				"buzz": 3, "reason": GameLocale.text("REWARD_LIVE_SECOND")}
 		return {"coins": 5, "inspiration": 0, "buzz": 3, "reason": GameLocale.text("REWARD_INFLUENCER_POST")}
 	if kind == "group" and int(customer.get("group_index", 0)) >= int(customer.get("group_total", 1)) - 1:
-		return {"coins": 10, "inspiration": 2, "buzz": 0, "reason": GameLocale.text("REWARD_GROUP_COMPLETE")}
+		return {"coins": int(event.get("group_bonus", 10)), "inspiration": 2, "buzz": 0,
+			"reason": GameLocale.text("REWARD_GROUP_COMPLETE")}
 	var menu_bonus := int(customer["order"].get("menu_event_bonus", 0))
-	var event_coins := 0
+	var event_coins := int(event.get("per_order_bonus", 0))
 	var reason := GameLocale.text("REWARD_MENU_EVENT_MATCH") if menu_bonus > 0 else ""
 	match String(event.get("id", "calm")):
 		"light_drinks":
 			if customer["order"]["tops"].is_empty():
-				event_coins = 2
+				event_coins += int(event.get("notopping_bonus", 2))
 				reason = GameLocale.text("REWARD_LIGHT_BONUS")
 		"brown_sugar_trend":
 			for topping in customer["order"]["tops"]:
 				if topping["id"] == "brown_sugar":
-					event_coins = 4
+					event_coins += int(event.get("brown_bonus", 4))
 					reason = GameLocale.text("REWARD_TREND_BONUS")
 					break
+	if event_coins > 0 and reason.is_empty() and int(event.get("per_order_bonus", 0)) > 0:
+		reason = GameLocale.text("REWARD_DELIVERY_BONUS")
 	return {"coins": event_coins + menu_bonus, "inspiration": 0, "buzz": 0, "reason": reason}
 
 
@@ -215,6 +273,9 @@ func order_hint(event: Dictionary, customer: Dictionary) -> String:
 
 func _localized_event(event: Dictionary) -> Dictionary:
 	var prefix := "EVENT_%s_" % String(event.get("id", "calm")).to_upper()
+	if bool(event.get("second_pass", false)):
+		prefix += "SP_"
+		# 修饰词变体沿用事件色相，仅换文案与规则参数。
 	event["name"] = GameLocale.text(prefix + "NAME")
 	event["hud_name"] = GameLocale.text(prefix + "HUD")
 	event["headline"] = GameLocale.text(prefix + "HEADLINE")
