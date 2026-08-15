@@ -131,11 +131,20 @@ func set_featured(item_id: String, active: bool, persist := true) -> String:
 
 
 func formula_available(item_data: Dictionary) -> bool:
-	return not String(item_data.get("base", "")).is_empty() \
-		and not String(item_data.get("milk", "")).is_empty() \
-		and item_data.get("toppings", []) is Array \
-		and item_data.get("sugar", []) is Array \
-		and item_data.get("sugar", []).size() >= 2
+	if String(item_data.get("base", "")).is_empty() \
+			or String(item_data.get("milk", "")).is_empty() \
+			or not (item_data.get("toppings", []) is Array) \
+			or not (item_data.get("sugar", []) is Array) \
+			or item_data.get("sugar", []).size() < 2:
+		return false
+	# 结构有效还不够：配方里的每种原料都必须在当日已解锁，否则特色订单会
+	# 要求玩家无法完成的配方（纵深防御：任何来源的越日配方都退回随机订单）。
+	for ingredient_id in [String(item_data.get("base", "")), String(item_data.get("milk", ""))] \
+			+ item_data.get("toppings", []):
+		var ingredient := RecipeJournal.ingredient(String(ingredient_id))
+		if ingredient.is_empty() or int(ingredient.get("unlock_day", 1)) > GameState.day:
+			return false
+	return true
 
 
 func display_name(item_data: Dictionary) -> String:
@@ -493,6 +502,10 @@ func _legend_for_raw(raw: Dictionary) -> Dictionary:
 		if not direct.is_empty() and not RecipeJournal.is_dark(direct):
 			return direct
 	var raw_name := String(raw.get("name", ""))
+	if raw_id.begins_with("custom:"):
+		# 新格式自定义饮品自带唯一 id 与完整配方；即使名字与某传说配方完全相同，
+		# 也不能被改写成传说（会丢掉玩家真实配方，甚至带入未解锁原料，R4）。
+		return {}
 	for recipe in GameData.recipes:
 		if String(recipe.get("name", "")) == raw_name:
 			return recipe

@@ -16,6 +16,27 @@ func _ready() -> void:
 	assert(MenuCatalog.formula_available(GameState.menu[0]))
 	assert(GameState.featured_menu == ["legend:classic_boba"])
 
+	# 自定义饮品即使与传说配方撞名也不能被改写：名字回退只服务旧档迁移（R4）。
+	GameState.menu = [{
+		"id": "custom:3:1", "type": "custom", "name": "经典珍珠奶茶",
+		"tier": "招牌", "price": 15, "quality": 84,
+		"base": "black_tea", "milk": "fresh_milk", "toppings": ["boba"],
+		"sugar": [50, 50],
+	}]
+	GameState.featured_menu = ["custom:3:1"]
+	MenuCatalog.ensure_normalized()
+	assert(GameState.menu[0]["id"] == "custom:3:1", "custom ids must never rewrite to legends")
+	assert(GameState.menu[0]["base"] == "black_tea")
+	assert(GameState.featured_menu == ["custom:3:1"])
+	# 越日配方纵深防御：未解锁原料使特色订单退回随机订单而非不可能订单。
+	var locked := MenuCatalog.register_legend(RecipeJournal.recipe("brown_sugar_boba"))
+	GameState.day = 4
+	assert(not MenuCatalog.formula_available(locked),
+		"a formula with day-5 toppings must be unavailable on day 4")
+	assert(MenuCatalog.order_for_item(locked, 2).is_empty(),
+		"locked formulas must fall back to random orders")
+	GameState.day = 9
+
 	GameState.menu = []
 	GameState.featured_menu = []
 	for recipe_id in ["classic_boba", "jasmine_coco", "taro_boba", "oolong_pudding"]:
