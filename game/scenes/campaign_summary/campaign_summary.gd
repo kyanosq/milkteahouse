@@ -419,7 +419,15 @@ func _style_secondary(button: Button, accent: Color) -> void:
 		button.add_theme_color_override(state, COCOA)
 
 
+# 同帧双设备（手柄+键盘）可双击一次性按钮：第二次调用会读已清空的
+# campaign_summary，把 S 级奖金降级成 C 或直接跳过第 15 天（评审 R9）。
+var _transition_started := false
+
+
 func _continue_endless() -> void:
+	if _transition_started:
+		return
+	_transition_started = true
 	GameState.continue_after_campaign()
 	get_tree().change_scene_to_file("res://scenes/day_shop/day_shop.tscn")
 
@@ -438,6 +446,9 @@ func _close_confirmation() -> void:
 
 
 func _start_new_shop() -> void:
+	if _transition_started:
+		return
+	_transition_started = true
 	GameState.start_new_shop_plus(selected_route)
 	get_tree().change_scene_to_file("res://scenes/day_shop/day_shop.tscn")
 

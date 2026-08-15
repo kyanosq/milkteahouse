@@ -1115,7 +1115,15 @@ func _show_market_settlement(settlement: Dictionary) -> void:
 	overlay.visible = true
 
 
+var _next_day_started := false
+
+
 func _next_day() -> void:
+	# 同帧双设备双击“继续”会二次进入：第二次会绕过结算门直接 day+1，
+	# 在战役结算界面下生成第 15 天（评审 R9）。
+	if _next_day_started:
+		return
+	_next_day_started = true
 	GameState.night_budget = -1
 	GameState.night_budget_day = 0
 	GameState.night_performance_remaining = 0
