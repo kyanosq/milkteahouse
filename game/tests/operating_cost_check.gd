@@ -77,6 +77,15 @@ func _ready() -> void:
 	shop.running = true
 	shop._spawn_customer()
 	var corrected_customer: Dictionary = shop.customers[0]
+	# 后排晋升的新队首若已在红档，晋升瞬间必须补发预警（评审 R6）。
+	shop._spawn_customer()
+	var promoted_customer: Dictionary = shop.customers[1]
+	promoted_customer["patience_band"] = 0
+	var warnings_before_promotion: int = Haptics.event_count("warning")
+	shop._remove_customer(corrected_customer)
+	assert(shop.active_customer == promoted_customer)
+	assert(Haptics.event_count("warning") > warnings_before_promotion,
+		"promoting a red-band rear customer to head must warn immediately")
 	corrected_customer["order"] = {
 		"base": GameData.bases[0], "milk": GameData.milks[1],
 		"tops": [], "sugar": GameData.sugar_levels[2],

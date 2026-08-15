@@ -2291,6 +2291,21 @@ func _same_tops(order_tops: Array) -> bool:
 	return a == b
 
 
+## 队首离场后由后排晋升的新队首，可能在后排等待时已掉到琥珀/红档——
+## 晋升时补发一次预警，避免"毫无征兆就离场"（评审 R6）。
+func _notify_head_promotion(c: Dictionary) -> void:
+	if not running:
+		return
+	var band := int(c.get("patience_band", 2))
+	if band >= 2:
+		return
+	if band == 1:
+		Sfx.play("select", 0.72)
+	else:
+		Sfx.play("customer_leave", 1.4)
+		Haptics.play("warning")
+
+
 func _customer_leave(c: Dictionary, msg: String) -> void:
 	angry += 1
 	streak = 0
@@ -2307,6 +2322,8 @@ func _remove_customer(c: Dictionary, served := false) -> void:
 	c["bubble"].queue_free()
 	if was_active:
 		active_customer = customers[0] if not customers.is_empty() else null
+		if active_customer != null:
+			_notify_head_promotion(active_customer)
 	for item in customers:
 		_style_order_card(item, item == active_customer)
 	_refresh_context_controls()
