@@ -142,6 +142,30 @@ func _ready() -> void:
 	assert(GameState.settings["sfx_volume"] == 0.75)
 	assert(int(GameState.settings["key_bindings"]["game_pause"]) == KEY_ESCAPE)
 
+	# 市场检验结算的合法最坏规模必须完整往返：8 试做/晚 × 3 晚 = 24 卡，
+	# 40 字名称（写入侧上限）不允许被加载侧改写。
+	var stress_results: Array = []
+	for i in 24:
+		stress_results.append({
+			"name": "测试新品%02d" % i + "字".repeat(36), "score": 80 + i,
+			"stage": (i % 3) + 1, "outcome": "testing",
+			"quality": 84, "base": "black_tea", "milk": "fresh_milk",
+			"toppings": [], "sugar": 50,
+		})
+	GameState.day = 16
+	GameState.phase = "night"
+	GameState._apply_save_data({
+		"day": 16, "phase": "night", "market_settlement": {
+			"day": 16, "settled": true, "results": stress_results,
+		},
+	})
+	assert(GameState.market_settlement["results"].size() == 24,
+		"the legal worst-case settlement must survive load without dropping cards")
+	var roundtrip_name: String = GameState.market_settlement["results"][5]["name"]
+	assert(roundtrip_name.length() == 40,
+		"a writer-length name must round-trip unchanged")
+	GameState.market_settlement = {}
+
 	# 日中存档包含已入账收入；恢复未结算的白天必须回滚到开店快照，堵住重玩重复收入。
 	GameState._apply_save_data({
 		"day": 12, "phase": "day", "coins": 520, "buzz": 9, "inspiration": 14,

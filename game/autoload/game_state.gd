@@ -519,7 +519,9 @@ func _normalize_market_settlement(value: Variant) -> Dictionary:
 		return {}
 	var results: Array = []
 	for value_result in loaded_results:
-		if not value_result is Dictionary or results.size() >= 16:
+		# 合法上限：每晚预算 16 / 试做 2 点 = 8 次，每张检验卡存活 3 晚 → 24 张。
+		# 超出部分只可能是损坏数据；正常游玩写入永不被丢弃。
+		if not value_result is Dictionary or results.size() >= 24:
 			continue
 		var item: Dictionary = value_result
 		var outcome := String(item.get("outcome", "testing"))

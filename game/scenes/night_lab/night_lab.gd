@@ -373,6 +373,8 @@ func _build_ui() -> void:
 	name_edit = LineEdit.new()
 	name_edit.placeholder_text = "给新品起个名字…"
 	name_edit.custom_minimum_size = Vector2(160, 40)
+	# 与存档规范化一致的长度上限：写入侧先截住，保证 save→load→save 完全等价。
+	name_edit.max_length = 40
 	name_row.add_child(name_edit)
 	var shelf_btn := Button.new()
 	shelf_btn.text = "上架新品"
