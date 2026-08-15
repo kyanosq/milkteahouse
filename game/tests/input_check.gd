@@ -97,6 +97,29 @@ func _ready() -> void:
 		"safe-area scaling must not shrink full-viewport modal scrims")
 	viewport.queue_free()
 
+	# 夜间货架必须按 SafeFrame 作者宽度（而非裸视口）预算缩放：宽于 16:9 的
+	# 视口下，按视口预算会让货架保持 1.0 溢出安全框（评审 R11-S3）。
+	var prev_day := GameState.day
+	GameState.day = 9
+	var wide_viewport := SubViewport.new()
+	wide_viewport.size = Vector2i(1558, 720)
+	add_child(wide_viewport)
+	var night_lab_wide: Control = load("res://scenes/night_lab/night_lab.tscn").instantiate()
+	wide_viewport.add_child(night_lab_wide)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert(night_lab_wide._shelf.size.x > SafeFrame.AUTHORED_SIZE.x - night_lab_wide._shelf.position.x * 2.0,
+		"day-9 shelf must overflow the authored budget for this test to discriminate")
+	assert(night_lab_wide._shelf.scale.x < 1.0,
+		"the shelf must scale to the SafeFrame width even on wider-than-16:9 viewports")
+	assert(night_lab_wide._shelf.scale.x * night_lab_wide._shelf.size.x
+		<= SafeFrame.AUTHORED_SIZE.x - night_lab_wide._shelf.position.x * 2.0 + 0.5,
+		"the scaled shelf must stay inside the authored frame")
+	night_lab_wide.queue_free()
+	wide_viewport.queue_free()
+	await get_tree().process_frame
+	GameState.day = prev_day
+
 	var shop: Control = load("res://scenes/day_shop/day_shop.tscn").instantiate()
 	add_child(shop)
 	await get_tree().process_frame

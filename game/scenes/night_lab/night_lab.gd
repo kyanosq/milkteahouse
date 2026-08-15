@@ -81,6 +81,7 @@ var tomorrow_name_label: Label
 var tomorrow_body_label: Label
 var _tiles: Dictionary = {}    # sel_key -> {btn, on}
 var ui_frame: SafeFrame
+var _shelf: HBoxContainer
 var _first_tile: Button
 var _result_entries: Array[Dictionary] = []
 var _note_state: Dictionary = {}
@@ -204,6 +205,7 @@ func _build_ui() -> void:
 	shelf.position = Vector2(24, 62)
 	shelf.add_theme_constant_override("separation", 14)
 	ui_frame.add_child(shelf)
+	_shelf = shelf
 	_shelf_group(shelf, "茶底", GameData.unlocked(GameData.bases, GameState.day), "base")
 	_shelf_group(shelf, "奶基", GameData.unlocked(GameData.milks, GameState.day), "milk")
 	_shelf_group(shelf, "小料(≤2)", GameData.unlocked(GameData.toppings, GameState.day), "topping")
@@ -562,12 +564,16 @@ func _return_to_menu() -> void:
 	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
 
 
-## 货架超宽时整体缩放：后期解锁再多也不会被屏幕右缘裁掉
+## 货架超宽时整体缩放：后期解锁再多也不会被屏幕右缘裁掉。
+## 预算按 SafeFrame 的作者宽度（1280）而不是裸视口计算——宽于 16:9 的视口
+## （多数手机/带鱼屏）下，按视口预算会让货架保持 1.0 缩放溢出安全框、
+## 探进刘海/超宽溢出带（评审 R11-S3）。
 func _fit_shelf(shelf: HBoxContainer) -> void:
 	await get_tree().process_frame
 	if not is_instance_valid(shelf):
 		return
-	var max_w := get_viewport_rect().size.x - shelf.position.x * 2.0
+	shelf.scale = Vector2.ONE
+	var max_w := SafeFrameScene.AUTHORED_SIZE.x - shelf.position.x * 2.0
 	if shelf.size.x > max_w and shelf.size.x > 0.0:
 		shelf.scale = Vector2.ONE * (max_w / shelf.size.x)
 
@@ -1183,6 +1189,9 @@ func _on_locale_changed(_locale: String) -> void:
 		if not bool(tile["has_icon"]):
 			tile["btn"].text = short_name.left(2)
 		tile["btn"].tooltip_text = GameLocale.text("NIGHT_SELECTED_TOOLTIP" if bool(tile["on"]) else "NIGHT_SELECT_TOOLTIP", [display_name])
+	# 英文短名更长：语言切换后重新测量并缩放，避免货架在框架内溢出。
+	if _shelf != null:
+		_fit_shelf(_shelf)
 	var tomorrow := DailyEvents.next_event(GameState.day)
 	if tomorrow_name_label != null:
 		tomorrow_name_label.text = String(tomorrow["name"])

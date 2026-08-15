@@ -72,12 +72,12 @@ consecutive** (R10: 5, R11: 7) with zero S0-S2 in the final two rounds.
 
 ## Residual Risk
 
-- **S3 (recorded, unfixed by stop rule)**: night shelf `_fit_shelf` budgets
-  the raw viewport width rather than the SafeFrame-authored width, so on
-  wider-than-16:9 displays (most phones, ultrawide) the late-game shelf stays
-  at 1.0 scale and spills ~66px past the safe frame — under the notch band on
-  cutout phones. Fix direction: budget against SafeFrame.usable width and
-  refit on locale change.
+- ~~**S3 (recorded, unfixed by stop rule)**: night shelf `_fit_shelf` budgets
+  the raw viewport width rather than the SafeFrame-authored width~~ —
+  **fixed post-stop-rule on user request**: the budget now uses the authored
+  1280 frame width, the scale resets before remeasuring, and the shelf refits
+  on locale change; input_check pins the fit inside a 1558-wide SubViewport
+  (day-9 shelf scales below 1.0 and stays within the frame).
 - Same-frame dual-device input on non-one-shot buttons remains theoretically
   possible elsewhere; the three highest-consequence handlers are guarded.
 - External release gates unchanged (signing, physical devices, human
@@ -88,6 +88,6 @@ consecutive** (R10: 5, R11: 7) with zero S0-S2 in the final two rounds.
 The codebase has converged: the final two independent lenses (prep inventory
 accounting, UI fit) produced zero S0-S2 findings across 12 verified
 hypotheses, and every real defect found in nine prior rounds ships with a
-regression test. Full 25/25 core suite green after every fix. Fix the
-recorded S3 shelf-fit if a mobile-notch pass is scheduled; otherwise the
-review loop is complete at N=10 (actual: 12).
+regression test. The single recorded S3 (shelf fit) has since been fixed on
+request. Full 25/25 core suite green after every change; the review loop is
+complete at N=10 (actual: 12).
