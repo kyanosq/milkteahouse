@@ -41,6 +41,10 @@ const STEPS := [
 
 var _step := 0
 var _replay := false
+## D2-B 交互门控：由 day_shop 注入 (step) -> bool；步骤 3/4 需真实选料/封杯。
+var progress_provider: Callable
+var _gate_fails := 0
+var _gate_bypassed := false
 var _card: PanelContainer
 var _focus: PanelContainer
 var _progress: Label
@@ -141,6 +145,10 @@ func _render_step() -> void:
 	_title.text = GameLocale.text("TUTORIAL_%d_TITLE" % (_step + 1))
 	_body.text = GameLocale.text("TUTORIAL_%d_BODY" % (_step + 1))
 	_hint.text = _device_hint(_step, GameLocale.text("TUTORIAL_%d_HINT" % (_step + 1)))
+	if _gate_bypassed:
+		_hint.text += "\n" + GameLocale.text("TUTORIAL_GATE_RELEASED_NOTE")
+	elif _step_is_gated() and _gate_fails > 0:
+		_hint.text += "\n" + GameLocale.text("TUTORIAL_GATE_HINT", [2 - _gate_fails])
 	_focus.position = _safe_offset + data["focus"].position
 	_focus.size = data["focus"].size
 	_card.position = _safe_offset + data["card"]
@@ -195,7 +203,26 @@ func _layout_overscan() -> void:
 		_card.position = _safe_offset + data["card"]
 
 
+## 门控步骤：3（选茶基）与 4（摇杯封杯）。时钟冻结、顾客已就位——学过就要做一遍。
+func _step_is_gated() -> bool:
+	return _step == 2 or _step == 3
+
+
+func _step_completed() -> bool:
+	if _gate_bypassed or not _step_is_gated() or not progress_provider.is_valid():
+		return true
+	return bool(progress_provider.call(_step))
+
+
 func _advance() -> void:
+	if not _step_completed():
+		# 防软锁：连续失败 2 次自动放行（本次即通过），并提示可从暂停菜单重看。
+		_gate_fails += 1
+		if _gate_fails < 2:
+			_render_step()
+			return
+		_gate_bypassed = true
+	_gate_fails = 0
 	if _step < STEPS.size() - 1:
 		_step += 1
 		_render_step()

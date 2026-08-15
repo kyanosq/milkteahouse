@@ -40,6 +40,8 @@ var goal_relief := false   # 回暖日：目标 ×0.85 且星级封顶 2★（D5
 var day_event: Dictionary = {}
 var active_contract: Dictionary = {}
 var spawned_count := 0
+var critic_served := 0
+var matched_served := 0
 var _kind_spawn_counts := {}
 var event_bonus_earned := 0
 var event_buzz_earned := 0
@@ -690,7 +692,18 @@ func _show_tutorial(replay := false) -> void:
 		_spawn_customer()
 	_resume_after_pause = running
 	running = false
+	# D2-B：门控步骤由真实店铺状态判定——步骤 3 选过茶基、步骤 4 封过一杯。
+	tutorial_overlay.progress_provider = _tutorial_step_done
 	tutorial_overlay.start(replay)
+
+
+func _tutorial_step_done(step: int) -> bool:
+	match step:
+		2:
+			return cup_base != null
+		3:
+			return cup_sealed
+	return true
 
 
 func _on_tutorial_finished() -> void:
@@ -2187,6 +2200,11 @@ func _on_deliver(c: Dictionary) -> void:
 		if flawless and streak > 0 and streak % 3 == 0:
 			combo_bonus = 3
 		var event_reward := DailyEvents.order_bonus(day_event, c)
+		# 口碑区（D3）：评论家接待奖励 ×1.25——高风险高回报的主编级待遇。
+		if String(c.get("kind", "regular")) == "critic":
+			var critic_mult := LegacyRoutes.critic_bonus_multiplier()
+			if not is_equal_approx(critic_mult, 1.0):
+				event_reward["coins"] = roundi(float(int(event_reward["coins"])) * critic_mult)
 		var event_coins := int(event_reward["coins"])
 		var event_inspiration := int(event_reward["inspiration"])
 		var event_buzz := int(event_reward.get("buzz", 0))
@@ -2232,6 +2250,10 @@ func _on_deliver(c: Dictionary) -> void:
 			GameState.perfect_total += 1
 			perfect += 1
 		served += 1
+		if String(c.get("kind", "regular")) == "critic":
+			critic_served += 1
+		if int(c["order"].get("menu_event_bonus", 0)) > 0:
+			matched_served += 1
 		var msg := GameLocale.text("DAY_REWARD_COINS", [total_coins])
 		if tip > 0:
 			msg += GameLocale.text("DAY_REWARD_TIP", [tip])
@@ -2386,6 +2408,8 @@ func _start_day() -> void:
 	streak = 0
 	best_streak = 0
 	spawned_count = 0
+	critic_served = 0
+	matched_served = 0
 	_kind_spawn_counts = {}
 	event_bonus_earned = 0
 	event_buzz_earned = 0
@@ -2402,7 +2426,8 @@ func _start_day() -> void:
 	stock_cost = 0
 	waste_cost = 0
 	# 目标仍随天数增长，但不再超过成长系统能追回的范围。
-	goal = ceili(float(EndlessContracts.goal_for_day(GameState.day)) * LegacyRoutes.goal_multiplier())
+	# 1.0：无尽日（Day16+）使用自适应星目标（D1③），其余沿用基础曲线。
+	goal = ceili(float(EndlessContracts.adaptive_goal_for_day(GameState.day)) * LegacyRoutes.goal_multiplier())
 	# 回暖日（封顶宽限，D5）：昨天 ≤1★ 的战役非合约局，今日目标 ×0.85（下限 60），
 	# 当日星级封顶 2★——落后玩家有一天喘息，且不侵蚀 A/S/S 精通梯度。
 	goal_relief = GameState.day <= 14 and active_contract.is_empty() \
@@ -2463,7 +2488,7 @@ func _end_day() -> void:
 	var net_operating := earned - staff_wage - operating_paid
 	var stats := {"earned": earned, "served": served, "perfect": perfect, "angry": angry,
 		"stars": stars, "best_streak": best_streak, "event_id": day_event.get("id", "calm"),
-		"relief": goal_relief,
+		"relief": goal_relief, "critic_served": critic_served, "matched_served": matched_served,
 		"event_bonus": event_bonus_earned, "event_buzz": event_buzz_earned,
 		"route_bonus": route_bonus_earned,
 		"menu_sales": menu_sales_count, "menu_revenue": menu_sales_revenue,
@@ -2485,6 +2510,8 @@ func _end_day() -> void:
 	var contract_result := EndlessContracts.resolve(GameState.day, stats)
 	if not contract_result.is_empty():
 		stats["contract"] = contract_result
+	if GameState.day >= 16:
+		EndlessContracts.record_day_performance(earned, goal)
 	GameState.record_campaign_day(GameState.day, stats)
 	EventBus.day_ended.emit(stats)
 	GameState.phase = "night"

@@ -90,6 +90,8 @@ var _note_state: Dictionary = {}
 func _ready() -> void:
 	GameState.phase = "night"
 	MenuCatalog.ensure_normalized()
+	# 潮流区夜间自动锁槽（D3）：次夜重新锁定，覆盖只在当晚有效。
+	MenuCatalog.apply_trend_pin()
 	ResearchBriefs.ensure_for_day()
 	Sfx.play_music("night")
 	InputPrompts.scheme_changed.connect(_on_input_scheme_changed)

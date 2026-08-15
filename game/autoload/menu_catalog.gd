@@ -34,13 +34,13 @@ func ensure_normalized() -> void:
 		var item := _find_in(GameState.menu, String(item_id))
 		if not item.is_empty() and formula_available(item) and item_id not in selected:
 			selected.append(String(item_id))
-			if selected.size() >= FEATURED_LIMIT:
+			if selected.size() >= featured_limit():
 				break
 	if selected.is_empty():
 		for item in GameState.menu:
 			if formula_available(item):
 				selected.append(String(item["id"]))
-				if selected.size() >= FEATURED_LIMIT:
+				if selected.size() >= featured_limit():
 					break
 	GameState.featured_menu = selected
 
@@ -107,6 +107,38 @@ func is_featured(item_id: String) -> bool:
 
 
 ## 返回 ok / full / minimum / invalid，供菜单面板给出明确反馈。
+## 主推槽上限：周转区（D3）牺牲第三槽换 ×0.85 到店速度。
+func featured_limit() -> int:
+	return LegacyRoutes.featured_slot_limit()
+
+
+## 潮流区夜间自动锁槽（D3）：把第一个主推位锁定为明日事件最佳匹配。
+## 手动覆盖在当晚有效，次夜进入研发室时重新锁定。
+func apply_trend_pin() -> void:
+	if LegacyRoutes.active_id() != "trend":
+		return
+	ensure_normalized()
+	if GameState.menu.is_empty():
+		return
+	var tomorrow := DailyEvents.next_event(GameState.day)
+	var best_id := ""
+	var best_bonus := -1
+	for item_data in GameState.menu:
+		if not formula_available(item_data):
+			continue
+		var bonus := int(event_match_bonus(item_data, String(tomorrow.get("id", "calm"))))
+		if bonus > best_bonus:
+			best_bonus = bonus
+			best_id = String(item_data["id"])
+	if best_id.is_empty() or best_id in GameState.featured_menu:
+		return
+	if not GameState.featured_menu.is_empty():
+		GameState.featured_menu[0] = best_id
+	else:
+		GameState.featured_menu.append(best_id)
+	menu_changed.emit()
+
+
 func set_featured(item_id: String, active: bool, persist := true) -> String:
 	ensure_normalized()
 	var target := _find_in(GameState.menu, item_id)
@@ -115,7 +147,7 @@ func set_featured(item_id: String, active: bool, persist := true) -> String:
 	if active:
 		if item_id in GameState.featured_menu:
 			return "ok"
-		if GameState.featured_menu.size() >= FEATURED_LIMIT:
+		if GameState.featured_menu.size() >= featured_limit():
 			return "full"
 		GameState.featured_menu.append(item_id)
 	else:
@@ -520,7 +552,7 @@ func _find_in(collection: Array, item_id: String) -> Dictionary:
 
 
 func _auto_feature(item_id: String) -> void:
-	if GameState.featured_menu.size() < FEATURED_LIMIT and item_id not in GameState.featured_menu:
+	if GameState.featured_menu.size() < featured_limit() and item_id not in GameState.featured_menu:
 		GameState.featured_menu.append(item_id)
 
 

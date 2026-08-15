@@ -166,6 +166,17 @@ func _build_report() -> void:
 	if relief_days > 0:
 		legacy_line.text += GameLocale.text("CAMPAIGN_RELIEF_DAYS", [relief_days])
 	# 店铺定位（D1②）：收官报告展示互斥选择。
+	# 路线专属统计（D3）：每条路线一行最引以为傲的数字。
+	match LegacyRoutes.active_id():
+		"trend":
+			legacy_line.text += GameLocale.text("CAMPAIGN_ROUTE_STAT_TREND", [
+				int(GameState.campaign_stats.get("matched_served", 0))])
+		"precision":
+			legacy_line.text += GameLocale.text("CAMPAIGN_ROUTE_STAT_PRECISION", [
+				int(GameState.campaign_stats.get("critic_served", 0))])
+		"rush":
+			legacy_line.text += GameLocale.text("CAMPAIGN_ROUTE_STAT_RUSH", [
+				int(GameState.campaign_stats.get("served", 0))])
 	var positioning_id := UpgradeCatalog.positioning()
 	if not positioning_id.is_empty():
 		var positioning_name := ""

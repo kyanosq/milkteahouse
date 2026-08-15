@@ -75,31 +75,61 @@ func available_for_day(target_day: int) -> Array[Dictionary]:
 
 
 func cost_for(data: Dictionary, target_day: int) -> int:
-	# Day 58 起费用步进饱和于 +210（原 +90 让后期的金币失去用途）。
-	var step := clampi((target_day - FIRST_TARGET_DAY) / 3, 0, 14)
-	return int(data["base_cost"]) + step * 15
+	# 1.0（D1①）：签约费随天数无上限复利爬升——day16 锚点不变（×1.0），
+	# 之后每天 +15%，让“点确认”重新变回真实决策；退款比例沿用。
+	var growth := 1.0 + 0.15 * float(maxi(0, target_day - FIRST_TARGET_DAY))
+	return roundi(float(data["base_cost"]) * growth)
 
 
 func target_for(contract_id: String, target_day: int) -> int:
 	# 现有曲线在 day 40 饱和于 30；day 46 起每 6 天 +1，上限 40（审计 DP#2）。
 	var elapsed := maxi(0, target_day - FIRST_TARGET_DAY)
+	var base_target := 0
 	match contract_id:
 		"streak_stage":
-			return 28 + mini(2, elapsed / 12) + clampi((elapsed - 24) / 6, 0, 10)
+			base_target = 28 + mini(2, elapsed / 12) + clampi((elapsed - 24) / 6, 0, 10)
 		"precision_shift":
-			return 28 + mini(2, elapsed / 12) + clampi((elapsed - 24) / 6, 0, 10)
+			base_target = 28 + mini(2, elapsed / 12) + clampi((elapsed - 24) / 6, 0, 10)
 		"revenue_sprint":
-			return ceili(float(goal_for_day(target_day)) * LegacyRoutes.goal_multiplier() * 1.35)
-	return 0
+			base_target = ceili(float(adaptive_goal_for_day(target_day)) * LegacyRoutes.goal_multiplier() * 1.35)
+	# 不朽章节（D6B）：20 章后每个印章使要求 ×1.05——传奇之后仍有爬升。
+	var stamps := int(GameState.endless.get("stamps", 0))
+	if stamps > 20:
+		base_target = roundi(float(base_target) * pow(1.05, float(mini(stamps, 30) - 20)))
+	return base_target
 
 
 func goal_for_day(day_number: int) -> int:
-	# Day 17 后封顶 380 防止无尽必然 0 星；Day 30 起每 2 天 +1 爬到 420，
-	# 让满配店铺仍有优化产量的理由。
-	var base := mini(380, 80 + 18 * day_number)
-	if day_number <= 30:
+	# Day 17 后封顶 380 防止无尽必然 0 星；1.0 起不再线性爬 420——
+	# Day31+ 的压力由自适应目标（D1③）接管。
+	return mini(380, 80 + 18 * day_number)
+
+
+## 自适应星目标（D1③）：T = clamp( max(base, 0.85×MA5(revenue)),
+## 0.94×T(d-1), 1.06×T(d-1) )。双向 ±6% 限速：变强目标缓涨、变弱缓降，
+## 恒定收入 I 下不动点 0.85I < I，目标永远可达；无历史时退回 base。
+func adaptive_goal_for_day(day_number: int) -> int:
+	var base := goal_for_day(day_number)
+	if day_number < 16:
 		return base
-	return mini(420, base + (day_number - 30) * 2)
+	var history: Array = GameState.endless.get("revenue_history", [])
+	var previous := int(GameState.endless.get("goal_state", 0))
+	if history.is_empty() or previous <= 0:
+		return base
+	var total := 0
+	for entry in history:
+		total += int(entry)
+	var moving_average := float(total) / float(history.size())
+	var target := maxi(base, int(0.85 * moving_average))
+	return clampi(target, ceili(float(previous) * 0.94), ceili(float(previous) * 1.06))
+
+
+## 每个无尽日结算后记录营收与当日目标，驱动下一日的自适应目标。
+func record_day_performance(earned: int, goal_used: int) -> void:
+	var history: Array = (GameState.endless.get("revenue_history", []) as Array).duplicate()
+	history.append(maxi(0, earned))
+	GameState.endless["revenue_history"] = history.slice(maxi(0, history.size() - 5))
+	GameState.endless["goal_state"] = maxi(0, goal_used)
 
 
 func target_text(contract: Dictionary) -> String:
@@ -208,6 +238,8 @@ func resolve(day_number: int, stats: Dictionary, persist := false) -> Dictionary
 
 
 func rank_name(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
+	if stamps >= 30:
+		return GameLocale.text("CONTRACT_RANK_IMMORTAL")
 	if stamps >= 20:
 		return GameLocale.text("CONTRACT_RANK_LEGEND")
 	if stamps >= 15:
@@ -222,8 +254,8 @@ func rank_name(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
 
 
 func next_rank_text(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
-	if stamps >= 20:
-		return GameLocale.text("CONTRACT_RANK_MAX")
+	if stamps >= 30:
+		return GameLocale.text("CONTRACT_RANK_DEFEND")
 	var next := 3 if stamps < 3 else (7 if stamps < 7 else (12 if stamps < 12 else (15 if stamps < 15 else 20)))
 	return GameLocale.text("CONTRACT_RANK_NEXT", [next - stamps])
 

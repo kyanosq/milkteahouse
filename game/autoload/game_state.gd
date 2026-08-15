@@ -356,6 +356,7 @@ func _new_endless_state() -> Dictionary:
 	return {
 		"stamps": 0, "completed": 0, "failed": 0,
 		"streak": 0, "best_streak": 0, "active": {}, "last_result": {},
+		"revenue_history": [], "goal_state": 0,
 	}
 
 
@@ -564,6 +565,15 @@ func _normalize_endless_state(value: Variant) -> Dictionary:
 	var last_result: Variant = source.get("last_result", {})
 	if last_result is Dictionary:
 		result["last_result"] = last_result.duplicate(true)
+	# D1③ 自适应星目标的输入：最近 5 日营收（截为 5 条、逐项夹 0..5000）与上次目标。
+	var history_value: Variant = source.get("revenue_history", [])
+	var history: Array = []
+	if history_value is Array:
+		for entry in history_value:
+			if entry is int or entry is float:
+				history.append(clampi(int(entry), 0, 5000))
+	result["revenue_history"] = history.slice(maxi(0, history.size() - 5))
+	result["goal_state"] = clampi(int(source.get("goal_state", 0)), 0, 5000)
 	return result
 
 
@@ -661,7 +671,7 @@ func _new_campaign_stats() -> Dictionary:
 		"operating_costs": 0, "rent_paid": 0, "cost_relief": 0,
 		"route_bonus": 0,
 		"days_completed": 0, "best_streak": 0, "recorded_days": [], "tracking_start_day": 1,
-		"day_stars": {}, "relief_days": 0,
+		"day_stars": {}, "relief_days": 0, "critic_served": 0, "matched_served": 0,
 	}
 
 
@@ -699,6 +709,8 @@ func record_campaign_day(day_number: int, stats: Dictionary) -> void:
 	campaign_stats["day_stars"] = day_stars
 	if bool(stats.get("relief", false)):
 		campaign_stats["relief_days"] = int(campaign_stats.get("relief_days", 0)) + 1
+	campaign_stats["critic_served"] = int(campaign_stats.get("critic_served", 0)) + maxi(0, int(stats.get("critic_served", 0)))
+	campaign_stats["matched_served"] = int(campaign_stats.get("matched_served", 0)) + maxi(0, int(stats.get("matched_served", 0)))
 	campaign_stats["recorded_days"] = days
 	campaign_stats["days_completed"] = days.size()
 	campaign_stats["revenue"] = int(campaign_stats.get("revenue", 0)) + int(stats.get("earned", 0))

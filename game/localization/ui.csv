@@ -884,3 +884,10 @@ UPGRADE_SHAKER_EFFECT_4,1 shake per cup,每杯摇 1 次
 UPGRADE_SMART_SUGAR_EFFECT_2,Matches sugar right after the tea base,选完茶基即匹配糖度
 UPGRADE_TIP_JAR_EFFECT_4,+4 coins per cup,每杯额外 +4 金币
 CAMPAIGN_POSITIONING, · Positioning: %s, · 店铺定位：%s
+CONTRACT_RANK_IMMORTAL,Immortal Milk-Tea Legend,不朽奶茶传奇
+CONTRACT_RANK_DEFEND,Legend defense — hold the immortal title,传奇守擂——守住不朽头衔
+CAMPAIGN_ROUTE_STAT_TREND, · Event-matched serves: %d, · 事件匹配出杯：%d
+CAMPAIGN_ROUTE_STAT_PRECISION, · Critics served: %d, · 评论家接待：%d
+CAMPAIGN_ROUTE_STAT_RUSH, · Total cups: %d, · 总出杯数：%d
+TUTORIAL_GATE_HINT,Try it yourself first — %d more attempt(s) before this step is skipped.,先动手试一次——再尝试 %d 次后将跳过此步。
+TUTORIAL_GATE_RELEASED_NOTE,(Practice step skipped — replay the tutorial from Pause anytime.),（练习步骤已跳过——可随时在暂停菜单重看教学。）

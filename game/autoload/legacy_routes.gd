@@ -52,7 +52,8 @@ func goal_multiplier() -> float:
 
 
 func spawn_multiplier() -> float:
-	return 0.88 if active_id() == "rush" else 1.0
+	# 1.0（D3）：周转区提速到 ×0.85，与牺牲第三主推槽的可感知回报配套。
+	return 0.85 if active_id() == "rush" else 1.0
 
 
 func patience_multiplier() -> float:
@@ -66,12 +67,22 @@ func menu_traffic_step() -> float:
 func sale_bonus(order: Dictionary, patience_ratio: float, streak := 0) -> int:
 	match active_id():
 		"rush":
-			return 1 if streak > 0 and streak % 3 == 0 else 0
+			return 2 if streak > 0 and streak % 3 == 0 else 0
 		"precision":
 			return 1 if patience_ratio > 0.70 else 0
 		"trend":
 			return 3 if int(order.get("menu_event_bonus", 0)) > 0 else 0
 	return 0
+
+
+## 评论家接待奖励 ×1.25（D3-口碑：事件日高风险高回报的主编级待遇）。
+func critic_bonus_multiplier() -> float:
+	return 1.25 if active_id() == "precision" else 1.0
+
+
+## 周转区封印第三主推槽（D3）：两槽换速度，牺牲可感知。
+func featured_slot_limit() -> int:
+	return 2 if active_id() == "rush" else 3
 
 
 func progress_text(streak: int, trigger_count: int, earned_coins: int) -> String:

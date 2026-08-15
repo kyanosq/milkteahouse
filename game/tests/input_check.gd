@@ -378,6 +378,8 @@ func _ready() -> void:
 
 	InputPrompts.set_test_controller_family("nintendo")
 	shop._show_tutorial(true)
+	# 本段只验证提示字形切换；门控行为由 onboarding_check 覆盖。
+	shop.tutorial_overlay._gate_bypassed = true
 	assert(shop.tutorial_overlay._hint.text.contains("手柄"))
 	assert(shop.tutorial_overlay._hint.text.contains("B"))
 	shop.tutorial_overlay._advance()

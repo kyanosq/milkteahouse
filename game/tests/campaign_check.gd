@@ -105,9 +105,11 @@ func _ready() -> void:
 	assert(LegacyRoutes.sale_bonus({}, 0.65, 1) == 0)
 	assert(LegacyRoutes.progress_text(1, 3, 3).contains("3"))
 	GameState.new_shop_route = "rush"
-	assert(is_equal_approx(LegacyRoutes.spawn_multiplier(), 0.88))
+	# 1.0（D3）：周转区提速至 ×0.85、每第 3 杯 +2、封印第三主推槽。
+	assert(is_equal_approx(LegacyRoutes.spawn_multiplier(), 0.85))
 	assert(LegacyRoutes.sale_bonus({}, 0.2, 2) == 0)
-	assert(LegacyRoutes.sale_bonus({}, 0.2, 3) == 1)
+	assert(LegacyRoutes.sale_bonus({}, 0.2, 3) == 2)
+	assert(LegacyRoutes.featured_slot_limit() == 2)
 	assert(LegacyRoutes.progress_text(5, 4, 4).contains("2/3"))
 	GameState.new_shop_route = "trend"
 	assert(is_equal_approx(LegacyRoutes.menu_traffic_step(), 0.06))

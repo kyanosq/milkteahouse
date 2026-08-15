@@ -22,7 +22,24 @@ func _ready() -> void:
 		"the tutorial must include the goal-and-stars step")
 	assert(shop.tutorial_overlay.STEPS[0]["focus"].position.x <= 8.0 and shop.tutorial_overlay.STEPS[0]["focus"].position.y <= 8.0,
 		"step 1 must spotlight the HUD goal row")
-	for i in 6:
+	# D2-B 门控：步骤 3 在选过茶基前不得前进；完成动作后放行。
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._step == 1)
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._step == 2, "step 3 (index 2) is the first gated step")
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._step == 2 and shop.tutorial_overlay._gate_fails == 1,
+		"a gated step must refuse to advance until the action is done")
+	shop._on_base(GameData.bases[0])
+	assert(shop.tutorial_overlay._step_completed(), "selecting a tea base completes gate step 3")
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._step == 3, "gate step 4 (shake) is next")
+	# 防软锁：步骤 4 连续失败 2 次自动放行。
+	shop.tutorial_overlay._advance()
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._gate_bypassed and shop.tutorial_overlay._step == 4,
+		"two failed attempts must auto-release the gate")
+	for i in 2:
 		shop.tutorial_overlay._advance()
 	assert(GameState.tutorial_completed)
 	assert(not shop.tutorial_overlay.visible)
