@@ -183,6 +183,7 @@ DAY_CUP_REWORKED, · Reworked ×%d, · 返工 ×%d
 DAY_CUP_CLEAN, · Clean Build, · 无返工
 DAY_RESET_CUP,Reset Cup,重置杯子
 DAY_RESET_CUP_WASTE,Reset · Waste %d coins,重置 · 损耗 %d 金币
+DAY_RESET_CONFIRM,Press reset again to discard · −%d coins,再按一次重置确认倒杯 · 损耗 %d 金币
 DAY_CONTEXT_SEALED,Sealed · Review the target order then confirm delivery,封口完成 · 核对目标订单后确认交付
 DAY_NEXT_DELIVER_GAMEPAD,Next: Focus an Order to Review · %s Deliver,下一步：聚焦订单核对 · %s 交付
 DAY_NEXT_DELIVER_TOUCH,Next: Review the Matching Order · Confirm to Deliver,下一步：核对对应订单 · 确认交付
@@ -249,6 +250,7 @@ DAY_STAFF_REVEAL_SOCIAL,Befriended the whole queue at opening: Patience +20% and
 DAY_STAFF_REVEAL_PERFECTIONIST,Checking every drink: blocks one mistake daily but adds one shake,开始逐杯复核：每天拦下 1 次错杯，但每杯多摇 1 下
 DAY_STAFF_REVEAL_SLACKER,Stared at the sealer: back-queue support stops while slacking; tap to wake,盯着封口机出了神：摸鱼时后排照看失效，点击店员拍醒
 DAY_STAFF_SLACKING_ALERT,%s is slacking again · Tap or press %s to wake,%s 又摸鱼了 · 点击店员或按 %s 拍醒
+DAY_STAFF_SLACKING_SOON,%s is drifting off · %s to wake,%s 快要开小差了 · 按 %s 提前拍醒
 DAY_STAFF_TRAIT_REVEALED,Trait Revealed · %s: %s,特质觉醒 · %s：%s
 DAY_STAFF_WAKE_SUCCESS,Awake · %s is watching the back queue again,拍醒成功 · %s 重新照看后排顾客
 DAY_STAFF_ALREADY_WORKING,%s: I'm working seriously!,%s：我在认真值班呢！
@@ -302,6 +304,7 @@ DAY_RESULT_UPGRADE_HINT,%d Coins · Buy Shop Upgrades in the Lab,现有 %d 金�
 DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
 跳过教学,Skip Tutorial,跳过教学
 TUTORIAL_PROGRESS,Tutorial  %d / %d,新手教学  %d / %d
+TUTORIAL_SKIP,Skip Tutorial,跳过教学
 TUTORIAL_1_TITLE,Today's Goal & Orders,今日目标与订单
 TUTORIAL_1_BODY,"Top-left shows today's revenue goal — reach it and the day is a success. Left-side order cards list tea, milk, toppings, and sugar; the coral outline marks the active order.",左上角是今天的营收目标——达到它今天就算成功。左侧订单卡会列出茶底、奶基、小料和糖度；珊瑚描边表示正在制作的订单。
 TUTORIAL_1_HINT,"Keyboard players can press 1, 2, or 3 to switch orders.",键盘玩家也可以按 1、2、3 切换订单。

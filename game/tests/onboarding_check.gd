@@ -18,6 +18,12 @@ func _ready() -> void:
 	shop._show_tutorial(false)
 	assert(shop.tutorial_overlay.visible)
 	assert(not shop.running)
+	# 跳过必须是本地化的次级按钮：文案来自翻译表，且不与主按钮同抢珊瑚主样式。
+	assert(shop.tutorial_overlay._skip.text == GameLocale.text("TUTORIAL_SKIP"),
+		"skip copy must come from the localization table")
+	var skip_normal: StyleBoxFlat = shop.tutorial_overlay._skip.get_theme_stylebox("normal")
+	assert(skip_normal is StyleBoxFlat and skip_normal.bg_color != Color("FF6259"),
+		"skip must be styled secondary, not the theme-default primary coral")
 	assert(shop.tutorial_overlay.STEPS.size() == 6,
 		"the tutorial must include the goal-and-stars step")
 	assert(shop.tutorial_overlay.STEPS[0]["focus"].position.x <= 8.0 and shop.tutorial_overlay.STEPS[0]["focus"].position.y <= 8.0,
@@ -44,6 +50,22 @@ func _ready() -> void:
 	assert(GameState.tutorial_completed)
 	assert(not shop.tutorial_overlay.visible)
 	assert(shop.running)
+
+	# 教程/事件简报期间暂停必须可达（CF 待办）：面板盖在覆盖层上，恢复不偷走教学。
+	shop._show_tutorial(true)
+	assert(shop.tutorial_overlay.visible)
+	shop.running = false
+	shop._toggle_pause()
+	assert(get_tree().paused and shop.pause_panel.visible,
+		"pause must open while the tutorial overlay is showing")
+	assert(shop.pause_panel.z_index > 0,
+		"the pause panel must render above root-level overlays")
+	shop._resume_from_pause()
+	assert(not get_tree().paused and not shop.pause_panel.visible)
+	assert(shop.tutorial_overlay.visible and not shop.running,
+		"resuming must return to the tutorial with the clock still frozen")
+	shop.tutorial_overlay._finish()
+	assert(not shop.tutorial_overlay.visible)
 
 	# 三星拉伸必须可见：HUD 目标条延伸到 140%，目标线留刻度，文案披露 3★ 数字。
 	assert(is_equal_approx(float(shop.hud_goal_bar.max_value), 140.0),

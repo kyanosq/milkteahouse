@@ -134,10 +134,30 @@ func _ready() -> void:
 	var waste_before_discard: int = shop.waste_cost
 	shop._refresh_cup()
 	assert(shop.reset_button.text.contains(str(discard_cost)))
+	# ≥3 币的弃杯必须先武装二次确认：第一下不扣费、给出金额提示。
+	assert(discard_cost >= 3, "fixture must exercise the confirmed-discard path")
+	shop._on_reset_cup_pressed()
+	assert(shop.stock_cost == stock_before_discard and shop.waste_cost == waste_before_discard,
+		"first reset press at cost >= 3 must not charge")
+	assert(shop._cup_has_contents(), "first reset press must keep the cup")
+	assert(shop.feedback_label.text.contains(str(discard_cost)),
+		"first reset press must disclose the pending loss")
 	shop._on_reset_cup_pressed()
 	assert(shop.stock_cost == stock_before_discard + discard_cost)
 	assert(shop.waste_cost == waste_before_discard + discard_cost)
 	assert(shop.reset_button.disabled and not shop._cup_has_contents())
+
+	# 小额弃杯不加确认摩擦，仍是一键放行。
+	shop._on_base(GameData.bases[0])
+	var small_cost: int = shop._current_cup_cost()
+	if small_cost < 3:
+		var stock_before_small: int = shop.stock_cost
+		shop._on_reset_cup_pressed()
+		assert(shop.stock_cost == stock_before_small + small_cost,
+			"reset below the confirm threshold must discard immediately")
+	else:
+		shop._on_reset_cup_pressed()
+		shop._on_reset_cup_pressed()
 
 	# 打烊瞬间在制的杯子必须与手动弃杯一样计入成本/损耗。
 	shop._on_base(GameData.bases[0])

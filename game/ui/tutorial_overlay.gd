@@ -52,6 +52,7 @@ var _title: Label
 var _body: Label
 var _hint: Label
 var _next: Button
+var _skip: Button
 var _safe_offset := Vector2.ZERO
 
 
@@ -118,11 +119,13 @@ func _build() -> void:
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 10)
 	box.add_child(actions)
-	var skip := Button.new()
-	skip.text = "跳过教学"
-	skip.custom_minimum_size = Vector2(140, 50)
-	skip.pressed.connect(_finish)
-	actions.add_child(skip)
+	_skip = Button.new()
+	_skip.custom_minimum_size = Vector2(140, 50)
+	_skip.pressed.connect(_finish)
+	# 跳过是次级操作：主题默认会把 Button 渲染成珊瑚主按钮，与“下一步”抢主 CTA
+	# 的视觉权重（P3 试玩）。降级为奶油底 + 可可描边的次级样式。
+	_style_secondary(_skip)
+	actions.add_child(_skip)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(spacer)
@@ -145,6 +148,7 @@ func _render_step() -> void:
 	_title.text = GameLocale.text("TUTORIAL_%d_TITLE" % (_step + 1))
 	_body.text = GameLocale.text("TUTORIAL_%d_BODY" % (_step + 1))
 	_hint.text = _device_hint(_step, GameLocale.text("TUTORIAL_%d_HINT" % (_step + 1)))
+	_skip.text = GameLocale.text("TUTORIAL_SKIP")
 	if _gate_bypassed:
 		_hint.text += "\n" + GameLocale.text("TUTORIAL_GATE_RELEASED_NOTE")
 	elif _step_is_gated() and _gate_fails > 0:
@@ -190,6 +194,28 @@ func _on_bindings_changed() -> void:
 func _on_locale_changed(_locale: String) -> void:
 	if visible:
 		_render_step()
+
+
+## 次级按钮：奶油底 + 可可描边（与暂停面板/升级面板的次级操作同款）。
+func _style_secondary(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(CREAM.r, CREAM.g, CREAM.b, 0.96)
+	normal.set_corner_radius_all(12)
+	normal.set_border_width_all(2)
+	normal.border_color = Color(COCOA.r, COCOA.g, COCOA.b, 0.34)
+	var hover: StyleBoxFlat = normal.duplicate()
+	hover.bg_color = Color(COCOA.r, COCOA.g, COCOA.b, 0.10)
+	var pressed: StyleBoxFlat = normal.duplicate()
+	pressed.bg_color = Color(COCOA.r, COCOA.g, COCOA.b, 0.20)
+	var focus: StyleBoxFlat = normal.duplicate()
+	focus.set_border_width_all(4)
+	focus.border_color = MINT
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", focus)
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(state, COCOA)
 
 
 func _layout_overscan() -> void:

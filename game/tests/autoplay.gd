@@ -151,6 +151,8 @@ func _process(delta: float) -> void:
 				craft_error_started = true
 				cooldown = act_delay
 			elif craft_error == "discard":
+				# 重置有 ≥3 币二次确认：连按两次，小额时第二下自然无操作。
+				shop._on_reset_cup_pressed()
 				shop._on_reset_cup_pressed()
 				discards_made += 1
 				craft_error = ""

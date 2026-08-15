@@ -59,6 +59,7 @@ var stock_cost := 0
 var waste_cost := 0
 var staff_state := "working"
 var staff_event_timer := 0.0
+var _slacker_warned := false
 var staff_reveal_timer := 0.0
 var staff_events := 0
 var staff_wakes := 0
@@ -74,6 +75,7 @@ var sugar_index := 2           # 默认五分糖
 var sugar_confirmed := false
 var shake_progress := 0.0
 var _shake_grace_left := 0.0
+var _reset_confirm_left := 0.0
 var cup_sealed := false
 var cup_corrections := 0
 var cup_tea_quality := 1
@@ -194,6 +196,8 @@ func _process(delta: float) -> void:
 	if not running:
 		return
 	time_left -= delta
+	if _reset_confirm_left > 0.0:
+		_reset_confirm_left = maxf(0.0, _reset_confirm_left - delta)
 	_update_staff(delta)
 	_update_prep_batches(delta)
 	# 摇茶衰减：每次有效摇动后有短暂宽限，衰减只在停顿后才生效。
@@ -262,7 +266,9 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.echo:
 		return
-	if event.is_action_pressed("game_pause") and not tutorial_overlay.visible and not event_overlay.visible:
+	if event.is_action_pressed("game_pause") and not overlay.visible:
+		# 教程/事件简报期间也允许暂停（CF 待办）：设置与安全退出不应被教学卡住。
+		# 日结算 overlay 保持独占模态，不在其上叠暂停。
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
 		return
@@ -452,6 +458,9 @@ func _build_ui() -> void:
 	tutorial_overlay.finished.connect(_on_tutorial_finished)
 	ui_frame.add_child(tutorial_overlay)
 	pause_panel = PausePanelScene.new()
+	# 事件简报层加在场景根（晚于 ui_frame），会把暂停面板盖住；抬高 z 保证
+	# 简报/教程期间暂停时面板可见（否则面板被盖 + 树已暂停 = 软锁）。
+	pause_panel.z_index = 32
 	pause_panel.resume_requested.connect(_resume_from_pause)
 	pause_panel.tutorial_requested.connect(_replay_tutorial)
 	pause_panel.menu_requested.connect(_return_to_menu)
@@ -712,7 +721,7 @@ func _on_tutorial_finished() -> void:
 
 
 func _toggle_pause() -> void:
-	if tutorial_overlay.visible or event_overlay.visible or overlay.visible:
+	if overlay.visible:
 		return
 	if pause_panel.visible:
 		_resume_from_pause()
@@ -1215,6 +1224,14 @@ func _on_reset_cup_pressed() -> void:
 	if not _cup_has_contents():
 		return
 	var discarded_cost := _current_cup_cost()
+	# 误触保护（FH#6）：损耗 ≥3 金币的倒杯需 2 秒内二次确认；小额随手放行。
+	if discarded_cost >= 3 and _reset_confirm_left <= 0.0:
+		_reset_confirm_left = 2.0
+		_flash(GameLocale.text("DAY_RESET_CONFIRM", [discarded_cost]), Color("E88B32"))
+		Sfx.play("bad", 0.55)
+		Haptics.play("warning")
+		return
+	_reset_confirm_left = 0.0
 	if discarded_cost > 0:
 		stock_cost += discarded_cost
 		waste_cost += discarded_cost
@@ -1529,6 +1546,7 @@ func _setup_staff_for_day() -> void:
 	staff_bonus_earned = 0
 	staff_guard_used = false
 	staff_event_timer = 16.0
+	_slacker_warned = false
 	staff_reveal_timer = 4.5
 	if StaffCatalog.has_staff():
 		staff_card.visible = true
@@ -1557,6 +1575,15 @@ func _update_staff(delta: float) -> void:
 					_reveal_staff_trait(GameLocale.text("DAY_STAFF_REVEAL_PERFECTIONIST"))
 	if StaffCatalog.trait_id() == "slacker" and staff_state == "working":
 		staff_event_timer -= delta
+		# 掉线前 3 秒预警（CF 待办）：已揭示特质的周期给一次温和提醒，
+		# 首个周期保持静默让揭示演出自己发生。
+		if staff_event_timer > 0.0 and staff_event_timer <= 3.0 \
+				and not _slacker_warned and StaffCatalog.trait_revealed():
+			_slacker_warned = true
+			_flash(GameLocale.text("DAY_STAFF_SLACKING_SOON",
+				[GameLocale.staff_name(StaffCatalog.current()), InputPrompts.staff_hint()]),
+				Color("E8A932"))
+			Sfx.play("staff_alert", 0.5)
 		if staff_event_timer <= 0.0:
 			staff_state = "idle"
 			staff_events += 1
@@ -1584,6 +1611,7 @@ func _on_staff_clicked() -> void:
 		staff_state = "working"
 		staff_wakes += 1
 		staff_event_timer = randf_range(20.0, 28.0)
+		_slacker_warned = false
 		stage.set_staff_state("working")
 		Sfx.play("staff_wake")
 		_flash(GameLocale.text("DAY_STAFF_WAKE_SUCCESS", [GameLocale.staff_name(StaffCatalog.current())]), Color("27B9A7"))

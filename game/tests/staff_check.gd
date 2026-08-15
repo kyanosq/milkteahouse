@@ -45,6 +45,24 @@ func _ready() -> void:
 	slacker_shop._on_staff_clicked()
 	assert(slacker_shop.staff_state == "working")
 	assert(slacker_shop.staff_wakes == 1)
+
+	# 已揭示特质后，掉线前 3 秒必须有一次温和预警；预警只发一次，拍醒后重新武装。
+	slacker_shop.staff_event_timer = 2.9
+	slacker_shop._update_staff(0.2)
+	assert(slacker_shop._slacker_warned, "3s pre-warning must arm within the warning window")
+	assert(slacker_shop.feedback_label.text == GameLocale.text("DAY_STAFF_SLACKING_SOON",
+		[GameLocale.staff_name(StaffCatalog.current()), InputPrompts.staff_hint()]),
+		"pre-warning must flash the wake hint copy")
+	assert(slacker_shop.staff_state == "working")
+	slacker_shop._update_staff(0.2)
+	assert(slacker_shop.feedback_label.text == GameLocale.text("DAY_STAFF_SLACKING_SOON",
+		[GameLocale.staff_name(StaffCatalog.current()), InputPrompts.staff_hint()]),
+		"the pre-warning must not repeat within one slacking cycle")
+	slacker_shop.staff_event_timer = 0.0
+	slacker_shop._update_staff(0.1)
+	assert(slacker_shop.staff_state == "idle")
+	slacker_shop._on_staff_clicked()
+	assert(not slacker_shop._slacker_warned, "waking the staff must re-arm the pre-warning")
 	slacker_shop.queue_free()
 	await get_tree().process_frame
 

@@ -30,15 +30,15 @@ balanced ≤2360) with dated comment in the sim.
 
 ## Deferred (recorded, need product/art decisions)
 
-- FH#2 catch-up relief adoption (evidence in S3 log above + git history)
-- FH#5 interactive tutorial steps (gate step 3/4 on live actions)
-- FH#6 reset-cup misclick grace (~2s) or confirm tooltip at cost ≥3
-- DP#1 week-2 identity: 2 late ingredients (needs icon art — user constraint),
-  event reorder/intensity bend (moves campaign gate 42★/10-10 assertions)
-- DP#5 week-2 premium upgrade tiers + one exclusive pair (moves 10/10 gate)
-- DP#3 route structural rules, DP#4 brief quality ladder + market price choice
-- CF backlog: pause unreachable during tutorial/event overlays; staff slacker
-  pre-warning timer
+- FH#2 catch-up relief — ADOPTED capped in 1.0 Batch 2 (goal ×0.85, 2★ cap, report footnote)
+- FH#5 interactive tutorial steps — DONE in 1.0 Batch 4 (gates on live actions)
+- FH#6 reset-cup misclick grace — DONE in Iteration 59 (2s double-press at cost ≥3)
+- DP#1 week-2 identity — DONE in 1.0 Batch 2; late-topping icons finalized as code-drawn art in Iteration 58
+- DP#5 week-2 premium upgrade tiers — DONE in 1.0 Batch 2
+- DP#3 route structural rules — DONE in 1.0 Batch 3
+- DP#4 brief quality ladder + market price choice — still open (product call; audit-depth-replay.md §minimal-fix)
+- CF backlog: pause unreachable during tutorial/event overlays — DONE in Iteration 59;
+  staff slacker pre-warning timer — DONE in Iteration 59
 
 ## Evidence index
 

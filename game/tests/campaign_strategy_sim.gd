@@ -160,6 +160,7 @@ func _drive_bot_tick(delta: float) -> void:
 				cooldown = act_delay
 			elif craft_error == "discard":
 				shop._on_reset_cup_pressed()
+				shop._on_reset_cup_pressed()
 				craft_error = ""
 				craft_error_started = false
 				cooldown = read_delay * 0.4
