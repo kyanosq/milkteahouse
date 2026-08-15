@@ -615,9 +615,12 @@ func _normalize_key_bindings(source: Dictionary) -> Dictionary:
 	}
 	var values := result.values()
 	var unique := {}
+	# 备料固定键 Q/E 与其他动作撞键同样回到默认（与冲突守卫一致，评审 R8）。
+	var fixed_gameplay_keys := [KEY_Q, KEY_E]
 	for value in values:
 		unique[value] = true
-		if int(value) <= 0 or int(value) in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]:
+		if int(value) <= 0 or int(value) in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META] \
+				or int(value) in fixed_gameplay_keys:
 			return {"game_pause": int(KEY_ESCAPE), "game_shake": int(KEY_SPACE), "staff_interact": int(KEY_F)}
 	if unique.size() != result.size():
 		return {"game_pause": int(KEY_ESCAPE), "game_shake": int(KEY_SPACE), "staff_interact": int(KEY_F)}

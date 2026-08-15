@@ -68,6 +68,13 @@ func _ready() -> void:
 	menu.settings_panel._input(new_key)
 	assert(menu.settings_panel._rebind_action == "staff_interact")
 	assert(menu.settings_panel._rebind_feedback.text.contains("已用于"))
+
+	# 备料固定键 Q/E 不可被改键占用：撞键会让其中一个动作被静默废掉（评审 R8）。
+	assert(InputPrompts.conflict_for("game_pause", KEY_E) != "")
+	assert(not InputPrompts.rebind_keyboard("game_pause", KEY_E),
+		"rebinding onto the fixed prep keys must be rejected")
+	assert(InputPrompts.key_for("game_pause") == KEY_ESCAPE,
+		"a rejected rebind must leave the binding untouched")
 	var cancel := InputEventKey.new()
 	cancel.keycode = KEY_ESCAPE
 	cancel.pressed = true

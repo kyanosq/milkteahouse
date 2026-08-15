@@ -77,6 +77,11 @@ func conflict_for(action_name: String, keycode: Key) -> String:
 	for other_action in DEFAULT_KEYS:
 		if other_action != action_name and key_for(other_action) == keycode:
 			return other_action
+	# Q/E 是不可改绑的备料固定键；改绑到它们会让 _input 的先到先得消费
+	# 静默废掉其中一个动作（评审 R8）。
+	for fixed_action in FIXED_KEYS:
+		if FIXED_KEYS[fixed_action] == keycode:
+			return fixed_action
 	return ""
 
 
