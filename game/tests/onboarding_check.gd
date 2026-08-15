@@ -32,6 +32,11 @@ func _ready() -> void:
 		"goal bar must carry the 100% goal tick")
 	shop._update_info()
 	assert(shop.hud_goal_text.text.contains("3★"))
+	# 术语药丸必须有悬停说明：首次玩家无法从裸数字猜出含义（P1 试玩）。
+	assert(String(shop.hud_perfect.get_parent().tooltip_text).length() > 0,
+		"the perfect-serve pill needs a tooltip")
+	assert(String(shop.hud_streak.get_parent().tooltip_text).length() > 0,
+		"the streak pill needs a tooltip")
 	# 摇杯计数向上取整：一次有效摇动立刻 +1，衰减中不倒退。
 	shop.shake_progress = 1.2
 	assert(shop._shake_count_display() == 2)

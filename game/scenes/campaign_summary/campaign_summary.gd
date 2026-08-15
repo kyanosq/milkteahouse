@@ -240,6 +240,14 @@ func _dimension_card(parent: HBoxContainer, title_text: String, value: int, maxi
 	score.add_theme_font_size_override("font_size", 20)
 	score.add_theme_color_override("font_color", accent)
 	row.add_child(score)
+	# 精通玩家要一眼看到“每维还差几分”（P2 试玩）——报告直接量化到满分差距。
+	if value < maximum:
+		var deficit := Label.new()
+		deficit.text = GameLocale.text("CAMPAIGN_DIM_DEFICIT", [maximum - value])
+		deficit.add_theme_font_size_override("font_size", 12)
+		deficit.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 0.85))
+		deficit.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		box.add_child(deficit)
 	var progress := ProgressBar.new()
 	progress.max_value = maximum
 	progress.value = value

@@ -67,7 +67,7 @@ CONTRACT_PRECISION_SHIFT_DESCRIPTION,Community judges arrive together. Lose nobo
 CONTRACT_PRECISION_SHIFT_CHALLENGE,Lose no customers and reach the perfect-drink target,零气走并完成指定完美杯数
 CONTRACT_REVENUE_SPRINT_NAME,District Revenue Sprint,商圈营收冲刺
 CONTRACT_REVENUE_SPRINT_SHORT,Revenue Sprint,营收冲刺
-CONTRACT_REVENUE_SPRINT_DESCRIPTION,A promotion drives dense traffic. More orders arrive but only the signed revenue target counts.,联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。
+CONTRACT_REVENUE_SPRINT_DESCRIPTION,"A promotion drives dense traffic. More orders arrive but only the signed revenue target counts. Aimed at a fully-stocked, upgraded shop - check your gear before signing.",联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。目标面向备货充足、升级到位的店铺——签约前先检查装备。
 CONTRACT_REVENUE_SPRINT_CHALLENGE,Reach the signed operating-revenue target,营业营收达到签约目标
 CONTRACT_TARGET_STREAK,Best combo ≥ x%d,最高连击 ≥ x%d
 CONTRACT_TARGET_PRECISION,0 lost · Perfect ≥ %d,气走 0 位 · 完美 ≥ %d 杯
@@ -229,7 +229,7 @@ DAY_ORDER_SUGAR,· %s,· %s
 DAY_HUD_TIME,Day %d · %ds,第 %d 天 · %ds
 DAY_HUD_PERFECT,Perfect %d,完美 %d
 DAY_HUD_SHOP,Shop %d/%d,店铺 %d/%d
-DAY_FEEDBACK_INCOMPLETE,Choose a tea base milk and sugar level first!,先取 茶底/奶基，点糖罐调糖度！
+DAY_FEEDBACK_INCOMPLETE,"Choose a tea base, milk, and sugar level first!",请先选择茶底、奶基与糖度！
 DAY_FEEDBACK_SEALED,Sealed! Review the customer's order then confirm delivery.,封口完成！核对顾客订单后确认交付
 DAY_FEEDBACK_REWORK,Rework ×%d · The drink can still sell but Perfect is lost,返工 ×%d · 仍可售出，但本杯不再计完美
 DAY_FEEDBACK_DISCARDED,Cup discarded · ¥%d stock loss,已倒杯 · 原料损耗 ¥%d
@@ -303,13 +303,13 @@ DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
 跳过教学,Skip Tutorial,跳过教学
 TUTORIAL_PROGRESS,Tutorial  %d / %d,新手教学  %d / %d
 TUTORIAL_1_TITLE,Read the Current Order,先读当前订单
-TUTORIAL_1_BODY,Order cards on the left list tea milk toppings and sugar. The coral outline marks the active order; select another card to switch.,左侧订单卡会列出茶底、奶基、小料和糖度。珊瑚描边表示正在制作的订单；点击其他卡片即可切换。
-TUTORIAL_1_HINT,Keyboard players can press 1 2 or 3 to switch orders.,键盘玩家也可以按 1、2、3 切换订单。
+TUTORIAL_1_BODY,"Order cards on the left list tea, milk, toppings, and sugar. The coral outline marks the active order; select another card to switch.",左侧订单卡会列出茶底、奶基、小料和糖度。珊瑚描边表示正在制作的订单；点击其他卡片即可切换。
+TUTORIAL_1_HINT,"Keyboard players can press 1, 2, or 3 to switch orders.",键盘玩家也可以按 1、2、3 切换订单。
 TUTORIAL_2_TITLE,Keep Both Prep Stations Moving,让两个备料工位同时运转
 TUTORIAL_2_BODY,Tea stock is tracked by tea base while pearls use their own pot. Start either timer while serving; collect in the golden window for a quality and coin bonus. Late batches still work but overcooked batches lower the drink price.,茶底按口味分别备货，珍珠使用独立锅。制杯时也能让两条计时同时运行；黄金窗口收取可提高品质并获得金币奖励，偏晚仍可用，过熟则会压低售价。
 TUTORIAL_2_HINT,Q controls the tea vat and E controls the pearl pot. Their buttons also support touch.,Q 操作茶桶，E 操作珍珠锅；也可直接点击或触摸对应按钮。
 TUTORIAL_3_TITLE,Follow the Center Steps,跟着中央步骤制作
-TUTORIAL_3_BODY,The center panel shows only the ingredient needed now. Choose tea milk toppings and sugar in order. If tea or pearls run out the matching prep station tells you exactly what to refill.,中央面板只显示当前需要的原料。依次选择茶底、奶基、小料和糖度；茶底或珍珠缺货时，对应备料工位会明确提示补哪一项。
+TUTORIAL_3_BODY,"The center panel shows only the ingredient needed now. Choose tea, milk, toppings, and sugar in order. If tea or pearls run out the matching prep station tells you exactly what to refill.",中央面板只显示当前需要的原料。依次选择茶底、奶基、小料和糖度；茶底或珍珠缺货时，对应备料工位会明确提示补哪一项。
 TUTORIAL_3_HINT,Numbers before buttons map to keyboard keys 1–9.,按钮前的数字对应键盘 1–9。
 TUTORIAL_4_TITLE,Shake Seal Then Deliver,摇匀、封口、再交付
 TUTORIAL_4_BODY,After all ingredients are ready shake the cup. Flick the mouse side to side or shake a mobile device; the button and shortcut always remain available. Reworked drinks still sell but are not Perfect. Once sealed review the correct order then confirm delivery.,材料齐全后摇匀杯子。鼠标可左右快速甩动、手机可摇晃设备；按钮和快捷键始终可用。返工杯仍可售出但不计完美；封口后核对正确订单再确认交付。
@@ -563,7 +563,7 @@ NIGHT_MILK_UNSELECTED,Milk Unselected,奶基未选
 NIGHT_SUGAR_UNSELECTED,Sugar Unselected,糖度未选
 NIGHT_TOMORROW_CONTRACT,Signed Contract · %s · %s,已签委托 · %s · %s
 NIGHT_TOMORROW_UNSIGNED,Tomorrow's Contract · Not Signed,明日委托 · 尚未签约
-NIGHT_INCOMPLETE,Select a tea base milk and sugar level before making a trial cup.,先把 茶底/奶基/糖度 选齐再试做。
+NIGHT_INCOMPLETE,"Select a tea base, milk, and sugar level before making a trial cup.",试做前请先选择茶底、奶基与糖度。
 NIGHT_SYNERGY,Synergy · %s,协同 · %s
 NIGHT_CLASH,Clash · %s,冲突 · %s
 NIGHT_RECIPE_REPEAT,You already know “%s”. The flavor is stable.,……这不就是你的《%s》嘛，味道稳定。
@@ -811,3 +811,11 @@ DAY_COMPONENT_SUGAR,sugar,糖度
 DAY_COMPONENT_TOPPING,topping,小料
 CONTRACT_RANK_CITY_PLUS,City Legend,全城名店
 CONTRACT_RANK_LEGEND,Milk-Tea Legend,奶茶传奇
+NIGHT_SHELF_VOIDED,Formula changed — the shelving score was voided. Re-trial to re-qualify.,配方已修改——原试做分数失效，需重新试做后才能上架。
+DAY_HUD_GOAL_TIP,"Today's revenue goal. Reach it for 2 stars, 1.4x for 3 stars.",今日营收目标：达成得 2 星，1.4 倍得 3 星。
+DAY_HUD_SHOP_TIP,Shop upgrade levels bought in the night lab (max 10).,夜间研发室购买的店铺升级等级（满级 10）。
+DAY_HUD_PERFECT_TIP,Flawless serves today (no rework). Every 3 in a row pays a combo bonus.,今日无返工的完美出杯数；每连续 3 次触发连击奖励。
+DAY_HUD_STREAK_TIP,Current perfect-serve streak. Wrong drinks and walk-outs reset it.,当前完美连击数；送错杯或顾客离场会清零。
+DAY_HUD_INSP_TIP,Inspiration: spent at night on trials and research.,灵感：夜间用于试做与研究。
+DAY_HUD_COSTS_TIP,Today's restock cost so far and the upcoming rent day.,今日已计的补货成本与下一个租金日。
+CAMPAIGN_DIM_DEFICIT,+%d to max,距满分 +%d

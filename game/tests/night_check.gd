@@ -92,8 +92,15 @@ func _ready() -> void:
 	lab._on_tile("topping", find.call(GameData.toppings, "boba"))
 	assert(lab.pending_quality == 0, "changing ingredients must invalidate the pending shelf score")
 	assert(not lab.note_card.visible)
+	assert(lab.result_label.text.contains(GameLocale.text("NIGHT_SHELF_VOIDED")),
+		"voiding the shelf score must be visible feedback, not a silent disappearance")
 	lab._on_shelf()
 	assert(GameState.tests.is_empty(), "shelving a changed formula must not record a stale-score test")
+	# 手柄焦点环：货架瓦片必须像全项目其他按钮一样有可见 focus 样式（P3 试玩）。
+	var any_tile_button: Button = lab._tiles.values()[0]["btn"]
+	var tile_focus := any_tile_button.get_theme_stylebox("focus") as StyleBoxFlat
+	assert(tile_focus != null and not tile_focus.draw_center and tile_focus.get_border_width(SIDE_LEFT) >= 3,
+		"night shelf tiles need a visible gamepad focus ring")
 
 	# 2) 黑暗传说：香菜狂想曲
 	lab.cup_tops = []

@@ -2521,8 +2521,12 @@ func _end_day() -> void:
 	var metrics := HBoxContainer.new()
 	metrics.add_theme_constant_override("separation", 10)
 	v.add_child(metrics)
+	# 无主推/事件收入的平日不显示“主推销售 0 · 事件 +0”的噪音子行（P1 试玩）。
+	var revenue_detail := ""
+	if menu_income > 0 or event_bonus_earned > 0:
+		revenue_detail = GameLocale.text("DAY_RESULT_REVENUE_DETAIL", [menu_income, event_bonus_earned])
 	_result_metric(metrics, HudCoinIcon, GameLocale.text("DAY_RESULT_REVENUE"), "%d" % earned,
-		GameLocale.text("DAY_RESULT_REVENUE_DETAIL", [menu_income, event_bonus_earned]))
+		revenue_detail)
 	var clean_rate := roundi(float(perfect) / float(served) * 100.0) if served > 0 else 0
 	_result_metric(metrics, HudPerfectIcon, GameLocale.text("DAY_RESULT_PERFECT"), "%d / %d" % [perfect, served],
 		GameLocale.text("DAY_RESULT_CRAFT_DETAIL", [clean_rate, served - perfect, angry]))
@@ -2708,6 +2712,12 @@ func _go_night() -> void:
 
 # ---------------------------------------------------------------- HUD 与反馈
 
+func _pill_tip(label_node: Label, key: String) -> void:
+	var pill := label_node.get_parent()
+	if pill is Control:
+		pill.tooltip_text = GameLocale.text(key)
+
+
 func _update_info() -> void:
 	# HUD 展示值全部由这组输入派生；输入不变时跳过十多次本地化格式化
 	# 与主题覆盖，逐帧只在倒计时秒数真正变化时才重建文本。
@@ -2723,6 +2733,15 @@ func _update_info() -> void:
 	hud_day.text = GameLocale.text("DAY_HUD_TIME", [GameState.day, int(time_left)])
 	hud_goal_text.text = GameLocale.text("DAY_HUD_GOAL", [earned, goal, int(goal * STAR_GOAL_MULT)])
 	hud_goal_bar.value = clampf(float(earned) / maxf(float(goal), 1.0) * 100.0, 0.0, STAR_GOAL_MULT * 100.0)
+	# 术语药丸的悬停说明：首次玩家无法从“店铺0/10 · 完美0 · x0”猜出含义（P1 试玩）。
+	# Label 不接收悬停，提示挂在药丸面板上；语言切换会清空本函数缓存从而重译。
+	_pill_tip(hud_day, "DAY_HUD_GOAL_TIP")
+	_pill_tip(hud_coin, "DAY_HUD_COSTS_TIP")
+	_pill_tip(hud_insp, "DAY_HUD_INSP_TIP")
+	_pill_tip(hud_perfect, "DAY_HUD_PERFECT_TIP")
+	_pill_tip(hud_streak, "DAY_HUD_STREAK_TIP")
+	if hud_upgrade.get_parent() is Control:
+		hud_upgrade.get_parent().tooltip_text = GameLocale.text("DAY_HUD_SHOP_TIP")
 	hud_coin.text = "%d" % GameState.coins
 	var rent_today := OperatingCosts.rent_base(GameState.day)
 	hud_cost.text = GameLocale.text("DAY_HUD_COSTS_TODAY", [stock_cost, rent_today]) if rent_today > 0 \

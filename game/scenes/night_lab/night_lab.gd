@@ -650,10 +650,18 @@ func _shelf_group(shelf: HBoxContainer, title: String, items: Array, kind: Strin
 			btn.add_theme_constant_override("icon_max_width", 44)
 		else:
 			btn.text = short_name.left(2)
+		var focus_sb := StyleBoxFlat.new()
+		# 手柄焦点环：与全项目 cocoa 描边惯例一致；不填充中心避免盖住图标。
+		focus_sb.draw_center = false
+		focus_sb.set_corner_radius_all(10)
+		focus_sb.set_border_width_all(3)
+		focus_sb.border_color = AppTheme.COCOA
 		btn.add_theme_stylebox_override("normal", _tile_style(false))
 		btn.add_theme_stylebox_override("hover", _tile_style(false))
 		btn.add_theme_stylebox_override("pressed", _tile_style(true))
+		btn.add_theme_stylebox_override("focus", focus_sb)
 		btn.add_theme_color_override("font_color", AppTheme.COCOA)
+		btn.add_theme_color_override("font_focus_color", AppTheme.COCOA)
 		btn.pressed.connect(_on_tile.bind(kind, item))
 		if _first_tile == null:
 			_first_tile = btn
@@ -749,6 +757,12 @@ func _invalidate_pending_shelf() -> void:
 	if String(_note_state.get("kind", "")) == "shelf":
 		note_card.visible = false
 		_note_state.clear()
+	# 改料即失效必须可见，否则迭代研究者会觉得“分数凭空消失是 bug”（P5 试玩）。
+	_append_result("NIGHT_SHELF_VOIDED")
+	_render_result_entries()
+	_scroll_feedback_to_end.call_deferred()
+	Sfx.play("bad", 0.85)
+	Haptics.play("warning")
 
 
 func _refresh() -> void:
