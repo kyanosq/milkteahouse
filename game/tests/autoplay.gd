@@ -213,7 +213,7 @@ func _on_day_end(stats: Dictionary) -> void:
 	var rate: float = (float(stats["served"]) / float(total) * 100.0) if total > 0 else 0.0
 	var contract: Dictionary = stats.get("contract", {})
 	var perfect_rate := (float(stats["perfect"]) / float(stats["served"]) * 100.0) if int(stats["served"]) > 0 else 0.0
-	print("[RESULT] earned=%d net=%d operating_net=%d stock=%d waste=%d rent=%d/%d relief=%d goal=%d stars=%d served=%d perfect=%d perfect_rate=%.0f%% reworks=%d discards=%d inspiration=%d angry=%d serve_rate=%.0f%% event=%s event_bonus=%d buzz=%d special=%d menu_sales=%d menu_revenue=%d menu_hot=%d route=%s route_bonus=%d route_triggers=%d staff=%s wakes=%d rescues=%d staff_bonus=%d wage=%d contract=%s/%s stamps=%d upgrades=%s" %
+	print("[RESULT] earned=%d net=%d operating_net=%d stock=%d waste=%d rent=%d/%d relief=%d goal=%d stars=%d served=%d perfect=%d perfect_rate=%.0f%% reworks=%d discards=%d inspiration=%d angry=%d serve_rate=%.0f%% event=%s event_bonus=%d buzz=%d special=%d menu_sales=%d menu_revenue=%d menu_hot=%d route=%s route_bonus=%d route_triggers=%d staff=%s wakes=%d rescues=%d staff_bonus=%d wage=%d contract=%s/%s stamps=%d upgrades=%s tau=%.2f dd=%d" %
 		[stats["earned"], GameState.coins,
 		int(stats.get("net_operating", 0)), int(stats.get("stock_cost", 0)), int(stats.get("waste_cost", 0)),
 		int(stats.get("rent_paid", 0)), int(stats.get("rent_due", 0)), int(stats.get("cost_relief", 0)),
@@ -227,9 +227,20 @@ func _on_day_end(stats: Dictionary) -> void:
 		int(stats.get("staff_wakes", 0)), int(stats.get("staff_rescues", 0)),
 		int(stats.get("staff_bonus", 0)), int(stats.get("staff_wage", 0)),
 		String(contract.get("id", "none")), "success" if bool(contract.get("success", false)) else ("failed" if not contract.is_empty() else "none"),
-		int(GameState.endless.get("stamps", 0)), str(GameState.upgrades)])
+		int(GameState.endless.get("stamps", 0)), str(GameState.upgrades),
+		float(stats["earned"]) / maxf(float(shop.goal), 1.0), _affordable_tiers()])
 	Sfx.stop_all()
 	shop.queue_free()
 	await get_tree().process_frame
 	await get_tree().process_frame
 	get_tree().quit()
+
+
+## 层2度量：当前金币可立即购买的升级档数（决策密度 DD 的可计算代理）。
+func _affordable_tiers() -> int:
+	var count := 0
+	for item_id in ["comfort", "shaker", "smart_sugar", "tip_jar"]:
+		var cost := UpgradeCatalog.next_cost(item_id)
+		if cost >= 0 and GameState.coins >= cost:
+			count += 1
+	return count
