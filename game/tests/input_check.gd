@@ -306,6 +306,20 @@ func _ready() -> void:
 	assert(progress_customer["order_progress"].text.begins_with("!"))
 	assert(progress_customer["hint"].text == GameLocale.text("DAY_ORDER_DELIVER_POINTER"),
 		"a sealed wrong cup still needs an honest delivery action hint")
+	# 暂停/结算期间，焦点驱动的订单按键必须被拒绝：语言或设备方案切换可能把
+	# 焦点偷到被遮挡的订单卡上，A 键不得在暂停中送杯（评审 R3-F2）。
+	var served_before_paused_press: int = shop.served
+	var focus_owner_before_pause := get_viewport().gui_get_focus_owner()
+	shop.running = false
+	shop._on_order_card_pressed(progress_customer)
+	assert(shop.served == served_before_paused_press,
+		"order-card presses outside a running shift must be inert")
+	shop._on_reset_cup_pressed()
+	assert(shop._cup_has_contents(), "reset must be inert while the shift is paused")
+	shop._focus_active_order()
+	assert(get_viewport().gui_get_focus_owner() == focus_owner_before_pause,
+		"deferred focus must not move while the shift is paused")
+	shop.running = true
 	var patience_before_wrong_delivery: float = progress_customer["patience"]
 	shop._on_order_card_pressed(progress_customer)
 	assert(Haptics.event_count("warning") >= 1, "wrong delivery must emit warning haptics")

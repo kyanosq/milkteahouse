@@ -139,6 +139,9 @@ func _ready() -> void:
 	assert(shop.waste_cost == waste_before_end + leftover_cost,
 		"end-of-day must charge the in-flight cup as waste")
 	assert(not shop.running)
+	assert(get_viewport().gui_get_focus_owner() != null,
+		"settlement continue must take focus so gamepad/keyboard can leave the panel")
+	assert(not shop.running)
 	shop.queue_free()
 	GameState.settings = original_settings
 	TranslationServer.set_locale(GameState.locale())

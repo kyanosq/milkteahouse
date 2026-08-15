@@ -1187,6 +1187,8 @@ func _cup_has_contents() -> bool:
 
 
 func _on_reset_cup_pressed() -> void:
+	if not running:
+		return
 	if not _cup_has_contents():
 		return
 	var discarded_cost := _current_cup_cost()
@@ -2014,6 +2016,10 @@ func order_progress_states(c: Dictionary) -> Array[String]:
 
 
 func _on_order_card_pressed(c: Dictionary) -> void:
+	# 焦点驱动的按键可能在暂停/结算覆盖层下触达此入口（语言或设备方案切换会
+	# 把焦点偷走，评审 R3-F2）；营业外一律拒绝，防止暂停中送杯。
+	if not running:
+		return
 	if cup_sealed:
 		# The focused/active card is already reviewed, so confirm it immediately.
 		# A different pointer or number-key target gets one non-destructive review
@@ -2045,6 +2051,10 @@ func _set_active_customer(c: Dictionary) -> void:
 func _focus_active_order() -> void:
 	if not cup_sealed or not InputPrompts.gamepad_mode \
 			or active_customer == null or not customers.has(active_customer):
+		return
+	# 暂停或结算覆盖层打开时不把焦点移到被遮挡的订单卡上，
+	# 防止 A 键在暂停中激活隐藏按钮（评审 R3-F2）。
+	if get_tree().paused or not running:
 		return
 	var button := active_customer.get("btn") as Button
 	if button != null and is_instance_valid(button) and not button.has_focus():
@@ -2562,6 +2572,9 @@ func _end_day() -> void:
 	v.add_child(next)
 	overlay.add_child(panel)
 	overlay.visible = true
+	# 顾客扫场会释放持焦点的订单卡按钮；结算按钮必须立即接管焦点，
+	# 否则手柄/键盘在打烊面板上死路（评审 R3-F1）。
+	next.grab_focus()
 
 
 func _result_metric(parent: HBoxContainer, icon_texture: Texture2D, label_text: String,
