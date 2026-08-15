@@ -21,6 +21,10 @@ func _ready() -> void:
 	assert(presets.contains('application/app_store_team_id="9AP4GA8W53"'))
 	assert(presets.contains('application/bundle_identifier="com.milkteahouse.game"'))
 	assert(presets.contains('icons/app_store_1024x1024="res://assets/icons/app/icon_1024.png"'))
+	# 1.0 首发版本号（D8）：所有预设统一 1.0.0，不允许回退到 0.x。
+	assert(presets.count('short_version="1.0.0"') + presets.count('version/name="1.0.0"') >= 3,
+		"shipping version strings must read 1.0.0")
+	assert(not presets.contains("0.1.0"), "stale 0.1.0 version strings must not ship")
 
 	var ofl := _read_text("res://OFL-1.1.txt")
 	assert(ofl.begins_with("Copyright 2021-2026 LXGW"), "LXGW copyright notice missing")

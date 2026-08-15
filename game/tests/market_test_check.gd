@@ -69,6 +69,10 @@ func _ready() -> void:
 	add_child(panel)
 	panel.show_results(9, first)
 	assert(panel.result_card_count() == 1)
+	assert(_panel_contains_prefix(panel, GameLocale.text("MARKET_SETTLEMENT_FORMULA", ["\uFFFF"]).split("\uFFFF")[0]),
+		"settlement cards must show each drink's formula for post-hoc review")
+	assert(panel._subtitle.text.contains(str(int(MarketTests.TIER_HIT))),
+		"the tier cutoff numbers must be visible in the panel header")
 	assert(panel._continue.text.contains("10"))
 	GameLocale.set_locale("en", false)
 	panel.show_results(9, first)
@@ -111,3 +115,12 @@ func _find_settlement_panel(node: Node) -> NightSettlementPanel:
 		if found != null:
 			return found
 	return null
+
+
+func _panel_contains_prefix(node: Node, prefix: String) -> bool:
+	if node is Label and String(node.text).begins_with(prefix):
+		return true
+	for child in node.get_children():
+		if _panel_contains_prefix(child, prefix):
+			return true
+	return false

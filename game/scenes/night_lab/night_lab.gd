@@ -649,7 +649,8 @@ func _shelf_group(shelf: HBoxContainer, title: String, items: Array, kind: Strin
 			btn.icon = load(icon_path)
 			btn.add_theme_constant_override("icon_max_width", 44)
 		else:
-			btn.text = short_name.left(2)
+			# 糖度无图标：显示完整短名，英文下不再出现 “Fu”“No” 截断（P4 试玩）。
+			btn.text = short_name if kind == "sugar" else short_name.left(2)
 		var focus_sb := StyleBoxFlat.new()
 		# 手柄焦点环：与全项目 cocoa 描边惯例一致；不填充中心避免盖住图标。
 		focus_sb.draw_center = false
@@ -778,7 +779,7 @@ func _refresh() -> void:
 	book_label.tooltip_text = GameLocale.text("RECIPE_BOOK_TITLE")
 	menu_button.text = GameLocale.text("NIGHT_MENU_PILL", [
 		MenuCatalog.featured_items().size(), MenuCatalog.FEATURED_LIMIT,
-		MenuCatalog.hot_featured_count()])
+		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), DARK_MENU_CAP])
 	menu_button.tooltip_text = GameLocale.text("MENU_BOARD_TITLE")
 	var target_name := RecipeJournal.target_display_name()
 	selection_title_label.text = GameLocale.text("NIGHT_CURRENT_RECIPE") if target_name.is_empty() \
@@ -816,6 +817,8 @@ func _refresh() -> void:
 		brief_body_label.text = ResearchBriefs.description()
 		brief_body_label.tooltip_text = brief_body_label.text
 	try_btn.disabled = budget < ATTEMPT_COST
+	# 禁用要有原因（P5 试玩）：灵感不足时说明还差多少、灵感从哪来。
+	try_btn.tooltip_text = GameLocale.text("NIGHT_TRY_LOW", [ATTEMPT_COST]) if try_btn.disabled else ""
 
 
 # ---------------------------------------------------------------- 便签卡

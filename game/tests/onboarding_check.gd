@@ -18,8 +18,11 @@ func _ready() -> void:
 	shop._show_tutorial(false)
 	assert(shop.tutorial_overlay.visible)
 	assert(not shop.running)
-	assert(shop.tutorial_overlay.STEPS.size() == 5)
-	for i in 5:
+	assert(shop.tutorial_overlay.STEPS.size() == 6,
+		"the tutorial must include the goal-and-stars step")
+	assert(shop.tutorial_overlay.STEPS[0]["focus"].position.x <= 8.0 and shop.tutorial_overlay.STEPS[0]["focus"].position.y <= 8.0,
+		"step 1 must spotlight the HUD goal row")
+	for i in 6:
 		shop.tutorial_overlay._advance()
 	assert(GameState.tutorial_completed)
 	assert(not shop.tutorial_overlay.visible)

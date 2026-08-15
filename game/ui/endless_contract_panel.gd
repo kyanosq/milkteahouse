@@ -15,6 +15,7 @@ const COCOA := Color("30201D")
 var _panel: PanelContainer
 var _cards: HBoxContainer
 var _coin_label: Label
+var _stats_label: Label
 var _rank_label: Label
 var _feedback: Label
 var _close_button: Button
@@ -60,6 +61,12 @@ func _build() -> void:
 	_coin_label = Label.new()
 	_coin_label.add_theme_font_size_override("font_size", 21)
 	header.add_child(_coin_label)
+	_stats_label = Label.new()
+	_stats_label.add_theme_font_size_override("font_size", 14)
+	_stats_label.add_theme_color_override("font_color", Color(0.30, 0.22, 0.18, 0.72))
+	_stats_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	header.add_child(_stats_label)
 	_close_button = Button.new()
 	_close_button.text = "返回研发室"
 	_close_button.custom_minimum_size = Vector2(152, 48)
@@ -112,6 +119,11 @@ func _refresh() -> void:
 	var stamps := int(GameState.endless.get("stamps", 0))
 	_rank_label.text = GameLocale.text("ENDLESS_SIGN_RANK", [
 		EndlessContracts.rank_name(stamps), stamps, EndlessContracts.next_rank_text(stamps)])
+	# 生涯统计行（D6-A）：连胜/完成/失败早已记录，现在让玩家看得见。
+	_stats_label.text = GameLocale.text("ENDLESS_CAREER_STATS", [
+		int(GameState.endless.get("best_streak", 0)),
+		int(GameState.endless.get("completed", 0)),
+		int(GameState.endless.get("failed", 0)), stamps])
 	for child in _cards.get_children():
 		child.free()
 	var target_day := GameState.day + 1

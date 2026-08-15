@@ -66,7 +66,11 @@ func formula(item: Dictionary) -> String:
 		topping_names.append(GameLocale.ingredient_name(ingredient(String(topping_id))))
 	var topping_text := GameLocale.text("NIGHT_NO_TOPPINGS") if topping_names.is_empty() \
 		else GameLocale.text("LIST_SEPARATOR").join(topping_names)
-	var sugar: Array = item.get("sugar", [])
+	# 菜单项存 [低,高] 数组，市场检验结果存单一 int——中枢处归一。
+	var sugar_value: Variant = item.get("sugar", [])
+	if sugar_value is int or sugar_value is float:
+		sugar_value = [int(sugar_value), int(sugar_value)]
+	var sugar: Array = sugar_value if sugar_value is Array else []
 	var sugar_text := ""
 	if sugar.size() >= 2:
 		var low := _sugar_name(int(sugar[0]))

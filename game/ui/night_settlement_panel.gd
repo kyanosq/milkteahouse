@@ -83,7 +83,10 @@ func _ready() -> void:
 
 func show_results(day_number: int, settlement: Dictionary) -> void:
 	_title.text = GameLocale.text("MARKET_SETTLEMENT_TITLE", [day_number])
-	_subtitle.text = GameLocale.text("MARKET_SETTLEMENT_SUBTITLE")
+	# 分档线明示（P5 试玩）：88/78/62 不再是隐藏规则。
+	_subtitle.text = "%s  %s" % [GameLocale.text("MARKET_SETTLEMENT_SUBTITLE"),
+		GameLocale.text("MARKET_SETTLEMENT_TIERS", [
+			MarketTests.TIER_HIT, MarketTests.TIER_SIGNATURE, MarketTests.TIER_REGULAR])]
 	var results: Array = settlement.get("results", [])
 	var finished := 0
 	for result in results:
@@ -146,6 +149,14 @@ func _result_card(result: Dictionary) -> PanelContainer:
 	stage_label.add_theme_font_size_override("font_size", 13)
 	stage_label.add_theme_color_override("font_color", accent)
 	box.add_child(stage_label)
+	# 配方行（P5 试玩）：事后能复盘“这是哪杯饮品”。
+	var formula_label := Label.new()
+	formula_label.text = GameLocale.text("MARKET_SETTLEMENT_FORMULA",
+		[RecipeJournal.formula(result)])
+	formula_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	formula_label.add_theme_font_size_override("font_size", 13)
+	formula_label.add_theme_color_override("font_color", Color(COCOA.r, COCOA.g, COCOA.b, 0.66))
+	box.add_child(formula_label)
 	var progress := ProgressBar.new()
 	progress.max_value = MarketTests.STAGES
 	progress.value = stage

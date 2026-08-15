@@ -32,8 +32,8 @@ EVENT_LUNCH_RUSH_HEADLINE,The lunch crowd arrives all at once.,午休人潮一�
 EVENT_LUNCH_RUSH_CHALLENGE,Customers arrive 28% faster,顾客到店间隔缩短 28%
 EVENT_LUNCH_RUSH_BENEFIT,More orders and more chances to earn three stars,更多订单，也有更多冲击三星的机会
 EVENT_LIGHT_DRINKS_NAME,Light-Drink Trend,轻饮风向
-EVENT_LIGHT_DRINKS_HEADLINE,Low-sugar pure tea is trending today.,今天流行低糖纯茶，熟悉的订单比例会发生变化。
-EVENT_LIGHT_DRINKS_CHALLENGE,More pure tea low-sugar and topping-free orders,纯茶、低糖与无小料订单明显增多
+EVENT_LIGHT_DRINKS_HEADLINE,Low-sugar pure tea is trending today — regulars are changing their usual orders.,今天流行低糖纯茶，熟悉的订单比例会发生变化。
+EVENT_LIGHT_DRINKS_CHALLENGE,"More orders ask for pure tea, lighter sugar, or no toppings",纯茶、低糖与无小料订单明显增多
 EVENT_LIGHT_DRINKS_BENEFIT,Topping-free drinks earn +2 coins,无小料订单正确出杯额外 +2 金币
 EVENT_BROWN_SUGAR_TREND_NAME,Brown-Sugar Buzz,黑糖热搜
 EVENT_BROWN_SUGAR_TREND_HEADLINE,Brown-sugar jelly is suddenly everywhere.,黑糖冻突然刷屏，多数客人都指名要这一口。
@@ -182,7 +182,7 @@ DAY_CUP_STATUS,Current Cup · %s · %s%s,当前杯 · %s · %s%s
 DAY_CUP_REWORKED, · Reworked ×%d, · 返工 ×%d
 DAY_CUP_CLEAN, · Clean Build, · 无返工
 DAY_RESET_CUP,Reset Cup,重置杯子
-DAY_RESET_CUP_WASTE,Reset · Waste ¥%d,重置 · 损耗 ¥%d
+DAY_RESET_CUP_WASTE,Reset · Waste %d coins,重置 · 损耗 %d 币
 DAY_CONTEXT_SEALED,Sealed · Review the target order then confirm delivery,封口完成 · 核对目标订单后确认交付
 DAY_NEXT_DELIVER_GAMEPAD,Next: Focus an Order to Review · %s Deliver,下一步：聚焦订单核对 · %s 交付
 DAY_NEXT_DELIVER_TOUCH,Next: Review the Matching Order · Confirm to Deliver,下一步：核对对应订单 · 确认交付
@@ -232,7 +232,7 @@ DAY_HUD_SHOP,Shop %d/%d,店铺 %d/%d
 DAY_FEEDBACK_INCOMPLETE,"Choose a tea base, milk, and sugar level first!",请先选择茶底、奶基与糖度！
 DAY_FEEDBACK_SEALED,Sealed! Review the customer's order then confirm delivery.,封口完成！核对顾客订单后确认交付
 DAY_FEEDBACK_REWORK,Rework ×%d · The drink can still sell but Perfect is lost,返工 ×%d · 仍可售出，但本杯不再计完美
-DAY_FEEDBACK_DISCARDED,Cup discarded · ¥%d stock loss,已倒杯 · 原料损耗 ¥%d
+DAY_FEEDBACK_DISCARDED,Cup discarded · %d coins stock loss,已倒杯 · 原料损耗 %d 币
 DAY_REWARD_COINS,+%d Coins,+%d 金币
 DAY_REWARD_TIP, · Tip %d, · 小费 %d
 DAY_REWARD_REASON, · %s, · %s
@@ -302,8 +302,8 @@ DAY_RESULT_UPGRADE_HINT,%d Coins · Buy Shop Upgrades in the Lab,现有 %d 金�
 DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
 跳过教学,Skip Tutorial,跳过教学
 TUTORIAL_PROGRESS,Tutorial  %d / %d,新手教学  %d / %d
-TUTORIAL_1_TITLE,Read the Current Order,先读当前订单
-TUTORIAL_1_BODY,"Order cards on the left list tea, milk, toppings, and sugar. The coral outline marks the active order; select another card to switch.",左侧订单卡会列出茶底、奶基、小料和糖度。珊瑚描边表示正在制作的订单；点击其他卡片即可切换。
+TUTORIAL_1_TITLE,Today's Goal & Orders,今日目标与订单
+TUTORIAL_1_BODY,"Top-left shows today's revenue goal — reach it and the day is a success. Left-side order cards list tea, milk, toppings, and sugar; the coral outline marks the active order.",左上角是今天的营收目标——达到它今天就算成功。左侧订单卡会列出茶底、奶基、小料和糖度；珊瑚描边表示正在制作的订单。
 TUTORIAL_1_HINT,"Keyboard players can press 1, 2, or 3 to switch orders.",键盘玩家也可以按 1、2、3 切换订单。
 TUTORIAL_2_TITLE,Keep Both Prep Stations Moving,让两个备料工位同时运转
 TUTORIAL_2_BODY,Tea stock is tracked by tea base while pearls use their own pot. Start either timer while serving; collect in the golden window for a quality and coin bonus. Late batches still work but overcooked batches lower the drink price.,茶底按口味分别备货，珍珠使用独立锅。制杯时也能让两条计时同时运行；黄金窗口收取可提高品质并获得金币奖励，偏晚仍可用，过熟则会压低售价。
@@ -604,9 +604,9 @@ NIGHT_GRADE_FAILED,✗ Failed!,✗ 翻车了！
 NIGHT_MARKET_TEST_STARTED,Market Test · “%s” begins a 3-night test. Scores reveal each night!,市场检验 ·《%s》进入 3 天检验期，每晚结算揭晓评分！
 NIGHT_SETTLEMENT_TITLE,Day %d Complete · Market Test Results:,第 %d 天结束 · 市场检验结算：
 NIGHT_TEST_SCORE,Test · “%s” Day %d: %d Points,检验 ·《%s》第%d天：%d 分
-NIGHT_TEST_HIT,Hit · “%s” priced at ¥%d and listed!,爆款 ·《%s》定价 ¥%d，正式上架！
-NIGHT_TEST_SIGNATURE,Signature · “%s” priced at ¥%d and listed!,招牌 ·《%s》定价 ¥%d，正式上架！
-NIGHT_TEST_REGULAR,Regular · “%s” priced at ¥%d and listed.,普通 ·《%s》定价 ¥%d，上架。
+NIGHT_TEST_HIT,Hit · “%s” priced at %d coins and listed!,爆款 ·《%s》定价 %d 币，正式上架！
+NIGHT_TEST_SIGNATURE,Signature · “%s” priced at %d coins and listed!,招牌 ·《%s》定价 %d 币，正式上架！
+NIGHT_TEST_REGULAR,Regular · “%s” priced at %d coins and listed.,普通 ·《%s》定价 %d 币，上架。
 NIGHT_TEST_FAILED,Low Sales · “%s” averaged %.0f. Removed with 3 inspiration refunded.,滞销 ·《%s》均分 %.0f，下架并返还 3 灵感。
 NIGHT_NO_TESTS,(No new drinks are currently being tested),(今晚没有在检验中的新品)
 NIGHT_CAMPAIGN_READY,\nThe 14-day run is complete · Your first-shop rating is ready.,\n十四天营业完成 · 首店评级已经生成。
@@ -731,10 +731,10 @@ RECIPE_XIANGCAI_FANTASY_HINT,A green herb is lurking near jasmine and pearls.,�
 RECIPE_ZHEERGEN_RAGE_HINT,A southwest root wants grain aroma and almost no sweetness.,西南根茎气息想要谷物香，也几乎不需要甜味。
 RECIPE_SWEET_SALT_HORROR_HINT,The darkest sweetness meets a sharp herb in coconut milk.,最深色的甜香会在椰奶里撞上一味锋利香草。
 DAY_ORDER_MENU,★ %s,★ %s
-ORDER_HINT_MENU,Featured · ¥%d · %s,主推新品 · ¥%d · %s
+ORDER_HINT_MENU,Featured · %d coins · %s,主推新品 · %d 币 · %s
 DAY_REWARD_MENU, · Featured “%s”, · 主推《%s》
-DAY_RESULT_MENU_SALES,Featured menu · %d cups sold for ¥%d,主推菜单 · 售出 %d 杯共 ¥%d
-NIGHT_MENU_PILL,Featured %d/%d · Hot %d,主推 %d/%d · 热卖 %d
+DAY_RESULT_MENU_SALES,Featured menu · %d cups sold for %d coins,主推菜单 · 售出 %d 杯共 %d 币
+NIGHT_MENU_PILL,Featured %d/%d · Hot %d · Dark %d/%d,主推 %d/%d · 热卖 %d · 黑暗 %d/%d
 MENU_BOARD_TITLE,Tomorrow's Featured Menu,明日主推菜单
 MENU_BOARD_PROGRESS,%d/%d slots · %d hot,%d/%d 槽 · %d 款热卖
 MENU_BOARD_SUBTITLE,Choose up to three recipes. Featured drinks become real customer orders and use their menu price.,最多选择三款。主推饮品会成为真实顾客订单，并按研发菜单价结算。
@@ -746,7 +746,7 @@ MENU_BOARD_CLOSE,Back to Lab,返回研发室
 MENU_BOARD_FEATURED,FEATURED TOMORROW,明日主推
 MENU_BOARD_AVAILABLE,AVAILABLE,可主推
 MENU_BOARD_LEGACY,LEGACY ITEM,旧版配方
-MENU_BOARD_META,%s · ¥%d · %s,%s · ¥%d · %s
+MENU_BOARD_META,%s · %d coins · %s,%s · %d 币 · %s
 MENU_BOARD_SALES,Lifetime featured sales · %d cups,累计主推销量 · %d 杯
 MENU_BOARD_FEATURE,Feature Tomorrow,加入明日主推
 MENU_BOARD_REMOVE,Remove from Featured,移出主推
@@ -765,7 +765,7 @@ DARK_BOARD_SUBTITLE,These three drinks generate real novelty orders. Completed s
 DARK_BOARD_IMPACT,One novelty order every %d arrivals · Banked buzz can raise tomorrow's arrival speed by %d%%,每 %d 位顾客出现一单猎奇需求 · 已结转话题可令明日到店速度 +%d%%
 DARK_BOARD_CANDIDATE,New candidate: %s · %s · Choose a slot to replace,新候选：%s · %s · 请选择要替换的槽位
 DARK_BOARD_SLOT,DARK SLOT %d,黑暗槽位 %d
-DARK_BOARD_META,Novelty price ¥%d · %d real sales,猎奇价 ¥%d · 真实成交 %d 杯
+DARK_BOARD_META,Novelty price %d coins · %d real sales,猎奇价 %d 币 · 真实成交 %d 杯
 DARK_BOARD_REPLACE,Replace This Slot,替换此槽
 DARK_BOARD_UNLIST,Unlist Drink,下架饮品
 DARK_BOARD_EMPTY_SLOT,Dark Slot %d · Empty,黑暗槽位 %d · 空
@@ -800,7 +800,7 @@ DAY_PREP_PEARL_EMPTY,Pearls are out · start the pearl pot,珍珠库存不足 ·
 DAY_BATCH_GOLDEN, · Golden Batch, · 黄金批次
 DAY_BATCH_STANDARD, · Standard Batch, · 稳定批次
 DAY_BATCH_POOR, · Overcooked Batch, · 过熟批次
-ORDER_HINT_MENU_MATCH,Menu ¥%d · Trend +%d · %s,菜单 ¥%d · 风向 +%d · %s
+ORDER_HINT_MENU_MATCH,Menu %d coins · Trend +%d · %s,菜单 %d 币 · 风向 +%d · %s
 REWARD_MENU_EVENT_MATCH,Featured trend match,主推契合风向
 DAY_HUD_GOAL,%d/%d · 3★ at %d,%d/%d · 3★需%d
 DAY_RESULT_GOAL_NUMBERS,%d / %d · 3★ at %d,%d / %d · 3★需%d
@@ -819,3 +819,11 @@ DAY_HUD_STREAK_TIP,Current perfect-serve streak. Wrong drinks and walk-outs rese
 DAY_HUD_INSP_TIP,Inspiration: spent at night on trials and research.,灵感：夜间用于试做与研究。
 DAY_HUD_COSTS_TIP,Today's restock cost so far and the upcoming rent day.,今日已计的补货成本与下一个租金日。
 CAMPAIGN_DIM_DEFICIT,+%d to max,距满分 +%d
+TUTORIAL_6_TITLE,"Goals, Stars & the Clock",目标、星级与打烊
+TUTORIAL_6_BODY,Each shift lasts 120 seconds. Earning the goal gives 2 stars; 1.4x the goal gives 3 stars and +3 inspiration. Miss 70% of it and the day lands at 1 star — stars decide your final report.,每班营业 120 秒：营收达到目标得 2 星，1.4 倍得 3 星并奖励 3 灵感；不足七成只有 1 星。星级决定收官报告的评级。
+TUTORIAL_6_HINT,"The goal bar keeps filling past 100% — the tick marks the goal, the end of the bar is the 3-star line.",目标条超过 100% 仍会继续涨：刻度是目标线，条尾就是三星线。
+MARKET_SETTLEMENT_TIERS,Tiers: ≥%d hit · ≥%d signature · ≥%d regular.,分档线：≥%d 爆款 · ≥%d 招牌 · ≥%d 普通。
+MARKET_SETTLEMENT_FORMULA,Formula: %s,配方：%s
+NIGHT_TRY_LOW,Need %d inspiration — earn it from perfect serves and day goals.,灵感不足：还差 %d 点。完美出杯与达成日目标可获得灵感。
+ORDER_HINT_DEFAULT_GAMEPAD,Focus to make this your current order,聚焦即设为当前订单
+ENDLESS_CAREER_STATS,Career · Best streak x%d · Completed %d · Failed %d · Stamps %d,生涯 · 最高连击 x%d · 完成 %d · 失败 %d · 印章 %d

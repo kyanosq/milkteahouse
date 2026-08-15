@@ -3,6 +3,10 @@ extends Node
 
 const STAGES := 3
 const VARIANCE := 8
+## 三晚均分分档线：结算面板与判定共用，避免显示与规则漂移。
+const TIER_HIT := 88.0
+const TIER_SIGNATURE := 78.0
+const TIER_REGULAR := 62.0
 
 
 func has_settlement(day_number: int = GameState.day) -> bool:
@@ -36,15 +40,15 @@ func advance(day_number: int = GameState.day) -> Dictionary:
 			"outcome": "testing", "price": 0, "refund": 0,
 		}
 		if scores.size() >= STAGES:
-			if average >= 88.0:
+			if average >= TIER_HIT:
 				result["outcome"] = "hit"
 				result["price"] = 18
 				MenuCatalog.register_custom(test, "爆款", 18)
-			elif average >= 78.0:
+			elif average >= TIER_SIGNATURE:
 				result["outcome"] = "signature"
 				result["price"] = 15
 				MenuCatalog.register_custom(test, "招牌", 15)
-			elif average >= 62.0:
+			elif average >= TIER_REGULAR:
 				result["outcome"] = "regular"
 				result["price"] = 12
 				MenuCatalog.register_custom(test, "普通", 12)

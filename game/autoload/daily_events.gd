@@ -208,7 +208,9 @@ func order_hint(event: Dictionary, customer: Dictionary) -> String:
 			for topping in customer["order"]["tops"]:
 				if topping["id"] == "brown_sugar":
 					return GameLocale.text("ORDER_HINT_TREND")
-	return GameLocale.text("ORDER_HINT_DEFAULT")
+	# 手柄模式下“点按”措辞不成立：聚焦即设为当前订单（P3 试玩）。
+	return GameLocale.text("ORDER_HINT_DEFAULT_GAMEPAD") if InputPrompts.gamepad_mode \
+		else GameLocale.text("ORDER_HINT_DEFAULT")
 
 
 func _localized_event(event: Dictionary) -> Dictionary:
