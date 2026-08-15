@@ -182,7 +182,7 @@ DAY_CUP_STATUS,Current Cup · %s · %s%s,当前杯 · %s · %s%s
 DAY_CUP_REWORKED, · Reworked ×%d, · 返工 ×%d
 DAY_CUP_CLEAN, · Clean Build, · 无返工
 DAY_RESET_CUP,Reset Cup,重置杯子
-DAY_RESET_CUP_WASTE,Reset · Waste %d coins,重置 · 损耗 %d 币
+DAY_RESET_CUP_WASTE,Reset · Waste %d coins,重置 · 损耗 %d 金币
 DAY_CONTEXT_SEALED,Sealed · Review the target order then confirm delivery,封口完成 · 核对目标订单后确认交付
 DAY_NEXT_DELIVER_GAMEPAD,Next: Focus an Order to Review · %s Deliver,下一步：聚焦订单核对 · %s 交付
 DAY_NEXT_DELIVER_TOUCH,Next: Review the Matching Order · Confirm to Deliver,下一步：核对对应订单 · 确认交付
@@ -232,7 +232,7 @@ DAY_HUD_SHOP,Shop %d/%d,店铺 %d/%d
 DAY_FEEDBACK_INCOMPLETE,"Choose a tea base, milk, and sugar level first!",请先选择茶底、奶基与糖度！
 DAY_FEEDBACK_SEALED,Sealed! Review the customer's order then confirm delivery.,封口完成！核对顾客订单后确认交付
 DAY_FEEDBACK_REWORK,Rework ×%d · The drink can still sell but Perfect is lost,返工 ×%d · 仍可售出，但本杯不再计完美
-DAY_FEEDBACK_DISCARDED,Cup discarded · %d coins stock loss,已倒杯 · 原料损耗 %d 币
+DAY_FEEDBACK_DISCARDED,Cup discarded · %d coins stock loss,已倒杯 · 原料损耗 %d 金币
 DAY_REWARD_COINS,+%d Coins,+%d 金币
 DAY_REWARD_TIP, · Tip %d, · 小费 %d
 DAY_REWARD_REASON, · %s, · %s
@@ -604,9 +604,9 @@ NIGHT_GRADE_FAILED,✗ Failed!,✗ 翻车了！
 NIGHT_MARKET_TEST_STARTED,Market Test · “%s” begins a 3-night test. Scores reveal each night!,市场检验 ·《%s》进入 3 天检验期，每晚结算揭晓评分！
 NIGHT_SETTLEMENT_TITLE,Day %d Complete · Market Test Results:,第 %d 天结束 · 市场检验结算：
 NIGHT_TEST_SCORE,Test · “%s” Day %d: %d Points,检验 ·《%s》第%d天：%d 分
-NIGHT_TEST_HIT,Hit · “%s” priced at %d coins and listed!,爆款 ·《%s》定价 %d 币，正式上架！
-NIGHT_TEST_SIGNATURE,Signature · “%s” priced at %d coins and listed!,招牌 ·《%s》定价 %d 币，正式上架！
-NIGHT_TEST_REGULAR,Regular · “%s” priced at %d coins and listed.,普通 ·《%s》定价 %d 币，上架。
+NIGHT_TEST_HIT,Hit · “%s” priced at %d coins and listed!,爆款 ·《%s》定价 %d 金币，正式上架！
+NIGHT_TEST_SIGNATURE,Signature · “%s” priced at %d coins and listed!,招牌 ·《%s》定价 %d 金币，正式上架！
+NIGHT_TEST_REGULAR,Regular · “%s” priced at %d coins.,普通 ·《%s》定价 %d 金币，上架。
 NIGHT_TEST_FAILED,Low Sales · “%s” averaged %.0f. Removed with 3 inspiration refunded.,滞销 ·《%s》均分 %.0f，下架并返还 3 灵感。
 NIGHT_NO_TESTS,(No new drinks are currently being tested),(今晚没有在检验中的新品)
 NIGHT_CAMPAIGN_READY,\nThe 14-day run is complete · Your first-shop rating is ready.,\n十四天营业完成 · 首店评级已经生成。
@@ -731,9 +731,9 @@ RECIPE_XIANGCAI_FANTASY_HINT,A green herb is lurking near jasmine and pearls.,�
 RECIPE_ZHEERGEN_RAGE_HINT,A southwest root wants grain aroma and almost no sweetness.,西南根茎气息想要谷物香，也几乎不需要甜味。
 RECIPE_SWEET_SALT_HORROR_HINT,The darkest sweetness meets a sharp herb in coconut milk.,最深色的甜香会在椰奶里撞上一味锋利香草。
 DAY_ORDER_MENU,★ %s,★ %s
-ORDER_HINT_MENU,Featured · %d coins · %s,主推新品 · %d 币 · %s
+ORDER_HINT_MENU,Featured · %d coins · %s,主推新品 · %d 金币 · %s
 DAY_REWARD_MENU, · Featured “%s”, · 主推《%s》
-DAY_RESULT_MENU_SALES,Featured menu · %d cups sold for %d coins,主推菜单 · 售出 %d 杯共 %d 币
+DAY_RESULT_MENU_SALES,Featured menu · %d cups sold for %d coins,主推菜单 · 售出 %d 杯共 %d 金币
 NIGHT_MENU_PILL,Featured %d/%d · Hot %d · Dark %d/%d,主推 %d/%d · 热卖 %d · 黑暗 %d/%d
 MENU_BOARD_TITLE,Tomorrow's Featured Menu,明日主推菜单
 MENU_BOARD_PROGRESS,%d/%d slots · %d hot,%d/%d 槽 · %d 款热卖
@@ -746,7 +746,7 @@ MENU_BOARD_CLOSE,Back to Lab,返回研发室
 MENU_BOARD_FEATURED,FEATURED TOMORROW,明日主推
 MENU_BOARD_AVAILABLE,AVAILABLE,可主推
 MENU_BOARD_LEGACY,LEGACY ITEM,旧版配方
-MENU_BOARD_META,%s · %d coins · %s,%s · %d 币 · %s
+MENU_BOARD_META,%s · %d coins · %s,%s · %d 金币 · %s
 MENU_BOARD_SALES,Lifetime featured sales · %d cups,累计主推销量 · %d 杯
 MENU_BOARD_FEATURE,Feature Tomorrow,加入明日主推
 MENU_BOARD_REMOVE,Remove from Featured,移出主推
@@ -765,7 +765,7 @@ DARK_BOARD_SUBTITLE,These three drinks generate real novelty orders. Completed s
 DARK_BOARD_IMPACT,One novelty order every %d arrivals · Banked buzz can raise tomorrow's arrival speed by %d%%,每 %d 位顾客出现一单猎奇需求 · 已结转话题可令明日到店速度 +%d%%
 DARK_BOARD_CANDIDATE,New candidate: %s · %s · Choose a slot to replace,新候选：%s · %s · 请选择要替换的槽位
 DARK_BOARD_SLOT,DARK SLOT %d,黑暗槽位 %d
-DARK_BOARD_META,Novelty price %d coins · %d real sales,猎奇价 %d 币 · 真实成交 %d 杯
+DARK_BOARD_META,Novelty price %d coins · %d real sales,猎奇价 %d 金币 · 真实成交 %d 杯
 DARK_BOARD_REPLACE,Replace This Slot,替换此槽
 DARK_BOARD_UNLIST,Unlist Drink,下架饮品
 DARK_BOARD_EMPTY_SLOT,Dark Slot %d · Empty,黑暗槽位 %d · 空
@@ -800,7 +800,7 @@ DAY_PREP_PEARL_EMPTY,Pearls are out · start the pearl pot,珍珠库存不足 ·
 DAY_BATCH_GOLDEN, · Golden Batch, · 黄金批次
 DAY_BATCH_STANDARD, · Standard Batch, · 稳定批次
 DAY_BATCH_POOR, · Overcooked Batch, · 过熟批次
-ORDER_HINT_MENU_MATCH,Menu %d coins · Trend +%d · %s,菜单 %d 币 · 风向 +%d · %s
+ORDER_HINT_MENU_MATCH,Menu %d coins · Trend +%d · %s,菜单 %d 金币 · 风向 +%d · %s
 REWARD_MENU_EVENT_MATCH,Featured trend match,主推契合风向
 DAY_HUD_GOAL,%d/%d · 3★ at %d,%d/%d · 3★需%d
 DAY_RESULT_GOAL_NUMBERS,%d / %d · 3★ at %d,%d / %d · 3★需%d
@@ -850,7 +850,7 @@ EVENT_BROWN_SUGAR_TREND_SP_CHALLENGE,Golden prep window 25% shorter,备料黄金
 EVENT_BROWN_SUGAR_TREND_SP_BENEFIT,Brown-sugar orders pay +5 instead of +4,含黑糖冻订单奖励提升至 +5 金币
 EVENT_CRITIC_DAY_SP_NAME,Editor's Visit,主编亲临
 EVENT_CRITIC_DAY_SP_HUD,Editor,主编
-EVENT_CRITIC_DAY_SP_HEADLINE,The magazine editor leads this round of critics — impress the headline maker.,本轮探店由杂志主编亲自带队——打动这位头条制造者。
+EVENT_CRITIC_DAY_SP_HEADLINE,The magazine editor leads this round of critics — serve them your signature best.,本轮探店由杂志主编带队，为他端出招牌水准的一杯。
 EVENT_CRITIC_DAY_SP_CHALLENGE,"First critic becomes the Editor: double reward, 35% less patience",首位评论家升级为主编：奖励翻倍、耐心 −35%
 EVENT_CRITIC_DAY_SP_BENEFIT,Editor review pays +16 coins and +2 inspiration,主编好评 +16 金币与 +2 灵感
 EVENT_INFLUENCER_DAY_SP_NAME,Live Marathon,直播间连麦
@@ -877,15 +877,15 @@ POSITIONING_LOCKED,Unlocks Day %d,第 %d 天解锁
 POSITIONING_TAKEN_OTHER,The other positioning is active,已选择另一条定位
 POSITIONING_PICK_ONE,One-time exclusive pick,一次性互斥选择
 POSITIONING_UNAVAILABLE,Locked,不可选
-POSITIONING_SUCCESS,%s adopted — this shop's identity is set.,已确立「%s」——本店定位就此确定。
+POSITIONING_SUCCESS,%s adopted.,本店定位：%s。
 DAY_REWARD_CRAFT, · Craft +%d, · 手艺 +%d
-UPGRADE_COMFORT_EFFECT_4,Patience +66% (diminishing),耐心 +66%（递减）
+UPGRADE_COMFORT_EFFECT_4,Patience +66%,耐心 +66%
 UPGRADE_SHAKER_EFFECT_4,1 shake per cup,每杯摇 1 次
 UPGRADE_SMART_SUGAR_EFFECT_2,Matches sugar right after the tea base,选完茶基即匹配糖度
 UPGRADE_TIP_JAR_EFFECT_4,+4 coins per cup,每杯额外 +4 金币
 CAMPAIGN_POSITIONING, · Positioning: %s, · 店铺定位：%s
 CONTRACT_RANK_IMMORTAL,Immortal Milk-Tea Legend,不朽奶茶传奇
-CONTRACT_RANK_DEFEND,Legend defense — hold the immortal title,传奇守擂——守住不朽头衔
+CONTRACT_RANK_DEFEND,Defending the immortal title,传奇守擂中
 CAMPAIGN_ROUTE_STAT_TREND, · Event-matched serves: %d, · 事件匹配出杯：%d
 CAMPAIGN_ROUTE_STAT_PRECISION, · Critics served: %d, · 评论家接待：%d
 CAMPAIGN_ROUTE_STAT_RUSH, · Total cups: %d, · 总出杯数：%d
