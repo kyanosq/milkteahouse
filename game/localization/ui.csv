@@ -750,6 +750,14 @@ MENU_BOARD_FEATURED,FEATURED TOMORROW,明日主推
 MENU_BOARD_AVAILABLE,AVAILABLE,可主推
 MENU_BOARD_LEGACY,LEGACY ITEM,旧版配方
 MENU_BOARD_META,%s · %d coins · %s,%s · %d 金币 · %s
+MENU_BOARD_PRICE,Pricing,Pricing
+MENU_BOARD_PRICE_BUDGET,Budget · %d,Value · %d
+MENU_BOARD_PRICE_STANDARD,Standard · %d,Standard · %d
+MENU_BOARD_PRICE_PREMIUM,Premium · %d,Premium · %d
+MENU_BOARD_PRICE_BUDGET_TIP,−2 coins per cup · featured arrivals +2% faster,2 coins cheaper per cup · featured arrivals 2% faster
+MENU_BOARD_PRICE_STANDARD_TIP,The tested market price — no traffic change,Market-verified price · no change to foot traffic
+MENU_BOARD_PRICE_PREMIUM_TIP,+3 coins per cup · featured arrivals 3% slower,3 coins more expensive per cup · arrivals 3% slower
+MENU_BOARD_PRICE_SET,Price set to %d,Price set to %d
 MENU_BOARD_SALES,Lifetime featured sales · %d cups,累计主推销量 · %d 杯
 MENU_BOARD_FEATURE,Feature Tomorrow,加入明日主推
 MENU_BOARD_REMOVE,Remove from Featured,移出主推

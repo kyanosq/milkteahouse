@@ -133,6 +133,33 @@ func _ready() -> void:
 	assert(MenuCatalog.should_offer(2, "regular"))
 	assert(not MenuCatalog.should_offer(6, "regular"), "evergreen orders must use the slower cadence")
 
+	# DP#4 定价：自创饮品三档价点、客流权衡与默认不变性。
+	for legend_id in ["legend:classic_boba", "legend:oolong_pudding", "legend:taro_boba"]:
+		assert(MenuCatalog.price_options(MenuCatalog.item(legend_id)).is_empty(),
+			"legend recipes must keep authored prices")
+	var priced := MenuCatalog.register_custom({
+		"name": "定价测试", "base": "black_tea", "milk": "fresh_milk",
+		"toppings": ["boba"], "sugar": 50, "quality": 90,
+	}, "爆款", 18, false)
+	assert(MenuCatalog.price_options(priced) == [16, 18, 21])
+	assert(MenuCatalog.set_item_price(String(priced["id"]), 19, false) == false,
+		"prices outside the authored points must be rejected")
+	assert(MenuCatalog.set_item_price(String(priced["id"]), 16, false) == true)
+	assert(int(MenuCatalog.item(String(priced["id"]))["price"]) == 16)
+	# 让利只对"主推中的自创饮品"生效：腾出一个主推位后依次验证标准/让利/溢价方向。
+	assert(MenuCatalog.set_featured("legend:classic_boba", false, false) == "ok")
+	assert(MenuCatalog.set_featured(String(priced["id"]), true, false) == "ok")
+	MenuCatalog.set_item_price(String(priced["id"]), 18, false)
+	assert(is_equal_approx(MenuCatalog.pricing_traffic_multiplier(), 1.0),
+		"standard pricing must leave traffic untouched")
+	MenuCatalog.set_item_price(String(priced["id"]), 16, false)
+	assert(is_equal_approx(MenuCatalog.pricing_traffic_multiplier(), 0.98),
+		"budget pricing must speed featured arrivals by 2%")
+	MenuCatalog.set_item_price(String(priced["id"]), 21, false)
+	assert(is_equal_approx(MenuCatalog.pricing_traffic_multiplier(), 1.03),
+		"premium pricing must slow featured arrivals by 3%")
+	MenuCatalog.set_item_price(String(priced["id"]), 18, false)
+
 	panel.queue_free()
 	shop.queue_free()
 	GameState.settings = original_settings

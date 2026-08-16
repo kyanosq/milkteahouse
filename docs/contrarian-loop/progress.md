@@ -36,7 +36,9 @@ balanced ≤2360) with dated comment in the sim.
 - DP#1 week-2 identity — DONE in 1.0 Batch 2; late-topping icons finalized as code-drawn art in Iteration 58
 - DP#5 week-2 premium upgrade tiers — DONE in 1.0 Batch 2
 - DP#3 route structural rules — DONE in 1.0 Batch 3
-- DP#4 brief quality ladder + market price choice — still open (product call; audit-depth-replay.md §minimal-fix)
+- DP#4 brief quality ladder + market price choice — DONE in Iteration 60
+  (ladder 75→82→88 + three authored price points per tier with a 2%/3%
+  featured-traffic trade; defaults are exact no-ops, campaign gates unchanged)
 - CF backlog: pause unreachable during tutorial/event overlays — DONE in Iteration 59;
   staff slacker pre-warning timer — DONE in Iteration 59
 

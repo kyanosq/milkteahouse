@@ -171,6 +171,11 @@ func _ready() -> void:
 		if menu_board:
 			for recipe_id in ["jasmine_pure", "classic_boba", "jasmine_coco", "taro_boba", "oolong_pudding", "taro_coco"]:
 				MenuCatalog.register_legend(RecipeJournal.recipe(recipe_id))
+			# DP#4 定价行证据：自创饮品卡片展示三档价点（传说卡不显示）。
+			MenuCatalog.register_custom({
+				"name": "桂花乌龙鲜奶", "base": "oolong", "milk": "fresh_milk",
+				"toppings": ["boba", "pudding"], "sugar": 50, "quality": 84,
+			}, "招牌", 15)
 		if dark_board:
 			GameState.dark_discovered = ["xiangcai_fantasy", "zheergen_rage", "sweet_salt_horror"]
 			GameState.dark_menu = [

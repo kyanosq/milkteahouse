@@ -3,7 +3,7 @@ extends Node
 
 const SAVE_PATH := "user://save.json"
 const SAVE_BACKUP_PATH := "user://save.backup.json"
-const SAVE_VERSION := 22
+const SAVE_VERSION := 23
 const VALID_RESOLUTIONS := ["1280x720", "1440x900", "1600x900", "1920x1080", "2560x1440"]
 const VALID_LOCALES := ["zh_CN", "en"]
 const VALID_NEW_SHOP_ROUTES := ["rush", "precision", "trend"]
@@ -32,6 +32,8 @@ var tests: Array = []            # 市场检验中 [{name,quality,scores}]
 var market_settlement: Dictionary = {} # 当日已生成的夜间检验结算；重进可恢复且不重投
 var research_target := ""       # 夜间图鉴中锁定的配方 id；发现/复现后自动清除
 var research_brief: Dictionary = {} # 跨场景持久的短期研究单；每个营业日最多结算一份
+## 品质挑战研究单的阶梯档位（DP#4）：75/82/88，完成当前档后晋升，旧档默认 0。
+var brief_quality_step := 0
 var upgrades: Dictionary = {}    # 店铺升级 { upgrade_id: level }
 var staff: Dictionary = {}       # 当前员工；候选人静态数据来自 res://data/staff.json
 var campaign_stats: Dictionary = {
@@ -103,6 +105,7 @@ func _save_snapshot() -> Dictionary:
 		"dark_menu": dark_menu, "tests": tests, "market_settlement": market_settlement,
 		"research_target": research_target,
 		"research_brief": research_brief,
+		"brief_quality_step": brief_quality_step,
 		"upgrades": upgrades, "staff": staff, "campaign_stats": campaign_stats,
 		"campaign_summary": campaign_summary, "campaign_claimed": campaign_claimed,
 		"new_shop_route": new_shop_route,
@@ -232,6 +235,7 @@ func reset_progress() -> void:
 	market_settlement = {}
 	research_target = ""
 	research_brief = {}
+	brief_quality_step = 0
 	upgrades = {}
 	staff = {}
 	campaign_stats = _new_campaign_stats()
@@ -298,6 +302,8 @@ func _apply_save_data(data: Dictionary) -> void:
 	var loaded_target := String(data.get("research_target", ""))
 	research_target = loaded_target if _is_valid_recipe_id(loaded_target) else ""
 	research_brief = _normalize_research_brief(data.get("research_brief", {}))
+	# v22 存档没有该字段：默认最低档（75），不伪造已完成的晋升。
+	brief_quality_step = clampi(int(data.get("brief_quality_step", 0)), 0, 2)
 	upgrades = data.get("upgrades", {})
 	staff = _normalize_staff(data.get("staff", {}))
 	campaign_stats = _normalize_campaign_stats(data.get("campaign_stats", {}))

@@ -47,6 +47,7 @@ func _ready() -> void:
 			"type": "pair", "assigned_day": 16, "base": "oolong", "milk": "oat_milk",
 			"progress": 0, "target": 1, "reward": 99, "completed": false,
 		},
+		"brief_quality_step": 1,
 		"market_settlement": {
 			"day": 16, "had_tests": true,
 			"results": [{"name": "测试云", "stage": 2, "score": 84, "average": 82.5, "trend": 3, "outcome": "testing"}],
@@ -81,6 +82,7 @@ func _ready() -> void:
 	assert(GameState.research_brief["type"] == "pair")
 	assert(GameState.research_brief["reward"] == 2)
 	assert(GameState.research_brief["assigned_day"] == 16)
+	assert(GameState.brief_quality_step == 1, "the quality-ladder rung must persist")
 	assert(GameState.market_settlement["day"] == 16)
 	assert(GameState.market_settlement["results"][0]["score"] == 84)
 	assert(GameState.staff["id"] == "acheng")
@@ -124,6 +126,11 @@ func _ready() -> void:
 	assert(GameState.research_brief.is_empty())
 	assert(GameState.market_settlement.is_empty())
 	assert(GameState.night_performance_remaining == 0)
+	# v22 存档没有品质阶梯字段：默认最低档；越界值被夹回 [0, 2]。
+	GameState._apply_save_data({"save_version": 22, "day": 3, "phase": "day"})
+	assert(GameState.brief_quality_step == 0, "a v22 save must default to ladder rung 0")
+	GameState._apply_save_data({"save_version": GameState.SAVE_VERSION, "day": 3, "phase": "day", "brief_quality_step": 9})
+	assert(GameState.brief_quality_step == 2, "out-of-range rungs must clamp to the ladder top")
 	assert(int(GameState.campaign_stats["operating_costs"]) == 0)
 	assert(int(GameState.campaign_stats["rent_paid"]) == 0)
 	assert(int(GameState.campaign_stats["cost_relief"]) == 0)
@@ -211,5 +218,5 @@ func _ready() -> void:
 	for path in [durability_path, durability_path + ".tmp", durability_backup, durability_backup + ".tmp"]:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
-	print("[SAVE_MIGRATION] passed legacy=v5 current=v%d haptics=true dark_menu_formulas=true buzz_traffic=true affinity_seen=true research_brief=true market_settlement=true endless_defaults=true active_contract=true night_budget=true night_performance=true research_target=true featured_menu=true corrupt_guard=true atomic_backup=true truncated_recovery=true" % GameState.SAVE_VERSION)
+	print("[SAVE_MIGRATION] passed legacy=v5 current=v%d haptics=true dark_menu_formulas=true buzz_traffic=true affinity_seen=true research_brief=true brief_ladder=true market_settlement=true endless_defaults=true active_contract=true night_budget=true night_performance=true research_target=true featured_menu=true corrupt_guard=true atomic_backup=true truncated_recovery=true" % GameState.SAVE_VERSION)
 	get_tree().quit()

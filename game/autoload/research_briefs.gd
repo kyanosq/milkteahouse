@@ -3,7 +3,14 @@ extends Node
 
 const REWARD := 2
 const MASTERY_TRIALS := 2
-const QUALITY_TARGET := 75
+## 成熟期（相性/熟练度池枯竭后）的品质挑战阶梯（DP#4）：完成当前档位后晋升，
+## 让"每晚顺手一杯"随进度变成真实的配方功课题，而不是永远 75 分的白给。
+const QUALITY_LADDER := [75, 82, 88]
+const QUALITY_TARGET := 75 # 兼容旧存档/文档的最低档
+
+
+func quality_target() -> int:
+	return int(QUALITY_LADDER[clampi(GameState.brief_quality_step, 0, QUALITY_LADDER.size() - 1)])
 
 
 func ensure_for_day(day_number: int = GameState.day) -> Dictionary:
@@ -35,6 +42,9 @@ func record_trial(base_id: String, milk_id: String, used_ids: Array, quality: in
 	if completed_now:
 		brief["completed"] = true
 		brief["completed_day"] = GameState.day
+		# 完成品质挑战即晋升下一档（封顶 88）：阶梯只升不降，失败的夜晚重试当前档。
+		if String(brief.get("type", "")) == "balanced":
+			GameState.brief_quality_step = mini(GameState.brief_quality_step + 1, QUALITY_LADDER.size() - 1)
 	GameState.research_brief = brief
 	return {"completed": completed_now, "reward": REWARD if completed_now else 0, "brief": brief}
 
@@ -104,7 +114,7 @@ func _generate(day_number: int) -> Dictionary:
 			"completed": false, "completed_day": 0,
 		}
 	return {
-		"type": "balanced", "assigned_day": day_number, "quality": QUALITY_TARGET,
+		"type": "balanced", "assigned_day": day_number, "quality": quality_target(),
 		"progress": 0, "target": 1, "reward": REWARD,
 		"completed": false, "completed_day": 0,
 	}

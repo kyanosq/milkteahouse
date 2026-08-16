@@ -245,6 +245,39 @@ func _menu_card(item_data: Dictionary) -> PanelContainer:
 	meta.add_theme_font_size_override("font_size", 14)
 	meta.add_theme_color_override("font_color", accent)
 	box.add_child(meta)
+	# DP#4 定价：自创饮品可在三档作者价点间切换（让利提速/标准/溢价减速），
+	# 传说配方保持作者定价不参与。选定态用珊瑚主色，互斥同组。
+	var price_options := MenuCatalog.price_options(item_data)
+	if not price_options.is_empty():
+		var price_row := HBoxContainer.new()
+		price_row.add_theme_constant_override("separation", 6)
+		box.add_child(price_row)
+		var price_caption := Label.new()
+		price_caption.text = GameLocale.text("MENU_BOARD_PRICE")
+		price_caption.add_theme_font_size_override("font_size", 13)
+		price_caption.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.62)
+		price_row.add_child(price_caption)
+		var group := ButtonGroup.new()
+		var standard := int(MenuCatalog.PRICE_STANDARD.get(String(item_data.get("tier", "")), 0))
+		var current_price := int(item_data.get("price", standard))
+		for price in price_options:
+			var delta := int(price) - standard
+			var style_key := "MENU_BOARD_PRICE_STANDARD" if delta == 0 \
+				else "MENU_BOARD_PRICE_BUDGET" if delta < 0 else "MENU_BOARD_PRICE_PREMIUM"
+			var option_button := Button.new()
+			option_button.text = GameLocale.text(style_key, [int(price)])
+			option_button.tooltip_text = GameLocale.text(style_key + "_TIP")
+			option_button.toggle_mode = true
+			option_button.button_group = group
+			option_button.set_pressed_no_signal(int(price) == current_price)
+			option_button.custom_minimum_size = Vector2(0, 30)
+			option_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			option_button.add_theme_font_size_override("font_size", 13)
+			if int(price) == current_price:
+				for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+					option_button.add_theme_color_override(state, CORAL)
+			option_button.pressed.connect(_on_price_pressed.bind(item_id, int(price)))
+			price_row.add_child(option_button)
 	var event_fit := Label.new()
 	event_fit.text = GameLocale.text("MENU_BOARD_EVENT_MATCH", [match_bonus]) if match_bonus > 0 \
 		else GameLocale.text("MENU_BOARD_EVENT_NEUTRAL")
@@ -407,6 +440,16 @@ func _toggle_item(item_id: String, active: bool) -> void:
 		_:
 			_feedback.text = GameLocale.text("MENU_BOARD_INVALID")
 			_feedback.add_theme_color_override("font_color", CORAL)
+	call_deferred("_refresh")
+
+
+func _on_price_pressed(item_id: String, price: int) -> void:
+	if MenuCatalog.set_item_price(item_id, price):
+		_feedback.text = GameLocale.text("MENU_BOARD_PRICE_SET", [price])
+		_feedback.add_theme_color_override("font_color", MINT)
+	else:
+		_feedback.text = GameLocale.text("MENU_BOARD_INVALID")
+		_feedback.add_theme_color_override("font_color", CORAL)
 	call_deferred("_refresh")
 
 

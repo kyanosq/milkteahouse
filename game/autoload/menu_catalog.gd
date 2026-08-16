@@ -8,6 +8,14 @@ const DARK_LIMIT := 3
 const FRESH_ORDER_INTERVAL := 4
 const STALE_ORDER_INTERVAL := 6
 const DARK_ORDER_INTERVAL := 5
+## DP#4 市场检验定价：每分档三个作者化价点（让利/标准/溢价）。定价是真实的
+## 频次-毛利取舍——让利每款提速 2% 到店，溢价每款放慢 3%；标准价保持原行为。
+const PRICE_OPTIONS := {
+	"爆款": [16, 18, 21],
+	"招牌": [13, 15, 17],
+	"普通": [10, 12, 14],
+}
+const PRICE_STANDARD := {"爆款": 18, "招牌": 15, "普通": 12}
 
 
 func _ready() -> void:
@@ -199,7 +207,44 @@ func hot_featured_count() -> int:
 
 func traffic_multiplier() -> float:
 	return (1.0 - LegacyRoutes.menu_traffic_step() * float(hot_featured_count())) \
-		* buzz_traffic_multiplier()
+		* buzz_traffic_multiplier() * pricing_traffic_multiplier()
+
+
+## 定价客流：主推中的自创饮品按价点偏离标准价的幅度修正到店间隔。
+## 该函数乘的是到店间隔——值更小 = 顾客更快上门。
+func pricing_traffic_multiplier() -> float:
+	var delta := 0.0
+	for item_data in featured_items():
+		var tier := String(item_data.get("tier", ""))
+		var standard := int(PRICE_STANDARD.get(tier, 0))
+		if standard == 0:
+			continue
+		var diff := int(item_data.get("price", standard)) - standard
+		if diff <= -2:
+			delta -= 0.02
+		elif diff >= 2:
+			delta += 0.03
+	return clampf(1.0 + delta, 0.90, 1.09)
+
+
+## 自创饮品可选价点（让利/标准/溢价）；传说配方保持作者定价，不参与调价。
+func price_options(item_data: Dictionary) -> Array:
+	if String(item_data.get("type", "")) != "custom":
+		return []
+	var tier := String(item_data.get("tier", ""))
+	return (PRICE_OPTIONS.get(tier, []) as Array).duplicate()
+
+
+func set_item_price(item_id: String, price: int, persist := true) -> bool:
+	ensure_normalized()
+	var item := _find_in(GameState.menu, item_id)
+	if item.is_empty() or price not in price_options(item):
+		return false
+	item["price"] = price
+	if persist:
+		GameState.save_game()
+	menu_changed.emit()
+	return true
 
 
 func buzz_traffic_multiplier(day_number := -1) -> float:
