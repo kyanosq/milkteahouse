@@ -53,7 +53,7 @@ func _ready() -> void:
 		GameState.new_shop_route = legacy_route
 		GameState.coins = 80
 		GameState.inspiration = 3
-	GameState.settings["sound_volume"] = 0.0
+	GameState.settings["sfx_volume"] = 0.0
 	GameState.settings["sfx_volume"] = 0.0
 	GameState.settings["music_volume"] = 0.0
 	GameState.settings["reduced_motion"] = true

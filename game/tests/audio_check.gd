@@ -12,7 +12,6 @@ const EXPECTED_MUSIC := ["menu", "day", "night", "campaign"]
 func _ready() -> void:
 	GameState.test_mode = true
 	GameState.settings = {
-		"sound_volume": 0.65,
 		"sfx_volume": 0.65,
 		"music_volume": 0.40,
 		"reduced_motion": false,

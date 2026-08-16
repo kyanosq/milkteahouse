@@ -14,7 +14,7 @@ func _ready() -> void:
 	GameState.day = 1
 	GameState.tutorial_completed = true
 	GameState.staff = {}
-	GameState.settings = {"sound_volume": 0.0, "music_volume": 0.0, "reduced_motion": true, "haptics": true}
+	GameState.settings = {"sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true, "haptics": true}
 	GameLocale.set_locale("zh_CN", false)
 
 	for action_name in ["game_pause", "game_shake", "staff_interact", "prep_tea", "prep_pearl"]:

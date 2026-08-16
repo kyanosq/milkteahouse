@@ -1,4 +1,4 @@
-## 夜间主推选择、旧档迁移、真实白天菜单订单、定价和热度衰减回归。
+## 夜间主推选择、菜单规范化、真实白天菜单订单、定价和热度衰减回归。
 extends Node
 
 
@@ -7,16 +7,23 @@ func _ready() -> void:
 	var original_settings := GameState.settings.duplicate(true)
 	GameLocale.set_locale("zh_CN", false)
 	GameState.day = 9
+	# 无 id/配方的损坏菜单项：保留为不可点单收藏（合成 id、空配方），不再按名字
+	# 猜测成传说（新项目无旧档，名字碰撞恢复已随兼容层移除）。
 	GameState.menu = [{"name": "经典珍珠奶茶", "tier": "普通", "price": 12}]
 	GameState.featured_menu = []
 	GameState.menu_last_hype_day = 0
 	MenuCatalog.ensure_normalized()
 	assert(GameState.menu.size() == 1)
-	assert(GameState.menu[0]["id"] == "legend:classic_boba")
-	assert(MenuCatalog.formula_available(GameState.menu[0]))
+	assert(String(GameState.menu[0]["id"]).begins_with("legacy:"))
+	assert(not MenuCatalog.formula_available(GameState.menu[0]))
+	assert(GameState.featured_menu.is_empty(),
+		"items without formulas must not be auto-featured")
+	var legend_entry := MenuCatalog.register_legend(RecipeJournal.recipe("classic_boba"))
+	assert(String(legend_entry["id"]) == "legend:classic_boba")
+	assert(MenuCatalog.formula_available(MenuCatalog.item("legend:classic_boba")))
 	assert(GameState.featured_menu == ["legend:classic_boba"])
 
-	# 自定义饮品即使与传说配方撞名也不能被改写：名字回退只服务旧档迁移（R4）。
+	# 自定义饮品永远保持自身 id：规范化不得把 custom 改写成传说（丢真实配方）。
 	GameState.menu = [{
 		"id": "custom:3:1", "type": "custom", "name": "经典珍珠奶茶",
 		"tier": "招牌", "price": 15, "quality": 84,
@@ -167,5 +174,5 @@ func _ready() -> void:
 	Sfx.stop_all()
 	await get_tree().process_frame
 	await get_tree().process_frame
-	print("[MENU_CATALOG] passed migration=true slots=3 order=true price=14 hype=true passive_income=false bilingual=true")
+	print("[MENU_CATALOG] passed normalize=true slots=3 order=true price=14 hype=true passive_income=false bilingual=true")
 	get_tree().quit()

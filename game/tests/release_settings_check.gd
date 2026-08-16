@@ -6,7 +6,6 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameState.test_mode = true
 	GameState.settings = {
-		"sound_volume": 0.75,
 		"sfx_volume": 0.75,
 		"music_volume": 0.55,
 		"reduced_motion": false,

@@ -4,7 +4,7 @@ extends Node
 
 func _ready() -> void:
 	GameState.test_mode = true
-	GameState.settings = {"sound_volume": 0.0, "sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true}
+	GameState.settings = {"sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true}
 	GameState.day = 9
 	GameState.phase = "night"
 	GameState.inspiration = 10

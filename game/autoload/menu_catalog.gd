@@ -329,8 +329,6 @@ func dark_item_id(entry: Dictionary) -> String:
 			return "legend:%s" % String(entry.get("recipe_id", ""))
 		"mystery":
 			return "mystery:%d" % int(entry.get("serial", 0))
-		"legacy":
-			return "legacy:%s" % String(entry.get("name", ""))
 	return ""
 
 
@@ -572,21 +570,10 @@ func _legend_for_raw(raw: Dictionary) -> Dictionary:
 	var raw_id := String(raw.get("id", ""))
 	if source_id.is_empty() and raw_id.begins_with("legend:"):
 		source_id = raw_id.trim_prefix("legend:")
-	if source_id.is_empty() and not raw_id.begins_with("custom:") and not raw_id.begins_with("legacy:"):
-		source_id = raw_id
-	if not source_id.is_empty():
-		var direct := RecipeJournal.recipe(source_id)
-		if not direct.is_empty() and not RecipeJournal.is_dark(direct):
-			return direct
-	var raw_name := String(raw.get("name", ""))
-	if raw_id.begins_with("custom:"):
-		# 新格式自定义饮品自带唯一 id 与完整配方；即使名字与某传说配方完全相同，
-		# 也不能被改写成传说（会丢掉玩家真实配方，甚至带入未解锁原料，R4）。
+	if source_id.is_empty():
 		return {}
-	for recipe in GameData.recipes:
-		if String(recipe.get("name", "")) == raw_name:
-			return recipe
-	return {}
+	var direct := RecipeJournal.recipe(source_id)
+	return direct if not direct.is_empty() and not RecipeJournal.is_dark(direct) else {}
 
 
 func _find_in(collection: Array, item_id: String) -> Dictionary:

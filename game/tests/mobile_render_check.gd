@@ -18,7 +18,7 @@ func _ready() -> void:
 	GameState.menu = []
 	GameState.featured_menu = []
 	GameState.day = DAY
-	GameState.settings = {"sound_volume": 0.0, "music_volume": 0.0, "sfx_volume": 0.0, "reduced_motion": true}
+	GameState.settings = {"sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true}
 	GameState.upgrades = {"comfort": 3, "shaker": 3, "smart_sugar": 1, "tip_jar": 3}
 	GameState.staff = {}
 	GameState.new_shop_route = "trend"

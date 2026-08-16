@@ -7,7 +7,7 @@ func _ready() -> void:
 	GameState.menu = []
 	GameState.featured_menu = []
 	GameState.menu_last_hype_day = 0
-	GameState.settings = {"sound_volume": 0.0, "reduced_motion": true}
+	GameState.settings = {"sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true}
 	GameState.new_shop_route = ""
 	assert(DailyEvents.event_for_day(1)["id"] == "calm")
 	assert(DailyEvents.event_for_day(3)["id"] == "lunch_rush")

@@ -9,7 +9,7 @@ func _ready() -> void:
 	GameState.featured_menu = []
 	GameState.day = 1
 	GameState.tutorial_completed = false
-	GameState.settings = {"sound_volume": 0.75, "reduced_motion": false}
+	GameState.settings = {"sfx_volume": 0.75, "music_volume": 0.55, "reduced_motion": false}
 	var shop: Control = load("res://scenes/day_shop/day_shop.tscn").instantiate()
 	add_child(shop)
 	await get_tree().process_frame
@@ -113,7 +113,7 @@ func _ready() -> void:
 	assert(is_equal_approx(shop.time_left, paused_time))
 	shop.pause_panel._on_volume_changed(35.0)
 	shop.pause_panel._on_motion_toggled(true)
-	assert(is_equal_approx(GameState.sound_volume(), 0.35))
+	assert(is_equal_approx(GameState.sfx_volume(), 0.35))
 	assert(GameState.reduced_motion())
 	shop.pause_panel._request_menu()
 	assert(shop.pause_panel._confirm_panel.visible)
@@ -127,7 +127,7 @@ func _ready() -> void:
 	assert(shop.running)
 
 	print("[ONBOARDING] passed tutorial=%s shortcut=%s volume=%.2f reduced_motion=%s paused=%s" % [
-		str(GameState.tutorial_completed), String(shop.cup_base["id"]), GameState.sound_volume(),
+		str(GameState.tutorial_completed), String(shop.cup_base["id"]), GameState.sfx_volume(),
 		str(GameState.reduced_motion()), str(get_tree().paused)])
 	Sfx.stop_all()
 	shop.queue_free()

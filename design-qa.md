@@ -445,3 +445,12 @@ Ran the contrarian-review loop against HEAD `cecd685` (report: `docs/contrarian-
 - Corrected: Iteration 59's "CJK leak on EN" for the tutorial skip was a false positive — the value-as-key row `跳过教学 → Skip Tutorial` localized the literal all along. Note appended to that entry; the secondary-style and explicit-key fixes stand.
 - Determinism re-probe: a calibrated regular day-12 bot run on the current tree reproduces the balance-table baseline bit-for-bit (365 / tau 1.23 / dd 1), re-confirming default-pricing no-op compatibility.
 - Verification: onboarding + operating_cost regressions green after the fixes; full 25/25 core + 3/3 campaign gates re-run green.
+
+### Iteration 62 (compat layer removed: new title, zero legacy saves)
+
+Owner decision: the game ships as a new project — there are no historical player saves, so the entire version-migration compatibility layer was dead weight. Removed it wholesale while keeping every corruption/data-loss defense.
+
+- Removed version migration: SAVE_VERSION resets to 1 (the v5→v23 development history and its ladder fixtures are gone). save_migration_check is replaced by save_integrity_check — same runner slot, fixtures now cover only corrupt-save defense (wrong-typed nested fields, staff wage/trait forgery rebuild, dark-menu kind/formula/serial validation with the 3-slot cap, market-settlement stale/worst-case round-trips, same-day economy rollback, atomic writes, backup rotation, truncated-primary recovery).
+- Removed old-format recovery: MenuCatalog no longer scans recipes by item *name* to rebuild legends (the R4-era recovery) — legend resolution is id-based only, and a malformed no-id item stays an inert non-orderable collectible; the dark menu no longer accepts raw string entries or `legacy` kind (legend/mystery dictionaries only); the settings loader no longer merges the old single sound slider, and the mirrored `sound_volume` key is gone end-to-end (accessor, defaults, panel writes, all test fixtures now set `sfx_volume`/`music_volume` directly).
+- Localization: dropped the now-redundant value-as-key row for the tutorial skip (the explicit TUTORIAL_SKIP key owns that string); translations regenerated. The remaining value-as-key rows are the live mechanism for hard-coded literals and are unchanged.
+- Verification: 25/25 core + 3/3 campaign routes green after the sweep. The careful/balanced/growth asserts pin A/34★/56, S/42★/2377 and S/42★/4555 — verified bit-identical on the pre-change HEAD (the 56-vs-44 delta vs the older docs is the Batch 3-4 endless re-anchor, not this pass).

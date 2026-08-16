@@ -3,7 +3,7 @@ extends Node
 
 const SAVE_PATH := "user://save.json"
 const SAVE_BACKUP_PATH := "user://save.backup.json"
-const SAVE_VERSION := 23
+const SAVE_VERSION := 1
 const VALID_RESOLUTIONS := ["1280x720", "1440x900", "1600x900", "1920x1080", "2560x1440"]
 const VALID_LOCALES := ["zh_CN", "en"]
 const VALID_NEW_SHOP_ROUTES := ["rush", "precision", "trend"]
@@ -52,7 +52,6 @@ var legacy: Dictionary = {"campaigns_completed": 0, "best_grade": "-", "best_sco
 var endless: Dictionary = _new_endless_state()
 var tutorial_completed := false
 var settings: Dictionary = {
-	"sound_volume": 0.75,
 	"sfx_volume": 0.75,
 	"music_volume": 0.55,
 	"reduced_motion": false,
@@ -302,7 +301,7 @@ func _apply_save_data(data: Dictionary) -> void:
 	var loaded_target := String(data.get("research_target", ""))
 	research_target = loaded_target if _is_valid_recipe_id(loaded_target) else ""
 	research_brief = _normalize_research_brief(data.get("research_brief", {}))
-	# v22 存档没有该字段：默认最低档（75），不伪造已完成的晋升。
+	# 缺字段时默认最低档（75），不伪造已完成的晋升。
 	brief_quality_step = clampi(int(data.get("brief_quality_step", 0)), 0, 2)
 	upgrades = data.get("upgrades", {})
 	staff = _normalize_staff(data.get("staff", {}))
@@ -329,12 +328,8 @@ func _apply_save_data(data: Dictionary) -> void:
 	tutorial_completed = bool(data.get("tutorial_completed", false))
 	var settings_value: Variant = data.get("settings", {})
 	var loaded_settings: Dictionary = settings_value if settings_value is Dictionary else {}
-	# v0.5 and earlier used a single sound slider. Keep that value as the SFX
-	# default so existing players hear the same mix after the split migration.
-	var legacy_sound := clampf(float(loaded_settings.get("sound_volume", 0.75)), 0.0, 1.0)
-	settings["sfx_volume"] = clampf(float(loaded_settings.get("sfx_volume", legacy_sound)), 0.0, 1.0)
+	settings["sfx_volume"] = clampf(float(loaded_settings.get("sfx_volume", 0.75)), 0.0, 1.0)
 	settings["music_volume"] = clampf(float(loaded_settings.get("music_volume", 0.55)), 0.0, 1.0)
-	settings["sound_volume"] = settings["sfx_volume"]
 	settings["reduced_motion"] = bool(loaded_settings.get("reduced_motion", false))
 	settings["haptics"] = bool(loaded_settings.get("haptics", true))
 	var loaded_mode := String(loaded_settings.get("window_mode", "windowed"))
@@ -391,10 +386,8 @@ func _normalize_dark_menu(value: Variant) -> Array:
 				if not recipe.is_empty():
 					entry = {"kind": "legend", "recipe_id": recipe_id}
 			elif kind == "mystery":
+				# 失败试作保留精确公式；公式不完整的槽位只作收藏，不能成为真实订单。
 				entry = {"kind": "mystery", "serial": clampi(int(raw_entry.get("serial", result.size() + 1)), 1, 99)}
-				# v22 keeps the exact failed trial formula. Older mystery slots remain
-				# visible as legacy collectibles, but only recoverable formulas can
-				# become real customer orders.
 				var base_id := String(raw_entry.get("base", ""))
 				var milk_id := String(raw_entry.get("milk", ""))
 				var topping_ids: Array = []
@@ -408,22 +401,6 @@ func _normalize_dark_menu(value: Variant) -> Array:
 					entry["sugar"] = clampi(int(raw_entry.get("sugar", 50)), 0, 100)
 					entry["quality"] = clampi(int(raw_entry.get("quality", 0)), 0, 100)
 					entry["price"] = maxi(1, int(raw_entry.get("price", 12 + topping_ids.size() * 2)))
-			elif kind == "legacy":
-				var legacy_name := String(raw_entry.get("name", "")).strip_edges().left(40)
-				if not legacy_name.is_empty():
-					entry = {"kind": "legacy", "name": legacy_name}
-		elif raw_entry is String:
-			var old_name := String(raw_entry).strip_edges().left(40)
-			for recipe in GameData.dark_recipes:
-				if old_name == String(recipe.get("name", "")):
-					entry = {"kind": "legend", "recipe_id": String(recipe["id"])}
-					break
-			if entry.is_empty():
-				var number_match := RegEx.create_from_string("(\\d+)$").search(old_name)
-				if number_match != null:
-					entry = {"kind": "mystery", "serial": clampi(int(number_match.get_string(1)), 1, 99)}
-				elif not old_name.is_empty():
-					entry = {"kind": "legacy", "name": old_name}
 		if not entry.is_empty():
 			if raw_entry is Dictionary and int(raw_entry.get("sales", 0)) > 0:
 				entry["sales"] = maxi(0, int(raw_entry.get("sales", 0)))
@@ -433,15 +410,13 @@ func _normalize_dark_menu(value: Variant) -> Array:
 
 func dark_menu_name(entry: Variant) -> String:
 	if not entry is Dictionary:
-		return String(entry)
+		return ""
 	match String(entry.get("kind", "")):
 		"legend":
 			var recipe := _dark_recipe_by_id(String(entry.get("recipe_id", "")))
 			return GameLocale.recipe_name(recipe) if not recipe.is_empty() else ""
 		"mystery":
 			return GameLocale.text("NIGHT_MYSTERY_DRINK", [int(entry.get("serial", 1))])
-		"legacy":
-			return String(entry.get("name", ""))
 	return ""
 
 
@@ -583,12 +558,8 @@ func _normalize_endless_state(value: Variant) -> Dictionary:
 	return result
 
 
-func sound_volume() -> float:
-	return sfx_volume()
-
-
 func sfx_volume() -> float:
-	return clampf(float(settings.get("sfx_volume", settings.get("sound_volume", 0.75))), 0.0, 1.0)
+	return clampf(float(settings.get("sfx_volume", 0.75)), 0.0, 1.0)
 
 
 func music_volume() -> float:

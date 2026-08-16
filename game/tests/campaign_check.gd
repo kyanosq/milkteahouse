@@ -6,7 +6,7 @@ func _ready() -> void:
 	GameState.test_mode = true
 	GameState.research_brief = {}
 	GameState.market_settlement = {}
-	GameState.settings = {"sound_volume": 0.0, "reduced_motion": true}
+	GameState.settings = {"sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true}
 	GameState.legacy = {"campaigns_completed": 0, "best_grade": "-", "best_score": 0}
 	GameState.day = 9
 	assert(int(GameState._normalize_campaign_stats({})["tracking_start_day"]) == 9)

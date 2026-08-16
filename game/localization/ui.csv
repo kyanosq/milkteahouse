@@ -302,7 +302,6 @@ LIST_SEPARATOR,; ,、
 DAY_RESULT_ENDLESS_HINT,%d Coins · Sign %s / %d Stamps · Choose Tomorrow's Contract in the Lab,现有 %d 金币  ·  店招 %s / %d 枚  ·  研发室可签下一份委托
 DAY_RESULT_UPGRADE_HINT,%d Coins · Buy Shop Upgrades in the Lab,现有 %d 金币  ·  研发室可购买店铺升级
 DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
-跳过教学,Skip Tutorial,跳过教学
 TUTORIAL_PROGRESS,Tutorial  %d / %d,新手教学  %d / %d
 TUTORIAL_SKIP,Skip Tutorial,跳过教学
 TUTORIAL_1_TITLE,Today's Goal & Orders,今日目标与订单

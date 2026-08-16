@@ -29,7 +29,7 @@ CHECK_SCENES=(
   "tests/release_settings_check.tscn"
   "tests/research_brief_check.tscn"
   "tests/research_progress_check.tscn"
-  "tests/save_migration_check.tscn"
+  "tests/save_integrity_check.tscn"
   "tests/staff_check.tscn"
   "tests/upgrade_check.tscn"
 )

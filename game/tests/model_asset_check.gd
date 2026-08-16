@@ -42,7 +42,7 @@ const ROUTE_SIGN_PATHS := {
 
 func _ready() -> void:
 	GameState.test_mode = true
-	GameState.settings = {"sound_volume": 0.0, "reduced_motion": true}
+	GameState.settings = {"sfx_volume": 0.0, "music_volume": 0.0, "reduced_motion": true}
 	GameState.upgrades = {}
 	GameState.new_shop_route = ""
 

@@ -11,7 +11,7 @@ func _ready() -> void:
 	GameState.upgrades = {"comfort": 2, "shaker": 1}
 	GameState.discovered = ["classic_boba"]
 	GameState.tutorial_completed = true
-	GameState.settings = {"sound_volume": 0.35, "reduced_motion": true}
+	GameState.settings = {"sfx_volume": 0.35, "music_volume": 0.55, "reduced_motion": true}
 
 	var menu: Control = load("res://scenes/main_menu/main_menu.tscn").instantiate()
 	add_child(menu)
@@ -44,7 +44,7 @@ func _ready() -> void:
 	assert(GameState.staff.is_empty())
 	assert(GameState.discovered.is_empty())
 	assert(not GameState.tutorial_completed)
-	assert(is_equal_approx(GameState.sound_volume(), 0.35))
+	assert(is_equal_approx(GameState.sfx_volume(), 0.35))
 	assert(GameState.reduced_motion())
 
 	print("[MENU] passed continue=day7 confirm=true reset=day1 settings_preserved=true")

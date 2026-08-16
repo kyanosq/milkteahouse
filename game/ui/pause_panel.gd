@@ -465,7 +465,6 @@ func _on_music_volume_changed(value: float) -> void:
 
 func _on_sfx_volume_changed(value: float) -> void:
 	GameState.settings["sfx_volume"] = value / 100.0
-	GameState.settings["sound_volume"] = GameState.settings["sfx_volume"]
 	_update_audio_labels()
 	Sfx.apply_settings()
 	_schedule_settings_save()
