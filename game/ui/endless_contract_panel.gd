@@ -46,7 +46,7 @@ func _build() -> void:
 	header.add_theme_constant_override("separation", 10)
 	root.add_child(header)
 	var title := Label.new()
-	title.text = "商圈经营委托"
+	title.text = "CONTRACT_INTRO_TITLE"
 	title.add_theme_font_size_override("font_size", 30)
 	header.add_child(title)
 	var spacer := Control.new()
@@ -68,13 +68,13 @@ func _build() -> void:
 	_stats_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header.add_child(_stats_label)
 	_close_button = Button.new()
-	_close_button.text = "返回研发室"
+	_close_button.text = "PANEL_BACK_LAB"
 	_close_button.custom_minimum_size = Vector2(152, 48)
 	_close_button.pressed.connect(hide_panel)
 	header.add_child(_close_button)
 
 	var subtitle := Label.new()
-	subtitle.text = "第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。"
+	subtitle.text = "CONTRACT_INTRO_BODY"
 	subtitle.add_theme_font_size_override("font_size", 16)
 	subtitle.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.72)
 	root.add_child(subtitle)

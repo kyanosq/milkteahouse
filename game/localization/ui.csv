@@ -1,5 +1,58 @@
 keys,en,zh_CN
 LANGUAGE_CURRENT,Language · English,语言 · 中文
+TITLE_NAME,Milk Tea Story,奶茶物语
+TITLE_TAGLINE,Coral & Mint · Ready for another day,珊瑚薄荷店 · 今日也要好好营业
+TITLE_BLURB,Serve by day. Turn wild ideas into new drinks by night.,白天招待客人，夜晚把奇思妙想调成新品。
+MENU_PROGRESS,Recent Progress,最近进度
+MENU_WELCOME,Welcome to Your Shop,欢迎开店
+MENU_RESTART,Restart Shop,重新开店
+MENU_NEW_GAME,Start New Shop,开始新店
+SETTINGS_BUTTON,Settings,设置
+MENU_QUIT,Quit Game,退出游戏
+MENU_RESTART_CONFIRM,Restart the Shop?,重新开店？
+MENU_RESTART_BODY,You will restart from the Day 1 tutorial.,确认后会从第 1 天教学开始。
+MENU_RESTART_KEEP,Keep Progress,保留进度
+MENU_RESTART_DO,Confirm Restart,确认重新开始
+PAUSE_HEADING,Pause & Settings,暂停与设置
+PAUSE_CONTROLS_HINT,Keyboard: 1–9 Select · Space Shake · Esc Pause\nTouch: Tap ingredients the shake button and order cards,键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡
+SETTINGS_MOTION,Reduce Motion,减少动态效果
+SETTINGS_MOTION_DESC,Disables camera shake flying coins cup wobble and customer idle motion.,关闭镜头震动、飞金币、杯体晃动和顾客待机动作。
+SETTINGS_HAPTICS,Haptic Feedback,触觉反馈
+SETTINGS_HAPTICS_DESC,Phone taps and controller rumble. Disabling this does not affect audio or motion.,手机轻震与手柄震动；关闭后不影响声音和动画。
+SETTINGS_DISPLAY,Display & Controls,显示与按键
+PAUSE_TUTORIAL,Replay Tutorial,重新查看新手教学
+PAUSE_MENU,Return to Main Menu,返回主菜单
+PAUSE_RESUME,Resume Game,继续游戏
+PAUSE_MENU_CONFIRM,Return to Main Menu?,返回主菜单？
+PAUSE_MENU_STAY,Stay Here,留在这里
+PAUSE_MENU_DO,Confirm Return,确认返回
+SETTINGS_DISPLAY_NOTE,Display changes apply immediately. Keyboard actions can be rebound; controllers keep the A/B/X/Y/Menu layout.,显示修改立即生效；键盘快捷键可重映射，手柄保持 A/B/X/Y/Menu 标准布局。
+SETTINGS_WINDOW_MODE,Window Mode,窗口模式
+SETTINGS_RESOLUTION,Window Resolution,窗口分辨率
+SETTINGS_KEYS,Keyboard Shortcuts,键盘快捷键
+SETTINGS_KEYS_RESET,Restore Default Keys,恢复默认按键
+SETTINGS_BACK,Back to Settings,返回设置
+DAY_PAUSE,Pause,暂停
+EVENT_BRIEF_TITLE,Today's Business Event,今日经营事件
+EVENT_BRIEF_START,Got It · Open the Shop,知道了 · 开门营业
+LAB_UPGRADES,Shop Upgrades,店铺升级
+PANEL_BACK_LAB,Back to Lab,返回研发室
+UPGRADES_INTRO,Turn daytime earnings into efficiency. Every upgrade changes your next shift.,把白天赚到的金币变成效率：每项升级都会直接改变下一次营业。
+STAFF_HIRE_TITLE,Staff Hiring · 1 Position,员工招聘 · 1 个岗位
+STAFF_HIRE_BODY,Stats define basic ability. Traits reveal through real events after hiring. Every benefit has a visible tradeoff.,数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。
+CONTRACT_INTRO_TITLE,District Contracts,商圈经营委托
+CONTRACT_INTRO_BODY,After Day 15 sign one contract each night. The fee is paid immediately. Success returns some coins and awards a sign stamp. Failure returns nothing.,第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。
+LAB_GROUP_BASE,Tea Base,茶底
+LAB_GROUP_MILK,Milk,奶基
+LAB_GROUP_TOPS,Toppings (≤2),小料(≤2)
+LAB_GROUP_SUGAR,Sugar,糖度
+NIGHT_TOMORROW_TITLE,Tomorrow's Business,明日经营预告
+NIGHT_FLAVOR,Flavor Feedback,风味反馈
+NIGHT_SLEEP,Close Lab,收工睡觉
+NIGHT_NAME_HINT,Name the New Drink…,给新品起个名字…
+NIGHT_SUBMIT,Submit New Drink,上架新品
+EVENT_BRIEF_CHALLENGE,Today's Challenge,今天的挑战
+EVENT_BRIEF_OPPORTUNITY,Today's Opportunity,今天的机会
 LANGUAGE_SWITCHED,Language changed to English.,语言已切换为中文。
 TEST_FORMAT,Day %d · %ds,第 %d 天 · %d秒
 INGREDIENT_BLACK_TEA,Assam Black Tea,阿萨姆红茶
@@ -22,7 +75,6 @@ SUGAR_30,30% Sugar,三分糖
 SUGAR_50,50% Sugar,五分糖
 SUGAR_70,70% Sugar,七分糖
 SUGAR_100,Full Sugar,全糖
-奶茶物语,Milk Tea Story,奶茶物语
 EVENT_CALM_NAME,Steady Shift,平稳营业
 EVENT_CALM_HEADLINE,Learn the basics and serve at your own pace.,熟悉基础操作，按自己的节奏完成订单。
 EVENT_CALM_CHALLENGE,No extra rules,没有额外规则
@@ -83,19 +135,6 @@ CONTRACT_RANK_CITY,City Signature,城市招牌
 CONTRACT_RANK_GOLD,Golden-Cup Owner,金杯主理人
 CONTRACT_RANK_MAX,Highest sign rank reached,最高店招已达成
 CONTRACT_RANK_NEXT,%d more stamps to upgrade the sign,再获 %d 枚印章升级店招
-珊瑚薄荷店 · 今日也要好好营业,Coral & Mint · Ready for another day,珊瑚薄荷店 · 今日也要好好营业
-白天招待客人，夜晚把奇思妙想调成新品。,Serve by day. Turn wild ideas into new drinks by night.,白天招待客人，夜晚把奇思妙想调成新品。
-最近进度,Recent Progress,最近进度
-欢迎开店,Welcome to Your Shop,欢迎开店
-从第 1 天开始经营你的第一间奶茶店。,Start on Day 1 and build your first milk-tea shop.,从第 1 天开始经营你的第一间奶茶店。
-重新开店,Restart Shop,重新开店
-开始新店,Start New Shop,开始新店
-设置,Settings,设置
-退出游戏,Quit Game,退出游戏
-重新开店？,Restart the Shop?,重新开店？
-确认后会从第 1 天教学开始。,You will restart from the Day 1 tutorial.,确认后会从第 1 天教学开始。
-保留进度,Keep Progress,保留进度
-确认重新开始,Confirm Restart,确认重新开始
 PHASE_CAMPAIGN,First-Shop Report,首店评级
 PHASE_NIGHT,Night Research,夜间研发
 STAFF_SOLO,Solo Shift,独自经营
@@ -112,25 +151,6 @@ MENU_WELCOME_BODY,Start on Day 1 and build your first milk-tea shop.,从第 1 �
 MENU_INPUT_GAMEPAD,Autosave · Controller %s Confirm / %s Back,自动保存 · 手柄 %s 确认 / %s 返回
 MENU_INPUT_KEYBOARD,Autosave · Keyboard/Mouse Enter Confirm / Esc Back,自动保存 · 键鼠 Enter 确认 / Esc 返回
 MENU_RESET_BODY,Your Day %d progress recipes and upgrades will be overwritten.\nAudio motion haptics and language settings will be kept. This cannot be undone.,现在的第 %d 天进度、配方和店铺升级会被覆盖。\n音量、动态、触觉与语言设置会保留。这个操作无法撤销。
-暂停与设置,Pause & Settings,暂停与设置
-键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡,Keyboard: 1–9 Select · Space Shake · Esc Pause\nTouch: Tap ingredients the shake button and order cards,键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡
-减少动态效果,Reduce Motion,减少动态效果
-关闭镜头震动、飞金币、杯体晃动和顾客待机动作。,Disables camera shake flying coins cup wobble and customer idle motion.,关闭镜头震动、飞金币、杯体晃动和顾客待机动作。
-触觉反馈,Haptic Feedback,触觉反馈
-手机轻震与手柄震动；关闭后不影响声音和动画。,Phone taps and controller rumble. Disabling this does not affect audio or motion.,手机轻震与手柄震动；关闭后不影响声音和动画。
-显示与按键,Display & Controls,显示与按键
-重新查看新手教学,Replay Tutorial,重新查看新手教学
-返回主菜单,Return to Main Menu,返回主菜单
-继续游戏,Resume Game,继续游戏
-返回主菜单？,Return to Main Menu?,返回主菜单？
-留在这里,Stay Here,留在这里
-确认返回,Confirm Return,确认返回
-显示修改立即生效；键盘快捷键可重映射，手柄保持 A/B/X/Y/Menu 标准布局。,Display changes apply immediately. Keyboard actions can be rebound; controllers keep the A/B/X/Y/Menu layout.,显示修改立即生效；键盘快捷键可重映射，手柄保持 A/B/X/Y/Menu 标准布局。
-窗口模式,Window Mode,窗口模式
-窗口分辨率,Window Resolution,窗口分辨率
-键盘快捷键,Keyboard Shortcuts,键盘快捷键
-恢复默认按键,Restore Default Keys,恢复默认按键
-返回设置,Back to Settings,返回设置
 SETTINGS_TITLE_DAY,Pause & Settings,暂停与设置
 SETTINGS_TITLE_NIGHT,Lab Settings,研究室设置
 SETTINGS_TITLE_MENU,Settings,设置
@@ -166,10 +186,6 @@ DISPLAY_MODE_FULLSCREEN,Fullscreen,全屏
 KEY_SPACE,Space,空格
 KEY_UNSET,Unassigned,未设置
 INPUT_CLICK_ENTER,Click / Enter,点击 / Enter
-暂停,Pause,暂停
-重置杯子,Reset Cup,重置杯子
-今日经营事件,Today's Business Event,今日经营事件
-知道了 · 开门营业,Got It · Open the Shop,知道了 · 开门营业
 DAY_SECONDS_SHORT,%ds,%d秒
 DAY_HUD_COSTS_NEXT,Stock%d · Rent D%d,补货%d · 租金D%d
 DAY_HUD_COSTS_TODAY,Stock%d · Rent≤%d,补货%d · 租金≤%d
@@ -330,9 +346,6 @@ TUTORIAL_GAMEPAD_5,Controller and keyboard/mouse support the same full shop flow
 COMMON_COINS,%d Coins,%d 金币
 COMMON_CUPS,%d Cups,%d 杯
 COMMON_TIMES,%d Times,%d 次
-店铺升级,Shop Upgrades,店铺升级
-返回研发室,Back to Lab,返回研发室
-把白天赚到的金币变成效率：每项升级都会直接改变下一次营业。,Turn daytime earnings into efficiency. Every upgrade changes your next shift.,把白天赚到的金币变成效率：每项升级都会直接改变下一次营业。
 UPGRADE_COMFORT_NAME,Lounge Comfort,等候区软装
 UPGRADE_COMFORT_DESCRIPTION,Soft seats and warm lighting give waiting customers more patience.,舒适座椅和柔光装饰，让排队顾客更有耐心。
 UPGRADE_COMFORT_EFFECT_1,Patience +18%,耐心 +18%
@@ -360,8 +373,6 @@ UPGRADE_RESERVE_SUMMARY,Day %d reserve · Wage %d + Rent %d · Safe to invest %d
 UPGRADE_RESERVE_RISK,Buying leaves %d coins below the %d-coin reserve.,购买后仅余 %d，低于 %d 金币预留。
 UPGRADE_SUCCESS,%s upgraded. It takes effect next shift.,%s 已升级，明天营业立即生效。
 UPGRADE_NOT_ENOUGH,Not enough coins. Build combos and serve quickly tomorrow.,金币不足，明天多完成连击和快速出杯吧。
-员工招聘 · 1 个岗位,Staff Hiring · 1 Position,员工招聘 · 1 个岗位
-数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。,Stats define basic ability. Traits reveal through real events after hiring. Every benefit has a visible tradeoff.,数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。
 STAFF_XIAOMAN_NAME,Xiaoman,小满
 STAFF_XIAOMAN_INTRO,My strength is value for money. My weakness is… wait what did you say?,我的优点是性价比，缺点是……嗯？你说什么？
 STAFF_TAOZI_NAME,Taozi,桃子
@@ -400,8 +411,6 @@ TRAIT_SLACKER_EFFECT,Back-queue patience drain -30% · May slack off and needs a
 TRAIT_SOCIAL_KING_EFFECT,All patience +20% · Arrivals 12% faster for more traffic and pressure,全场耐心 +20% · 到店间隔 -12%，客流与压力同增
 TRAIT_PERFECTIONIST_EFFECT,Correct cup +2 coins · Blocks 1 wrong cup daily · +1 shake per cup,正确出杯 +2 金币、每天拦下 1 杯错单 · 每杯多摇 1 下
 STAFF_TRAIT_UNKNOWN_EFFECT,No staff effect recorded,尚未记录员工效果
-商圈经营委托,District Contracts,商圈经营委托
-第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。,After Day 15 sign one contract each night. The fee is paid immediately. Success returns some coins and awards a sign stamp. Failure returns nothing.,第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。
 ENDLESS_SIGN_RANK,Sign · %s | %d Stamps | %s,店招 · %s  ｜  印章 %d  ｜  %s
 ENDLESS_TARGET_DAY,Day %d · %s,第 %d 天 · %s
 ENDLESS_REWARD,Success: +1 Stamp · +%d Inspiration · Refund %d Coins\nFailure: Contract Fee Lost,成功：+1 印章 · +%d 灵感 · 返还 %d 金币\n失败：签约费不返还
@@ -534,16 +543,6 @@ SLOT_BASE,Tea Base,茶底
 SLOT_MILK,Milk,奶基
 SLOT_TOPPING,Topping,小料
 SLOT_SUGAR,Sugar Level,糖度
-茶底,Tea Base,茶底
-奶基,Milk,奶基
-小料(≤2),Toppings (≤2),小料(≤2)
-糖度,Sugar,糖度
-当前试作配方,Current Trial Recipe,当前试作配方
-明日经营预告,Tomorrow's Business,明日经营预告
-风味反馈,Flavor Feedback,风味反馈
-收工睡觉,Close Lab,收工睡觉
-给新品起个名字…,Name the New Drink…,给新品起个名字…
-上架新品,Submit New Drink,上架新品
 NIGHT_WELCOME,The shop is closed. Tonight make something nobody has tasted before.,打烊了。今晚，调一杯没人喝过的东西。
 NIGHT_TRY,Trial Cup · %d Inspiration,试做一杯 · 消耗 %d 灵感
 NIGHT_STAFF_LOCKED,Hiring · Unlocks Day %d,招聘 · 第 %d 天解锁
@@ -642,8 +641,6 @@ EVENT_BROWN_SUGAR_TREND_HUD,Brown Sugar,黑糖
 EVENT_CRITIC_DAY_HUD,Critic,探店
 EVENT_INFLUENCER_DAY_HUD,Camera,镜头
 EVENT_GROUP_DAY_HUD,Groups,结伴
-今天的挑战,Today's Challenge,今天的挑战
-今天的机会,Today's Opportunity,今天的机会
 DAY_CONTRACT_FALLBACK,Business Challenge,经营挑战
 DAY_SMART_SUGAR_MATCHED,Smart Sugar · Matched %s,智能糖控：已匹配%s
 DAY_NOT_SEALED,Seal the cup first!,还没封口呢！

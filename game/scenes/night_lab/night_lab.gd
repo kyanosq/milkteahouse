@@ -208,10 +208,10 @@ func _build_ui() -> void:
 	shelf.add_theme_constant_override("separation", 14)
 	ui_frame.add_child(shelf)
 	_shelf = shelf
-	_shelf_group(shelf, "茶底", GameData.unlocked(GameData.bases, GameState.day), "base")
-	_shelf_group(shelf, "奶基", GameData.unlocked(GameData.milks, GameState.day), "milk")
-	_shelf_group(shelf, "小料(≤2)", GameData.unlocked(GameData.toppings, GameState.day), "topping")
-	_shelf_group(shelf, "糖度", GameData.sugar_levels, "sugar")
+	_shelf_group(shelf, "LAB_GROUP_BASE", GameData.unlocked(GameData.bases, GameState.day), "base")
+	_shelf_group(shelf, "LAB_GROUP_MILK", GameData.unlocked(GameData.milks, GameState.day), "milk")
+	_shelf_group(shelf, "LAB_GROUP_TOPS", GameData.unlocked(GameData.toppings, GameState.day), "topping")
+	_shelf_group(shelf, "LAB_GROUP_SUGAR", GameData.sugar_levels, "sugar")
 	_fit_shelf(shelf)
 
 	# 明文复述当前配方，不要求玩家仅靠细描边或杯体颜色回忆选择。
@@ -278,7 +278,7 @@ func _build_ui() -> void:
 	preview_box.add_theme_constant_override("separation", 2)
 	preview.add_child(preview_box)
 	var preview_title := Label.new()
-	preview_title.text = "明日经营预告"
+	preview_title.text = "NIGHT_TOMORROW_TITLE"
 	preview_title.add_theme_font_size_override("font_size", 14)
 	preview_title.add_theme_color_override("font_color", preview_accent)
 	preview_box.add_child(preview_title)
@@ -328,7 +328,7 @@ func _build_ui() -> void:
 	radar.custom_minimum_size = Vector2(320, 280)
 	radar_panel.add_child(radar)
 	ui_frame.add_child(radar_panel)
-	var radar_tag := _tag("风味反馈", CORAL)
+	var radar_tag := _tag("NIGHT_FLAVOR", CORAL)
 	radar_tag.position = Vector2(1010, 196)
 	ui_frame.add_child(radar_tag)
 
@@ -357,7 +357,7 @@ func _build_ui() -> void:
 	try_btn.pressed.connect(_on_try)
 	ui_frame.add_child(try_btn)
 	var sleep_btn := Button.new()
-	sleep_btn.text = "收工睡觉"
+	sleep_btn.text = "NIGHT_SLEEP"
 	sleep_btn.custom_minimum_size = Vector2(180, 54)
 	sleep_btn.position = Vector2(1064, 644)
 	var sl_sb := StyleBoxFlat.new()
@@ -375,13 +375,13 @@ func _build_ui() -> void:
 	# 命名行（挂在便签卡里使用）
 	name_row = HBoxContainer.new()
 	name_edit = LineEdit.new()
-	name_edit.placeholder_text = "给新品起个名字…"
+	name_edit.placeholder_text = "NIGHT_NAME_HINT"
 	name_edit.custom_minimum_size = Vector2(160, 40)
 	# 与存档规范化一致的长度上限：写入侧先截住，保证 save→load→save 完全等价。
 	name_edit.max_length = 40
 	name_row.add_child(name_edit)
 	var shelf_btn := Button.new()
-	shelf_btn.text = "上架新品"
+	shelf_btn.text = "NIGHT_SUBMIT"
 	shelf_btn.pressed.connect(_on_shelf)
 	name_row.add_child(shelf_btn)
 	note_box.add_child(name_row)
@@ -389,7 +389,7 @@ func _build_ui() -> void:
 
 	# 金币成长入口与夜间研发并列：玩家能在下一天营业前明确投资效率。
 	var upgrade_btn := Button.new()
-	upgrade_btn.text = "店铺升级"
+	upgrade_btn.text = "LAB_UPGRADES"
 	upgrade_btn.custom_minimum_size = Vector2(180, 54)
 	upgrade_btn.position = Vector2(24, 644)
 	_style_secondary_action(upgrade_btn)
@@ -432,7 +432,7 @@ func _build_ui() -> void:
 	_refresh_contract_button()
 
 	var settings_btn := Button.new()
-	settings_btn.text = "设置"
+	settings_btn.text = "SETTINGS_BUTTON"
 	settings_btn.position = Vector2(1168, 10)
 	settings_btn.custom_minimum_size = Vector2(98, 46)
 	settings_btn.pressed.connect(_toggle_settings)

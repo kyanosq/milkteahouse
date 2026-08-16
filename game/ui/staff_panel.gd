@@ -44,7 +44,7 @@ func _build() -> void:
 	header.add_theme_constant_override("separation", 10)
 	_content.add_child(header)
 	var title := Label.new()
-	title.text = "员工招聘 · 1 个岗位"
+	title.text = "STAFF_HIRE_TITLE"
 	title.add_theme_font_size_override("font_size", 30)
 	header.add_child(title)
 	var spacer := Control.new()
@@ -55,13 +55,13 @@ func _build() -> void:
 	_coin_label.add_theme_color_override("font_color", GOLD)
 	header.add_child(_coin_label)
 	_close_button = Button.new()
-	_close_button.text = "返回研发室"
+	_close_button.text = "PANEL_BACK_LAB"
 	_close_button.custom_minimum_size = Vector2(152, 48)
 	_close_button.pressed.connect(hide_panel)
 	header.add_child(_close_button)
 
 	var subtitle := Label.new()
-	subtitle.text = "数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。"
+	subtitle.text = "STAFF_HIRE_BODY"
 	subtitle.add_theme_font_size_override("font_size", 17)
 	subtitle.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.72)
 	_content.add_child(subtitle)

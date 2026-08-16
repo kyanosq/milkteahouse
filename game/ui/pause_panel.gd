@@ -67,11 +67,11 @@ func _build() -> void:
 	box.add_theme_constant_override("separation", 10)
 	_panel.add_child(box)
 	_title = Label.new()
-	_title.text = "暂停与设置"
+	_title.text = "PAUSE_HEADING"
 	_title.add_theme_font_size_override("font_size", 30)
 	box.add_child(_title)
 	_controls = Label.new()
-	_controls.text = "键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡"
+	_controls.text = "PAUSE_CONTROLS_HINT"
 	_controls.custom_minimum_size = Vector2(480, 0)
 	_controls.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_controls.add_theme_font_size_override("font_size", 16)
@@ -95,7 +95,7 @@ func _build() -> void:
 	feedback_row.add_theme_constant_override("separation", 14)
 	box.add_child(feedback_row)
 	_motion = CheckButton.new()
-	_motion.text = "减少动态效果"
+	_motion.text = "SETTINGS_MOTION"
 	_motion.flat = true
 	_motion.custom_minimum_size = Vector2(240, 48)
 	_motion.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -105,8 +105,8 @@ func _build() -> void:
 	_motion.toggled.connect(_on_motion_toggled)
 	feedback_row.add_child(_motion)
 	_haptics = CheckButton.new()
-	_haptics.text = "触觉反馈"
-	_haptics.tooltip_text = "手机轻震与手柄震动；关闭后不影响声音和动画。"
+	_haptics.text = "SETTINGS_HAPTICS"
+	_haptics.tooltip_text = "SETTINGS_HAPTICS_DESC"
 	_haptics.flat = true
 	_haptics.custom_minimum_size = Vector2(240, 48)
 	_haptics.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -116,7 +116,7 @@ func _build() -> void:
 	_haptics.toggled.connect(_on_haptics_toggled)
 	feedback_row.add_child(_haptics)
 	_motion_help = Label.new()
-	_motion_help.text = "关闭镜头震动、飞金币、杯体晃动和顾客待机动作。"
+	_motion_help.text = "SETTINGS_MOTION_DESC"
 	_motion_help.add_theme_font_size_override("font_size", 15)
 	_motion_help.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.66)
 	box.add_child(_motion_help)
@@ -126,7 +126,7 @@ func _build() -> void:
 	_language.pressed.connect(GameLocale.toggle)
 	box.add_child(_language)
 	_advanced = Button.new()
-	_advanced.text = "显示与按键"
+	_advanced.text = "SETTINGS_DISPLAY"
 	_advanced.custom_minimum_size = Vector2(0, 44)
 	_style_secondary(_advanced, MINT)
 	_advanced.pressed.connect(_open_display_settings)
@@ -135,19 +135,19 @@ func _build() -> void:
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(spacer)
 	_tutorial = Button.new()
-	_tutorial.text = "重新查看新手教学"
+	_tutorial.text = "PAUSE_TUTORIAL"
 	_tutorial.custom_minimum_size = Vector2(0, 50)
 	_style_secondary(_tutorial, MINT)
 	_tutorial.pressed.connect(func(): tutorial_requested.emit())
 	box.add_child(_tutorial)
 	_menu = Button.new()
-	_menu.text = "返回主菜单"
+	_menu.text = "PAUSE_MENU"
 	_menu.custom_minimum_size = Vector2(0, 48)
 	_style_secondary(_menu, Color(COCOA.r, COCOA.g, COCOA.b, 0.48))
 	_menu.pressed.connect(_request_menu)
 	box.add_child(_menu)
 	_resume = Button.new()
-	_resume.text = "继续游戏"
+	_resume.text = "PAUSE_RESUME"
 	_resume.custom_minimum_size = Vector2(0, 54)
 	_resume.pressed.connect(func(): resume_requested.emit())
 	box.add_child(_resume)
@@ -161,7 +161,7 @@ func _build() -> void:
 	confirm_box.add_theme_constant_override("separation", 16)
 	_confirm_panel.add_child(confirm_box)
 	var confirm_title := Label.new()
-	confirm_title.text = "返回主菜单？"
+	confirm_title.text = "PAUSE_MENU_CONFIRM"
 	confirm_title.add_theme_font_size_override("font_size", 30)
 	confirm_box.add_child(confirm_title)
 	_confirm_body = Label.new()
@@ -173,13 +173,13 @@ func _build() -> void:
 	confirm_actions.add_theme_constant_override("separation", 12)
 	confirm_box.add_child(confirm_actions)
 	_confirm_cancel = Button.new()
-	_confirm_cancel.text = "留在这里"
+	_confirm_cancel.text = "PAUSE_MENU_STAY"
 	_confirm_cancel.custom_minimum_size = Vector2(238, 54)
 	_style_secondary(_confirm_cancel, MINT)
 	_confirm_cancel.pressed.connect(_cancel_menu)
 	confirm_actions.add_child(_confirm_cancel)
 	var leave := Button.new()
-	leave.text = "确认返回"
+	leave.text = "PAUSE_MENU_DO"
 	leave.custom_minimum_size = Vector2(250, 54)
 	leave.pressed.connect(func(): menu_requested.emit())
 	confirm_actions.add_child(leave)
@@ -196,11 +196,11 @@ func _build_display_panel() -> void:
 	box.add_theme_constant_override("separation", 10)
 	_display_panel.add_child(box)
 	var title := Label.new()
-	title.text = "显示与按键"
+	title.text = "SETTINGS_DISPLAY"
 	title.add_theme_font_size_override("font_size", 30)
 	box.add_child(title)
 	var subtitle := Label.new()
-	subtitle.text = "显示修改立即生效；键盘快捷键可重映射，手柄保持 A/B/X/Y/Menu 标准布局。"
+	subtitle.text = "SETTINGS_DISPLAY_NOTE"
 	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	subtitle.add_theme_font_size_override("font_size", 15)
 	subtitle.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.68)
@@ -211,7 +211,7 @@ func _build_display_panel() -> void:
 	display_grid.add_theme_constant_override("v_separation", 8)
 	box.add_child(display_grid)
 	var mode_label := Label.new()
-	mode_label.text = "窗口模式"
+	mode_label.text = "SETTINGS_WINDOW_MODE"
 	mode_label.custom_minimum_size = Vector2(170, 42)
 	display_grid.add_child(mode_label)
 	_window_mode = OptionButton.new()
@@ -220,7 +220,7 @@ func _build_display_panel() -> void:
 	_window_mode.item_selected.connect(_on_window_mode_selected)
 	display_grid.add_child(_window_mode)
 	var resolution_label := Label.new()
-	resolution_label.text = "窗口分辨率"
+	resolution_label.text = "SETTINGS_RESOLUTION"
 	resolution_label.custom_minimum_size = Vector2(170, 42)
 	display_grid.add_child(resolution_label)
 	_resolution = OptionButton.new()
@@ -230,7 +230,7 @@ func _build_display_panel() -> void:
 	_resolution.item_selected.connect(_on_resolution_selected)
 	display_grid.add_child(_resolution)
 	var binding_title := Label.new()
-	binding_title.text = "键盘快捷键"
+	binding_title.text = "SETTINGS_KEYS"
 	binding_title.add_theme_font_size_override("font_size", 19)
 	binding_title.add_theme_color_override("font_color", MINT)
 	box.add_child(binding_title)
@@ -248,13 +248,13 @@ func _build_display_panel() -> void:
 	actions.add_theme_constant_override("separation", 12)
 	box.add_child(actions)
 	var reset := Button.new()
-	reset.text = "恢复默认按键"
+	reset.text = "SETTINGS_KEYS_RESET"
 	reset.custom_minimum_size = Vector2(294, 50)
 	_style_secondary(reset, MINT)
 	reset.pressed.connect(_reset_bindings)
 	actions.add_child(reset)
 	var back := Button.new()
-	back.text = "返回设置"
+	back.text = "SETTINGS_BACK"
 	back.custom_minimum_size = Vector2(300, 50)
 	back.pressed.connect(_close_display_settings)
 	actions.add_child(back)

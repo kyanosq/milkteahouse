@@ -81,18 +81,18 @@ func _build_menu() -> void:
 	card.add_child(root)
 
 	var eyebrow := Label.new()
-	eyebrow.text = "珊瑚薄荷店 · 今日也要好好营业"
+	eyebrow.text = "TITLE_TAGLINE"
 	eyebrow.add_theme_font_size_override("font_size", 16)
 	eyebrow.add_theme_color_override("font_color", MINT)
 	root.add_child(eyebrow)
 
 	var title := Label.new()
-	title.text = "奶茶物语"
+	title.text = "TITLE_NAME"
 	title.add_theme_font_size_override("font_size", 52)
 	root.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "白天招待客人，夜晚把奇思妙想调成新品。"
+	subtitle.text = "TITLE_BLURB"
 	subtitle.add_theme_font_size_override("font_size", 18)
 	subtitle.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.72)
 	root.add_child(subtitle)
@@ -114,7 +114,7 @@ func _build_menu() -> void:
 	summary_box.add_theme_constant_override("separation", 4)
 	summary.add_child(summary_box)
 	var summary_title := Label.new()
-	summary_title.text = "最近进度" if has_existing_save else "欢迎开店"
+	summary_title.text = "MENU_PROGRESS" if has_existing_save else "MENU_WELCOME"
 	summary_title.add_theme_font_size_override("font_size", 16)
 	summary_title.add_theme_color_override("font_color", MINT)
 	summary_box.add_child(summary_title)
@@ -135,21 +135,21 @@ func _build_menu() -> void:
 	root.add_child(continue_button)
 
 	new_game_button = Button.new()
-	new_game_button.text = "重新开店" if has_existing_save else "开始新店"
+	new_game_button.text = "MENU_RESTART" if has_existing_save else "MENU_NEW_GAME"
 	new_game_button.custom_minimum_size = Vector2(0, 54)
 	_style_secondary(new_game_button, MINT)
 	new_game_button.pressed.connect(_request_new_game)
 	root.add_child(new_game_button)
 
 	var settings := Button.new()
-	settings.text = "设置"
+	settings.text = "SETTINGS_BUTTON"
 	settings.custom_minimum_size = Vector2(0, 52)
 	_style_secondary(settings, Color("D99A43"))
 	settings.pressed.connect(_open_settings)
 	root.add_child(settings)
 
 	var quit := Button.new()
-	quit.text = "退出游戏"
+	quit.text = "MENU_QUIT"
 	quit.custom_minimum_size = Vector2(0, 46)
 	_style_quiet(quit)
 	quit.pressed.connect(func(): get_tree().quit())
@@ -187,7 +187,7 @@ func _build_confirmation() -> void:
 	box.add_theme_constant_override("separation", 16)
 	panel.add_child(box)
 	var title := Label.new()
-	title.text = "重新开店？"
+	title.text = "MENU_RESTART_CONFIRM"
 	title.add_theme_font_size_override("font_size", 32)
 	box.add_child(title)
 	var body := Label.new()
@@ -197,20 +197,20 @@ func _build_confirmation() -> void:
 	body.add_theme_font_size_override("font_size", 18)
 	box.add_child(body)
 	var note := Label.new()
-	note.text = "确认后会从第 1 天教学开始。"
+	note.text = "MENU_RESTART_BODY"
 	note.add_theme_color_override("font_color", MINT)
 	box.add_child(note)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 12)
 	box.add_child(actions)
 	var cancel := Button.new()
-	cancel.text = "保留进度"
+	cancel.text = "MENU_RESTART_KEEP"
 	cancel.custom_minimum_size = Vector2(238, 54)
 	_style_secondary(cancel, MINT)
 	cancel.pressed.connect(_close_confirmation)
 	actions.add_child(cancel)
 	confirm_button = Button.new()
-	confirm_button.text = "确认重新开始"
+	confirm_button.text = "MENU_RESTART_DO"
 	confirm_button.custom_minimum_size = Vector2(250, 54)
 	confirm_button.pressed.connect(_start_new_game)
 	actions.add_child(confirm_button)

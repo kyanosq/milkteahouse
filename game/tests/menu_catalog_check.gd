@@ -7,17 +7,13 @@ func _ready() -> void:
 	var original_settings := GameState.settings.duplicate(true)
 	GameLocale.set_locale("zh_CN", false)
 	GameState.day = 9
-	# 无 id/配方的损坏菜单项：保留为不可点单收藏（合成 id、空配方），不再按名字
-	# 猜测成传说（新项目无旧档，名字碰撞恢复已随兼容层移除）。
+	# 无 id/配方的残缺菜单项直接丢弃：新项目无旧档、不做收藏兜底（Iteration 62）。
 	GameState.menu = [{"name": "经典珍珠奶茶", "tier": "普通", "price": 12}]
 	GameState.featured_menu = []
 	GameState.menu_last_hype_day = 0
 	MenuCatalog.ensure_normalized()
-	assert(GameState.menu.size() == 1)
-	assert(String(GameState.menu[0]["id"]).begins_with("legacy:"))
-	assert(not MenuCatalog.formula_available(GameState.menu[0]))
-	assert(GameState.featured_menu.is_empty(),
-		"items without formulas must not be auto-featured")
+	assert(GameState.menu.is_empty(), "malformed items without ids must be dropped")
+	assert(GameState.featured_menu.is_empty())
 	var legend_entry := MenuCatalog.register_legend(RecipeJournal.recipe("classic_boba"))
 	assert(String(legend_entry["id"]) == "legend:classic_boba")
 	assert(MenuCatalog.formula_available(MenuCatalog.item("legend:classic_boba")))

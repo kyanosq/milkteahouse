@@ -12,7 +12,7 @@ func _ready() -> void:
 	_assert_required_keys()
 	_assert_data_tables()
 	var label := Label.new()
-	label.text = "奶茶物语"
+	label.text = "TITLE_NAME"
 	add_child(label)
 	await get_tree().process_frame
 	assert(label.get_total_character_count() == "Milk Tea Story".length(), "static Control did not auto-translate")
@@ -56,6 +56,23 @@ func _assert_required_keys() -> void:
 		"MARKET_SETTLEMENT_TITLE", "MARKET_SETTLEMENT_TESTING", "MARKET_SETTLEMENT_HIT",
 		"DAY_HUD_COSTS_NEXT", "DAY_LEDGER_TITLE", "DAY_LEDGER_NEXT_RENT",
 		"DAY_STAFF_RESTING", "DAY_RESULT_WAGE_SHORTFALL", "STAFF_REST_SCHEDULED",
+		# 值作键条目已全部迁移为显式键（Iteration 63）：静态 Control 直接携带键名，
+		# 拼错的键会原样显示，必须显式钉住每个裸键存在于双语表。
+		"TITLE_NAME", "TITLE_TAGLINE", "TITLE_BLURB",
+		"MENU_PROGRESS", "MENU_WELCOME", "MENU_RESTART", "MENU_NEW_GAME", "MENU_QUIT",
+		"MENU_RESTART_CONFIRM", "MENU_RESTART_BODY", "MENU_RESTART_KEEP", "MENU_RESTART_DO",
+		"SETTINGS_BUTTON", "PAUSE_HEADING", "PAUSE_CONTROLS_HINT",
+		"SETTINGS_MOTION", "SETTINGS_MOTION_DESC", "SETTINGS_HAPTICS", "SETTINGS_HAPTICS_DESC",
+		"SETTINGS_DISPLAY", "SETTINGS_DISPLAY_NOTE", "SETTINGS_WINDOW_MODE", "SETTINGS_RESOLUTION",
+		"SETTINGS_KEYS", "SETTINGS_KEYS_RESET", "SETTINGS_BACK",
+		"PAUSE_TUTORIAL", "PAUSE_MENU", "PAUSE_RESUME",
+		"PAUSE_MENU_CONFIRM", "PAUSE_MENU_STAY", "PAUSE_MENU_DO",
+		"DAY_PAUSE", "EVENT_BRIEF_TITLE", "EVENT_BRIEF_START",
+		"EVENT_BRIEF_CHALLENGE", "EVENT_BRIEF_OPPORTUNITY",
+		"LAB_UPGRADES", "PANEL_BACK_LAB", "UPGRADES_INTRO",
+		"STAFF_HIRE_TITLE", "STAFF_HIRE_BODY", "CONTRACT_INTRO_TITLE", "CONTRACT_INTRO_BODY",
+		"LAB_GROUP_BASE", "LAB_GROUP_MILK", "LAB_GROUP_TOPS", "LAB_GROUP_SUGAR",
+		"NIGHT_TOMORROW_TITLE", "NIGHT_FLAVOR", "NIGHT_SLEEP", "NIGHT_NAME_HINT", "NIGHT_SUBMIT",
 	]
 	for key in required:
 		assert(TranslationServer.translate(key) != key, "missing English localization key: " + key)

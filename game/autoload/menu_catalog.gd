@@ -522,21 +522,24 @@ func hype_text(item_data: Dictionary) -> String:
 	return GameLocale.text("MENU_BOARD_HOT_DAYS", [remaining]) if remaining > 0 else GameLocale.text("MENU_BOARD_EVERGREEN")
 
 
-func _normalize_item(raw: Dictionary, index: int) -> Dictionary:
+func _normalize_item(raw: Dictionary, _index: int) -> Dictionary:
 	var legend := _legend_for_raw(raw)
 	if not legend.is_empty():
 		var normalized := _legend_item(legend)
 		_copy_progress(raw, normalized)
 		return normalized
+	var item_id := String(raw.get("id", ""))
+	if item_id.is_empty():
+		# 残缺项（无 id、无配方）直接丢弃：新项目无旧档，不做收藏兜底。
+		return {}
 	var tier := String(raw.get("tier", "普通"))
 	var hype_days := maxi(1, int(raw.get("hype_days", _hype_days_for_tier(tier))))
-	var item_id := String(raw.get("id", "legacy:%d" % index))
 	var sugar: Variant = raw.get("sugar", [])
 	if sugar is int or sugar is float:
 		sugar = [int(sugar), int(sugar)]
 	return {
-		"id": item_id, "type": String(raw.get("type", "legacy")), "source_id": "",
-		"name": String(raw.get("name", GameLocale.text("NIGHT_MYSTERY_DRINK", [index + 1]))),
+		"id": item_id, "type": String(raw.get("type", "")), "source_id": "",
+		"name": String(raw.get("name", GameLocale.text("NIGHT_MYSTERY_DRINK", [_index + 1]))),
 		"tier": tier, "price": maxi(1, int(raw.get("price", 10))),
 		"base": String(raw.get("base", "")), "milk": String(raw.get("milk", "")),
 		"toppings": _string_array(raw.get("toppings", [])), "sugar": sugar,

@@ -376,7 +376,7 @@ func _build_ui() -> void:
 	contract_pill.add_child(hud_contract)
 	contract_pill.visible = false
 	pause_button = Button.new()
-	pause_button.text = "暂停"
+	pause_button.text = "DAY_PAUSE"
 	pause_button.position = Vector2(1170, 10)
 	pause_button.custom_minimum_size = Vector2(96, 52)
 	_style_utility_button(pause_button, AppTheme.CORAL)
@@ -599,7 +599,7 @@ func _build_event_overlay() -> void:
 	box.add_theme_constant_override("separation", 12)
 	panel.add_child(box)
 	var eyebrow := Label.new()
-	eyebrow.text = "今日经营事件"
+	eyebrow.text = "EVENT_BRIEF_TITLE"
 	eyebrow.add_theme_font_size_override("font_size", 16)
 	eyebrow.add_theme_color_override("font_color", Color("27B9A7"))
 	box.add_child(eyebrow)
@@ -614,8 +614,8 @@ func _build_event_overlay() -> void:
 	var effects := HBoxContainer.new()
 	effects.add_theme_constant_override("separation", 12)
 	box.add_child(effects)
-	event_challenge_label = _event_effect_card(effects, "今天的挑战", Color("FF6259"))
-	event_benefit_label = _event_effect_card(effects, "今天的机会", Color("27B9A7"))
+	event_challenge_label = _event_effect_card(effects, "EVENT_BRIEF_CHALLENGE", Color("FF6259"))
+	event_benefit_label = _event_effect_card(effects, "EVENT_BRIEF_OPPORTUNITY", Color("27B9A7"))
 	event_route_label = Label.new()
 	event_route_label.custom_minimum_size = Vector2(640, 34)
 	event_route_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -627,7 +627,7 @@ func _build_event_overlay() -> void:
 	event_next_label.modulate = Color(0.19, 0.13, 0.11, 0.62)
 	box.add_child(event_next_label)
 	event_start_button = Button.new()
-	event_start_button.text = "知道了 · 开门营业"
+	event_start_button.text = "EVENT_BRIEF_START"
 	event_start_button.custom_minimum_size = Vector2(0, 58)
 	event_start_button.pressed.connect(_dismiss_event_briefing)
 	box.add_child(event_start_button)

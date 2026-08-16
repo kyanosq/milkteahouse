@@ -18,7 +18,12 @@ func _ready() -> void:
 	GameState.upgrades = {"comfort": 3, "shaker": 2, "smart_sugar": 1, "tip_jar": 1}
 	GameState.discovered = ["classic_boba", "green_cloud", "brown_sugar"]
 	GameState.dark_discovered = ["xiangcai_fantasy"]
-	GameState.menu = [{"name": "经典珍珠"}, {"name": "薄荷云"}]
+	GameState.menu = [
+		{"id": "custom:9:1", "type": "custom", "name": "经典珍珠", "tier": "普通", "price": 12,
+			"base": "black_tea", "milk": "fresh_milk", "toppings": ["boba"], "sugar": [50, 50], "quality": 80},
+		{"id": "custom:9:2", "type": "custom", "name": "薄荷云", "tier": "普通", "price": 12,
+			"base": "green_tea", "milk": "none", "toppings": ["pudding"], "sugar": [30, 30], "quality": 78},
+	]
 	GameState.campaign_stats = {
 		"revenue": 2864, "served": 196, "angry": 7, "stars": 28,
 		"event_bonus": 164, "buzz_earned": 27, "special_served": 18,
@@ -38,10 +43,14 @@ func _ready() -> void:
 	GameState.upgrades = {"comfort": 4, "shaker": 4, "smart_sugar": 2, "tip_jar": 4}
 	GameState.discovered = ["classic_boba", "green_cloud", "brown_sugar"]
 	GameState.dark_discovered = ["xiangcai_fantasy", "zheergen_storm"]
+	# 新项目无旧档：菜单项必须是完整形态（id+配方），残缺项会被规范化丢弃。
 	GameState.menu = [
-		{"name": "经典珍珠", "tier": "招牌", "price": 15},
-		{"name": "薄荷云", "tier": "爆款", "price": 18},
-		{"name": "黑糖乌龙", "tier": "普通", "price": 12},
+		{"id": "custom:14:1", "type": "custom", "name": "经典珍珠", "tier": "招牌", "price": 15,
+			"base": "black_tea", "milk": "fresh_milk", "toppings": ["boba"], "sugar": [50, 50], "quality": 84},
+		{"id": "custom:14:2", "type": "custom", "name": "薄荷云", "tier": "爆款", "price": 18,
+			"base": "green_tea", "milk": "none", "toppings": ["coconut_jelly"], "sugar": [30, 30], "quality": 90},
+		{"id": "custom:14:3", "type": "custom", "name": "黑糖乌龙", "tier": "普通", "price": 12,
+			"base": "oolong", "milk": "fresh_milk", "toppings": ["brown_sugar"], "sugar": [50, 50], "quality": 70},
 	]
 	var lab: Control = load("res://scenes/night_lab/night_lab.tscn").instantiate()
 	add_child(lab)
