@@ -315,6 +315,9 @@ func _ready() -> void:
 		elif event_briefing:
 			await get_tree().create_timer(0.5).timeout
 			shop._show_event_briefing()
+			if OS.get_environment("SHOT_EVENT_PAUSE") == "1":
+				await get_tree().create_timer(0.3).timeout
+				shop._toggle_pause()
 		elif staff_idle:
 			await get_tree().create_timer(0.5).timeout
 			shop.staff_event_timer = 0.0

@@ -67,6 +67,20 @@ func _ready() -> void:
 	shop.tutorial_overlay._finish()
 	assert(not shop.tutorial_overlay.visible)
 
+	# 简报期间从暂停面板重看教学：简报必须先收起，教程不得被简报层盖住
+	#（对抗审查发现：简报层挂在 ui_frame 之上）。Day1 是平静日，用 Day3 事件驱动。
+	GameState.day = 3
+	shop.day_event = DailyEvents.event_for_day(3)
+	shop._show_event_briefing()
+	assert(shop.event_overlay.visible)
+	shop._toggle_pause()
+	assert(shop.pause_panel.visible, "pause must open behind the event briefing")
+	shop._replay_tutorial()
+	assert(not shop.event_overlay.visible,
+		"replaying the tutorial must dismiss the briefing first")
+	assert(shop.tutorial_overlay.visible and not shop.running)
+	shop.tutorial_overlay._finish()
+
 	# 三星拉伸必须可见：HUD 目标条延伸到 140%，目标线留刻度，文案披露 3★ 数字。
 	assert(is_equal_approx(float(shop.hud_goal_bar.max_value), 140.0),
 		"goal bar must stretch to the 1.4x star line")

@@ -742,6 +742,10 @@ func _resume_from_pause() -> void:
 func _replay_tutorial() -> void:
 	get_tree().paused = false
 	pause_panel.hide_panel()
+	# 简报期间重看教学：先收起简报再开教程——简报层挂在 ui_frame 之上，
+	# 会把教程整个盖住（对抗审查发现）。
+	if event_overlay.visible:
+		_dismiss_event_briefing()
 	_show_tutorial(true)
 
 
@@ -1244,6 +1248,9 @@ func _on_reset_cup_pressed() -> void:
 func _reset_cup() -> void:
 	_shake_gesture.reset()
 	_shake_grace_left = 0.0
+	# 确认窗口只在营业中倒计时：跨天/自动清杯时必须一并解除武装，
+	# 否则冻结的窗口会泄漏到新的一天（对抗审查发现）。
+	_reset_confirm_left = 0.0
 	cup_base = null
 	cup_milk = null
 	for t in cup_tops:

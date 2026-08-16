@@ -159,6 +159,27 @@ func _ready() -> void:
 		shop._on_reset_cup_pressed()
 		shop._on_reset_cup_pressed()
 
+	# 武装的确认窗口必须随任何系统级清杯一并解除（对抗审查：跨天冻结泄漏）。
+	# 茶底与珍珠都消耗预煮库存：先各补一批（上面的夹具已耗尽开局存量），
+	# 再复用已证明 ≥3 币的同一配方。
+	shop.tea_batch.start("black_tea")
+	shop.tea_batch.advance(9.0)
+	shop._on_tea_batch_pressed()
+	shop.pearl_batch.start("boba")
+	shop.pearl_batch.advance(10.0)
+	shop._on_pearl_batch_pressed()
+	shop._on_base(GameData.bases[0])
+	shop._on_milk(GameData.milks[1])
+	shop._on_topping(GameData.toppings[0])
+	assert(shop.cup_base != null and shop._has_topping(GameData.toppings[0]),
+		"fixture must actually build the full cup")
+	assert(shop._current_cup_cost() >= 3, "fixture must reach the confirm threshold")
+	shop._on_reset_cup_pressed()
+	assert(shop._reset_confirm_left > 0.0, "fixture must arm the confirm window first")
+	shop._reset_cup()
+	assert(shop._reset_confirm_left == 0.0,
+		"a system-level cup reset must disarm the pending confirm window")
+
 	# 打烊瞬间在制的杯子必须与手动弃杯一样计入成本/损耗。
 	shop._on_base(GameData.bases[0])
 	shop._on_milk(GameData.milks[1])
