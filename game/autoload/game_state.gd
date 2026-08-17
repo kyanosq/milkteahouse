@@ -675,6 +675,17 @@ func _normalize_campaign_stats(value: Variant) -> Dictionary:
 		if number >= 1 and number <= 14 and not result["recorded_days"].has(number):
 			result["recorded_days"].append(number)
 	result["days_completed"] = result["recorded_days"].size()
+	# JSON 会把 day_stars 的整数键序列化成字符串；回暖日（D5）按整数键查昨日
+	# 星数，这些字段不恢复的话，重进战役的玩家会丢掉当日宽限与总结屏统计。
+	var stars_value: Variant = source.get("day_stars", {})
+	if stars_value is Dictionary:
+		var day_stars: Dictionary = {}
+		for star_key in stars_value:
+			day_stars[clampi(int(star_key), 1, 14)] = clampi(int(stars_value[star_key]), 0, 3)
+		result["day_stars"] = day_stars
+	result["relief_days"] = mini(maxi(0, int(source.get("relief_days", 0))), result["days_completed"])
+	result["critic_served"] = mini(maxi(0, int(source.get("critic_served", 0))), result["served"])
+	result["matched_served"] = mini(maxi(0, int(source.get("matched_served", 0))), result["served"])
 	return result
 
 

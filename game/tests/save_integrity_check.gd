@@ -106,6 +106,21 @@ func _ready() -> void:
 	assert(int(GameState.market_settlement["results"][5].get("sugar", -1)) == 50)
 	GameState.market_settlement = {}
 
+	# 战役统计往返：昨日星数是回暖日（D5）判定的输入，总结屏计数是展示行；
+	# 三者都必须熬过真实的 JSON 磁盘往返（整数键会被序列化成字符串键）。
+	GameState._apply_save_data({"day": 12, "phase": "day"})
+	GameState.record_campaign_day(11, {"stars": 1, "relief": true,
+		"critic_served": 2, "matched_served": 3, "earned": 10, "served": 8})
+	var campaign_json := JSON.stringify(GameState._save_snapshot())
+	var campaign_loaded: Variant = JSON.parse_string(campaign_json)
+	assert(campaign_loaded is Dictionary)
+	GameState._apply_save_data(campaign_loaded)
+	assert(GameState.yesterday_stars(12) == 1,
+		"yesterday's stars must survive a save/reload cycle to keep relief-day eligibility")
+	assert(int(GameState.campaign_stats["relief_days"]) == 1)
+	assert(int(GameState.campaign_stats["critic_served"]) == 2)
+	assert(int(GameState.campaign_stats["matched_served"]) == 3)
+
 	# 日中存档包含已入账收入；恢复未结算的白天必须回滚到开店快照，堵住重玩重复收入。
 	GameState._apply_save_data({
 		"day": 12, "phase": "day", "coins": 520, "buzz": 9, "inspiration": 14,
@@ -151,5 +166,5 @@ func _ready() -> void:
 	for path in [durability_path, durability_path + ".tmp", durability_backup, durability_backup + ".tmp"]:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
-	print("[SAVE_INTEGRITY] passed version=v%d corrupt_guard=true staff_forgery=true dark_menu=true endless_clamps=true affinity=true research_brief=true brief_ladder=true market_settlement=true day_open_rollback=true atomic_backup=true truncated_recovery=true" % GameState.SAVE_VERSION)
+	print("[SAVE_INTEGRITY] passed version=v%d corrupt_guard=true staff_forgery=true dark_menu=true endless_clamps=true affinity=true research_brief=true brief_ladder=true market_settlement=true campaign_stats=true day_open_rollback=true atomic_backup=true truncated_recovery=true" % GameState.SAVE_VERSION)
 	get_tree().quit()
