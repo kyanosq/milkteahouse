@@ -47,17 +47,35 @@ func _ready() -> void:
 		"positionings must stay locked before day 11")
 	GameState.day = 11
 	GameState.coins = 700
+	# [S1-D2 2026-08-17] 死档守卫：已购智能糖台（≥1 级）时「风味」与其效果在
+	# auto_sugar_after_milk 完全同源——禁购（600 币不得买 0 效果）并暴露冗余钩子。
+	assert(UpgradeCatalog.positioning_redundant("positioning_flavor"))
+	assert(not UpgradeCatalog.buy_positioning("positioning_flavor", false),
+		"flavor must be blocked when smart sugar is owned (identical effect)")
+	GameState.upgrades.erase("smart_sugar")
+	assert(not UpgradeCatalog.positioning_redundant("positioning_flavor"))
 	assert(UpgradeCatalog.buy_positioning("positioning_flavor", false))
 	assert(GameState.coins == 100)
 	assert(UpgradeCatalog.positioning() == "positioning_flavor")
 	assert(UpgradeCatalog.perfect_bonus() == 0)
 	assert(not UpgradeCatalog.buy_positioning("positioning_craft", false),
 		"the opposite positioning must be permanently unavailable")
+	# 反向冗余（S1-D2）：先风味后糖台一级——不禁购（糖台二级的必经前置），
+	# 但 smart_sugar_redundant() 让面板能给警告性标注。
+	GameState.coins = 700
+	assert(UpgradeCatalog.smart_sugar_redundant())
+	assert(UpgradeCatalog.buy("smart_sugar", false))
+	assert(not UpgradeCatalog.smart_sugar_redundant())
 	GameState.upgrades.erase("positioning_flavor")
 	GameState.coins = 700
 	assert(UpgradeCatalog.buy_positioning("positioning_craft", false))
 	assert(UpgradeCatalog.perfect_bonus() == 1)
 	assert(UpgradeCatalog.auto_sugar_after_milk(), "smart sugar I alone still automates sugar")
+	# [P2-F2 2026-08-17] 定位按等价等级（各 1 级）计入评级分母/分子：14+2=16。
+	assert(UpgradeCatalog.total_max_levels() == 16)
+	GameState.upgrades["smart_sugar"] = 2
+	assert(UpgradeCatalog.total_levels() == 15,
+		"full item tree + one positioning = 15/16 equivalent levels")
 
 	print("[UPGRADE] passed coins=%d levels=%d/%d patience=%.2f shakes=%d auto_sugar=%s tip=%d positioning=%s" % [
 		GameState.coins, UpgradeCatalog.total_levels(), UpgradeCatalog.total_max_levels(),

@@ -48,7 +48,9 @@ func _ready() -> void:
 	header.add_child(_title)
 	_summary = Label.new()
 	_summary.add_theme_font_size_override("font_size", 16)
-	_summary.add_theme_color_override("font_color", MINT)
+	# 16px 摘要小字不用 MINT（对白卡 2.45:1，P12-F4）：深可可保证 ≥4.5:1，
+	# accent 保留在卡片描边与进度条上。
+	_summary.add_theme_color_override("font_color", COCOA)
 	header.add_child(_summary)
 	_subtitle = Label.new()
 	_subtitle.add_theme_font_size_override("font_size", 15)
@@ -141,22 +143,27 @@ func _result_card(result: Dictionary) -> PanelContainer:
 	var score := Label.new()
 	score.text = GameLocale.text("MARKET_SETTLEMENT_SCORE", [int(result.get("score", 0))])
 	score.add_theme_font_size_override("font_size", 22)
-	score.add_theme_color_override("font_color", accent)
+	# 22px 分数不属 WCAG 大字（需 ≥24px 或粗体），accent 换深色（P12-F4）。
+	score.add_theme_color_override("font_color", COCOA)
 	header.add_child(score)
 	var stage := int(result.get("stage", 1))
 	var stage_label := Label.new()
 	stage_label.text = GameLocale.text("MARKET_SETTLEMENT_STAGE", [stage, MarketTests.STAGES])
 	stage_label.add_theme_font_size_override("font_size", 13)
-	stage_label.add_theme_color_override("font_color", accent)
+	# 13px 阶段标签必须全对比（P12-F4）。
+	stage_label.add_theme_color_override("font_color", COCOA)
 	box.add_child(stage_label)
 	# 配方行（P5 试玩）：事后能复盘“这是哪杯饮品”。
-	var formula_label := Label.new()
-	formula_label.text = GameLocale.text("MARKET_SETTLEMENT_FORMULA",
-		[RecipeJournal.formula(result)])
-	formula_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	formula_label.add_theme_font_size_override("font_size", 13)
-	formula_label.add_theme_color_override("font_color", Color(COCOA.r, COCOA.g, COCOA.b, 0.66))
-	box.add_child(formula_label)
+	# [P5-1 2026-08-17] MarketTests.advance() 的结果现随行 base/milk/toppings/sugar
+	# （存档白名单同步保留）；旧内存字典缺配方时整行隐藏而不是渲染空原料名。
+	if not String(result.get("base", "")).is_empty():
+		var formula_label := Label.new()
+		formula_label.text = GameLocale.text("MARKET_SETTLEMENT_FORMULA",
+			[RecipeJournal.formula(result)])
+		formula_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		formula_label.add_theme_font_size_override("font_size", 13)
+		formula_label.add_theme_color_override("font_color", Color(COCOA.r, COCOA.g, COCOA.b, 0.66))
+		box.add_child(formula_label)
 	var progress := ProgressBar.new()
 	progress.max_value = MarketTests.STAGES
 	progress.value = stage

@@ -31,8 +31,8 @@ func _ready() -> void:
 	}
 	var mid := GameState.build_campaign_summary()
 	assert(mid["grade"] == "A")
-	assert(int(mid["score"]) == 71,
-		"1.0 tree (14 levels) re-scales the upgrade subscore: 7/14*15=8 vs 7/10*15=11")
+	assert(int(mid["score"]) == 70,
+		"2026-08-17 [P2-F2]: positioning joins the denominator (16 levels) - 7/16*15=7 vs 7/14*15=8")
 	GameState.campaign_stats = GameState._new_campaign_stats()
 	GameState.day = 14
 	GameState.phase = "night"
@@ -74,7 +74,8 @@ func _ready() -> void:
 
 	var result := GameState.finalize_campaign()
 	assert(result["grade"] == "S")
-	assert(int(result["score"]) == 100)
+	# 2026-08-17 [P2-F2]: 满配 14 级 + 未购定位 = 14/16*15=13（旧 14/14=15）→ 总分 98。
+	assert(int(result["score"]) == 98)
 	assert(GameState.phase == "campaign")
 	assert(int(GameState.legacy["campaigns_completed"]) == 1)
 	GameState.finalize_campaign()
@@ -85,7 +86,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	assert(Sfx.current_music == "campaign")
 	assert(report.grade_label.text == "S")
-	assert(report.score_label.text == "100 / 100")
+	assert(report.score_label.text == "98 / 100")
 	report._request_new_shop()
 	assert(report.confirm_overlay.visible)
 	report._close_confirmation()
@@ -136,7 +137,7 @@ func _ready() -> void:
 	GameState.finalize_campaign()
 	assert(GameState.legacy.get("routes_cleared", []) == ["trend"], "route clears must be idempotent")
 
-	print("[CAMPAIGN] passed grades=C/A/S score=100 idempotent=true endless=day15 new_game_plus=3routes/80/+3")
+	print("[CAMPAIGN] passed grades=C/A/S score=98 idempotent=true endless=day15 new_game_plus=3routes/80/+3")
 	Sfx.stop_all()
 	await get_tree().process_frame
 	get_tree().quit()

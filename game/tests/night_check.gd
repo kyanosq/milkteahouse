@@ -96,6 +96,15 @@ func _ready() -> void:
 		"voiding the shelf score must be visible feedback, not a silent disappearance")
 	lab._on_shelf()
 	assert(GameState.tests.is_empty(), "shelving a changed formula must not record a stale-score test")
+	# 空名提交必须有可见反馈（P3-F2）：不再静默 return，焦点回到命名行。
+	lab.pending_quality = 88
+	lab._show_note_state({"kind": "shelf", "score": 88})
+	lab.name_edit.text = "   "
+	lab._on_shelf()
+	assert(GameState.tests.is_empty(), "an empty-name shelf submit must not record a test")
+	assert(lab.result_label.text.contains(GameLocale.text("NIGHT_NAME_REQUIRED")),
+		"an empty-name submit must flash visible feedback instead of silently returning")
+	lab.pending_quality = 0
 	# 手柄焦点环：货架瓦片必须像全项目其他按钮一样有可见 focus 样式（P3 试玩）。
 	var any_tile_button: Button = lab._tiles.values()[0]["btn"]
 	var tile_focus := any_tile_button.get_theme_stylebox("focus") as StyleBoxFlat
@@ -123,6 +132,42 @@ func _ready() -> void:
 	print("[T2] dark=%s buzz=%d dark_menu=%s" %
 		[str(GameState.dark_discovered), GameState.buzz, str(GameState.dark_menu)])
 
+	# rush 路线主推槽 = 2（P7-F1）：夜间药丸与菜单板分母不得再报 3 槽。
+	GameState.new_shop_route = "rush"
+	lab._refresh()
+	assert(MenuCatalog.featured_limit() == 2, "the rush route must cap featured slots at 2")
+	assert(lab.menu_button.text == GameLocale.text("NIGHT_MENU_PILL", [
+		MenuCatalog.featured_items().size(), 2,
+		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), lab.DARK_MENU_CAP]),
+		"the night featured pill must report the route-aware slot limit")
+	lab._open_menu_board()
+	assert(lab.menu_board_panel.visible)
+	assert(lab.menu_board_panel._progress_label.text.contains("1/2"),
+		"the menu board progress must show 2 slots on the rush route")
+	assert(lab.menu_board_panel._subtitle_label.text == GameLocale.text("MENU_BOARD_SUBTITLE_SLOTS", [2]),
+		"the rush subtitle must use the slot-counted variant, not the hardcoded three-slot copy")
+	# 批量策展的焦点保持（P3-F8）：操作哪张卡，刷新后焦点回到同索引卡，
+	# 而不是每次都弹回右上角关闭按钮。
+	var curate_index := -1
+	var curate_button: Button = null
+	for i in lab.menu_board_panel._cards.get_child_count():
+		var candidate := _first_button(lab.menu_board_panel._cards.get_child(i))
+		if candidate != null and not candidate.disabled:
+			curate_index = i
+			curate_button = candidate
+			break
+	assert(curate_button != null, "the menu board must expose an actionable card")
+	curate_button.grab_focus()
+	curate_button.pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert(curate_index < lab.menu_board_panel._cards.get_child_count())
+	var refocused := get_viewport().gui_get_focus_owner() as Control
+	assert(refocused != null and lab.menu_board_panel._cards.get_child(curate_index).is_ancestor_of(refocused),
+		"curation must refocus the same card after the deferred rebuild")
+	lab.menu_board_panel.hide_panel()
+	GameState.new_shop_route = ""
+
 	# 3) 收工结算不崩
 	lab._on_sleep()
 	assert(GameState.inspiration == 5, "unused earned inspiration must return to reserve")
@@ -145,3 +190,13 @@ func _visible_copy_contains(root: Node, needle: String) -> bool:
 		if _visible_copy_contains(child, needle):
 			return true
 	return false
+
+
+func _first_button(root: Node) -> Button:
+	for child in root.get_children():
+		if child is Button and not child.disabled and child.focus_mode != Control.FOCUS_NONE:
+			return child
+		var nested := _first_button(child)
+		if nested != null:
+			return nested
+	return null

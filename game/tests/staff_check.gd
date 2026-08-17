@@ -140,6 +140,25 @@ func _ready() -> void:
 	assert(StaffCatalog.is_on_duty())
 	assert(StaffCatalog.extra_shakes() == 1)
 	assert(StaffCatalog.quality_coin_bonus() == 2)
+
+	# 解雇双确认的焦点（P3-F7）：首按武装后焦点必须落在重建的「确认解雇」上，
+	# 手柄连按 A 是确认而不是把面板关掉。
+	GameState.coins = 300
+	var dismiss_panel: StaffPanel = load("res://ui/staff_panel.gd").new()
+	add_child(dismiss_panel)
+	dismiss_panel.show_panel()
+	var arm_button: Button = dismiss_panel._dismiss_confirm_button
+	assert(arm_button != null and arm_button.text == GameLocale.text("STAFF_DISMISS", [StaffCatalog.DISMISS_COST]))
+	arm_button.grab_focus()
+	dismiss_panel._dismiss()
+	await get_tree().process_frame
+	assert(dismiss_panel._dismiss_armed)
+	var confirm_button: Button = dismiss_panel._dismiss_confirm_button
+	assert(confirm_button != null and confirm_button.text == GameLocale.text("STAFF_DISMISS_CONFIRM"))
+	assert(get_viewport().gui_get_focus_owner() == confirm_button,
+		"arming dismiss must refocus the rebuilt confirm button, not fall back to close")
+	dismiss_panel.queue_free()
+	await get_tree().process_frame
 	GameState.campaign_stats = GameState._new_campaign_stats()
 	GameState.record_campaign_day(9, {
 		"earned": 5, "staff_wage": 5, "staff_wage_shortfall": 9,

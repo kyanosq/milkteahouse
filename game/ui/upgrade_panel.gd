@@ -125,6 +125,19 @@ func _refresh() -> void:
 		child.free()
 	for source in UpgradeCatalog.positionings():
 		_positioning_row.add_child(_positioning_card(source))
+	_restore_focus()
+
+
+## 购买会 free 持焦按钮所在的卡片；焦点丢失时回到关闭按钮，保住手柄/键盘
+## 导航（与 menu_board/staff/recipe 面板同约定，P3-F3：购买后 D-pad 全死）。
+func _restore_focus() -> void:
+	if visible and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		_close_button.grab_focus()
+
+
+## 焦点圈禁入口（P3-F1）：把焦点拉回面板内的关闭按钮。
+func confine_focus() -> void:
+	_close_button.grab_focus()
 
 
 ## 定位卡：紧凑横条（与四张升级卡分栏），互斥 + Day11 解锁门。
@@ -163,6 +176,7 @@ func _positioning_card(data: Dictionary) -> PanelContainer:
 	text_box.add_child(effect)
 	var state := Label.new()
 	state.add_theme_font_size_override("font_size", 12)
+	var redundant := UpgradeCatalog.positioning_redundant(String(data["id"]))
 	if mine:
 		state.text = GameLocale.text("POSITIONING_CHOSEN")
 		state.add_theme_color_override("font_color", CORAL)
@@ -170,6 +184,10 @@ func _positioning_card(data: Dictionary) -> PanelContainer:
 		state.text = GameLocale.text("POSITIONING_LOCKED", [int(data["unlock_day"])])
 	elif not chosen.is_empty():
 		state.text = GameLocale.text("POSITIONING_TAKEN_OTHER")
+	elif redundant:
+		# 死档守卫的呈现面（P2-F1）：已持有等价效果时明说「买了没用」。
+		state.text = GameLocale.text("POSITIONING_REDUNDANT")
+		state.add_theme_color_override("font_color", CORAL)
 	else:
 		state.text = GameLocale.text("POSITIONING_PICK_ONE")
 		state.add_theme_color_override("font_color", MINT)
@@ -181,6 +199,9 @@ func _positioning_card(data: Dictionary) -> PanelContainer:
 		buy.text = GameLocale.text("POSITIONING_CHOSEN")
 		buy.disabled = true
 	elif not UpgradeCatalog.positioning_unlocked() or not chosen.is_empty():
+		buy.text = GameLocale.text("POSITIONING_UNAVAILABLE")
+		buy.disabled = true
+	elif redundant:
 		buy.text = GameLocale.text("POSITIONING_UNAVAILABLE")
 		buy.disabled = true
 	else:
@@ -256,6 +277,14 @@ func _upgrade_card(data: Dictionary) -> PanelContainer:
 	effect.add_theme_font_size_override("font_size", 16)
 	effect.add_theme_color_override("font_color", MINT)
 	box.add_child(effect)
+	# 反向死档提示（P2-F1）：已持「风味」定位时，糖台一级无额外效果。
+	if String(data["id"]) == "smart_sugar" and current == 0 and UpgradeCatalog.smart_sugar_redundant():
+		var redundant_note := Label.new()
+		redundant_note.text = GameLocale.text("UPGRADE_SMART_SUGAR_REDUNDANT")
+		redundant_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		redundant_note.add_theme_font_size_override("font_size", 12)
+		redundant_note.modulate = Color(COCOA.r, COCOA.g, COCOA.b, 0.62)
+		box.add_child(redundant_note)
 	var grow := Control.new()
 	grow.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(grow)

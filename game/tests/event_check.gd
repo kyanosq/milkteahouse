@@ -54,6 +54,19 @@ func _ready() -> void:
 		assert(actual == expected_routes[route_id])
 		for event_id in actual:
 			assert(actual.count(event_id) == 1)
+	# [P2-F5 2026-08-17] NG+ 路线激活即用路线日历：D3-8 直接按路线表（D3 起 slot 0-5
+	# 恰好走满一轮），不再回放首周目的教学轮换；首周不加二遍强度弯，D1-2 仍 CALM。
+	for route_id in expected_routes:
+		GameState.new_shop_route = route_id
+		var first_week: Array[String] = []
+		for day in range(3, 9):
+			first_week.append(String(DailyEvents.event_for_day(day)["id"]))
+			assert(not DailyEvents.event_for_day(day).has("second_pass"),
+				"the second-pass bend must still start at day 9")
+		assert(first_week == expected_routes[route_id],
+			"an active route must own its calendar from day 3, not day 9")
+		assert(DailyEvents.event_for_day(1)["id"] == "calm")
+		assert(DailyEvents.event_for_day(2)["id"] == "calm")
 	GameState.new_shop_route = ""
 	assert(DailyEvents.is_special_customer(DailyEvents.event_for_day(6), 1))
 	assert(not DailyEvents.is_special_customer(DailyEvents.event_for_day(6), 2))

@@ -314,6 +314,15 @@ func _refresh_summary_copy() -> void:
 		summary_text.text += GameLocale.text("MENU_SIGN_SUMMARY", [EndlessContracts.rank_name(stamps), stamps])
 	if LegacyRoutes.is_active():
 		summary_text.text += GameLocale.text("MENU_ROUTE_SUMMARY", [String(LegacyRoutes.route().get("name", ""))])
+	# [P2-F4 2026-08-17] 历史成绩常驻主菜单：best_grade/best_score 此前只在收官
+	# 报告页脚出现一次；通关过的存档在进度卡追加历史最佳与 3/3 路线进度。
+	# 键未进本地化表前静默跳过（带参 % 格式化未翻译键会报错）。
+	if int(GameState.legacy.get("campaigns_completed", 0)) > 0 \
+			and TranslationServer.translate("MENU_LEGACY_SUMMARY") != "MENU_LEGACY_SUMMARY":
+		summary_text.text += GameLocale.text("MENU_LEGACY_SUMMARY", [
+			String(GameState.legacy.get("best_grade", "-")),
+			int(GameState.legacy.get("best_score", 0)),
+			LegacyRoutes.completed_count(), LegacyRoutes.IDS.size()])
 	if GameState.save_recovered:
 		summary_text.text += GameLocale.text("MENU_SAVE_RECOVERED")
 

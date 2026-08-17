@@ -129,6 +129,19 @@ func _refresh() -> void:
 	var target_day := GameState.day + 1
 	for offer in EndlessContracts.available_for_day(target_day):
 		_cards.add_child(_contract_card(offer))
+	_restore_focus()
+
+
+## 签约会 free 持焦按钮所在的卡片；焦点丢失时回到关闭按钮，保住手柄/键盘
+## 导航（与 menu_board/staff 面板同约定，P3-F3）。
+func _restore_focus() -> void:
+	if visible and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		_close_button.grab_focus()
+
+
+## 焦点圈禁入口（P3-F1）：把焦点拉回面板内的关闭按钮。
+func confine_focus() -> void:
+	_close_button.grab_focus()
 
 
 func _contract_card(data: Dictionary) -> PanelContainer:

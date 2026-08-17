@@ -5,6 +5,8 @@ class_name PausePanel
 signal resume_requested
 signal tutorial_requested
 signal menu_requested
+## 减弱动态开关即时生效：场景监听后可停掉已存在的待机动画（P12-F3）。
+signal motion_toggled(enabled: bool)
 
 const CREAM := Color("FFF8ED")
 const COCOA := Color("30201D")
@@ -472,6 +474,7 @@ func _on_sfx_volume_changed(value: float) -> void:
 
 func _on_motion_toggled(enabled: bool) -> void:
 	GameState.settings["reduced_motion"] = enabled
+	motion_toggled.emit(enabled)
 	_schedule_settings_save()
 
 
@@ -508,20 +511,37 @@ func _on_locale_changed(_locale: String) -> void:
 		_resume.text = GameLocale.text("SETTINGS_RESUME_DAY")
 
 
-func _update_controls_copy() -> void:
+func _update_controls_copy(touch_override: Variant = null) -> void:
 	if _controls == null:
 		return
+	# 触屏没有 Q/E/空格/F/Esc 键位——按输入设备族切换文案（P10-4）。
+	var touch := (OS.has_feature("mobile") if touch_override == null else bool(touch_override)) \
+		and not InputPrompts.gamepad_mode
 	if _context == "menu":
-		_controls.text = GameLocale.text("SETTINGS_CONTROLS_MENU_GAMEPAD", [InputPrompts.accept_hint(),
-			InputPrompts.cancel_hint()]) if InputPrompts.gamepad_mode else GameLocale.text("SETTINGS_CONTROLS_MENU_KEYBOARD")
+		if touch:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_MENU_TOUCH")
+		elif InputPrompts.gamepad_mode:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_MENU_GAMEPAD", [InputPrompts.accept_hint(),
+				InputPrompts.cancel_hint()])
+		else:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_MENU_KEYBOARD")
 	elif _context == "night":
-		_controls.text = GameLocale.text("SETTINGS_CONTROLS_NIGHT_GAMEPAD", [InputPrompts.accept_hint(),
-			InputPrompts.cancel_hint()]) if InputPrompts.gamepad_mode else GameLocale.text("SETTINGS_CONTROLS_NIGHT_KEYBOARD", [InputPrompts.pause_hint()])
+		if touch:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_NIGHT_TOUCH")
+		elif InputPrompts.gamepad_mode:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_NIGHT_GAMEPAD", [InputPrompts.accept_hint(),
+				InputPrompts.cancel_hint()])
+		else:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_NIGHT_KEYBOARD", [InputPrompts.pause_hint()])
 	else:
-		_controls.text = GameLocale.text("SETTINGS_CONTROLS_DAY_GAMEPAD", [InputPrompts.accept_hint(),
-			InputPrompts.prep_tea_hint(), InputPrompts.prep_pearl_hint(), InputPrompts.shake_hint(),
-			InputPrompts.staff_hint(), InputPrompts.pause_hint()]) \
-			if InputPrompts.gamepad_mode else GameLocale.text("SETTINGS_CONTROLS_DAY_KEYBOARD", [
+		if touch:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_DAY_TOUCH")
+		elif InputPrompts.gamepad_mode:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_DAY_GAMEPAD", [InputPrompts.accept_hint(),
+				InputPrompts.prep_tea_hint(), InputPrompts.prep_pearl_hint(), InputPrompts.shake_hint(),
+				InputPrompts.staff_hint(), InputPrompts.pause_hint()])
+		else:
+			_controls.text = GameLocale.text("SETTINGS_CONTROLS_DAY_KEYBOARD", [
 				InputPrompts.prep_tea_hint(), InputPrompts.prep_pearl_hint(), InputPrompts.shake_hint(),
 				InputPrompts.staff_hint(), InputPrompts.pause_hint()])
 
@@ -581,6 +601,11 @@ func _style_secondary(button: Button, accent: Color) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	# 面板可见而焦点已逃逸到面板之外时，导航/确认键不得落到被遮挡的店铺控件
+	# 上（P3-F6：日间暂停面板 D-pad 逃逸成“死键”）。本节点 PROCESS_MODE_ALWAYS，
+	# 暂停期间也能执行圈禁。
+	if visible and _clamp_focus_inside(event):
+		return
 	if not visible or _rebind_action.is_empty():
 		return
 	if not event is InputEventKey or not event.pressed or event.echo:
@@ -595,6 +620,11 @@ func _input(event: InputEvent) -> void:
 		_rebind_feedback.text = GameLocale.text("SETTINGS_MODIFIER_REJECTED")
 		return
 	var conflict := InputPrompts.conflict_for(_rebind_action, event.keycode)
+	if conflict == "_reserved":
+		# 数字/Enter/Tab 是效率捷径与 UI 操作的保留键（P11-F2）。
+		_rebind_feedback.text = GameLocale.text("SETTINGS_KEY_RESERVED", [
+			OS.get_keycode_string(event.keycode)])
+		return
 	if conflict != "":
 		_rebind_feedback.text = GameLocale.text("SETTINGS_KEY_CONFLICT", [
 			InputPrompts.key_label(conflict), _binding_name(conflict)])
@@ -616,6 +646,33 @@ func _binding_name(action_name: String) -> String:
 			return GameLocale.text("BINDING_STAFF")
 		_:
 			return action_name
+
+
+## 焦点圈禁：焦点属主不在本面板子树内时，拦截 ui 导航/确认并把焦点拉回
+## 面板当前可见层的默认控件。返回 True 表示事件已消费。
+func _clamp_focus_inside(event: InputEvent) -> bool:
+	var focus := get_viewport().gui_get_focus_owner() as Control
+	if focus != null and is_ancestor_of(focus):
+		return false
+	if not _rebind_action.is_empty():
+		return false
+	if not (event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_up")
+			or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left")
+			or event.is_action_pressed("ui_right")):
+		return false
+	get_viewport().set_input_as_handled()
+	confine_focus()
+	return true
+
+
+## 焦点落回当前可见子面板的默认控件（圈禁与外部恢复共用）。
+func confine_focus() -> void:
+	if _display_panel != null and _display_panel.visible:
+		_window_mode.grab_focus()
+	elif _confirm_panel != null and _confirm_panel.visible:
+		_confirm_cancel.grab_focus()
+	else:
+		_resume.grab_focus()
 
 
 func _unhandled_input(event: InputEvent) -> void:

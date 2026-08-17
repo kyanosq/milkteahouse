@@ -40,8 +40,13 @@ func _ready() -> void:
 	assert(notices.contains("OFL-1.1.txt"), "font notice must link the complete license")
 
 	assert(bool(ProjectSettings.get_setting("rendering/textures/vram_compression/import_etc2_astc", false)))
-	assert(int(ProjectSettings.get_setting("display/window/handheld/orientation", -1)) == 4,
-		"mobile exports must allow both landscape orientations")
+	# P10-6：固定横屏。SENSOR_LANDSCAPE(4) 允许 180° 翻转，重力摇茶会被
+	# 倒置姿态误触发；SCREEN_LANDSCAPE(0) 锁定单一横朝向。
+	assert(int(ProjectSettings.get_setting("display/window/handheld/orientation", -1)) == 0,
+		"mobile exports must lock a single landscape orientation")
+	# P10-3：Android 触觉需要 VIBRATE 权限，否则 vibrate_handheld() 全静默。
+	assert(presets.contains("permissions/vibrate=true"),
+		"Android preset must request the VIBRATE permission for haptics")
 	assert(String(ProjectSettings.get_setting("application/config/icon", "")) == "res://assets/icons/app/icon_1024.png")
 	var translations: PackedStringArray = ProjectSettings.get_setting("internationalization/locale/translations", PackedStringArray())
 	assert(translations.has("res://localization/ui.en.translation"), "English translation resource missing from project")

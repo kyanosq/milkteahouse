@@ -4,9 +4,13 @@ extends Node
 const STAGES := 3
 const VARIANCE := 8
 ## 三晚均分分档线：结算面板与判定共用，避免显示与规则漂移。
+## [P5-3 2026-08-17] 失败线 62 → 76：deterministic_score 对同名三晚的偏移强相关
+## （键共享长前缀，实测三晚偏移和的下界 ≈ -14 → 上架最低 80 分杯的可达最差均分
+## 75.33），62 分线让「failed」退款分支正常游玩不可达。76 使最低品质的上架杯
+## 仍有 ≈6% 落败风险，退款成为真实安全网；regular 档变为 [76, 78) 窄带。
 const TIER_HIT := 88.0
 const TIER_SIGNATURE := 78.0
-const TIER_REGULAR := 62.0
+const TIER_REGULAR := 76.0
 
 
 func has_settlement(day_number: int = GameState.day) -> bool:
@@ -38,6 +42,11 @@ func advance(day_number: int = GameState.day) -> Dictionary:
 			"name": String(test.get("name", "")), "stage": stage, "score": score,
 			"average": average, "trend": score - previous,
 			"outcome": "testing", "price": 0, "refund": 0,
+			# [P5-1 2026-08-17] 配方字段随行：结算卡据此复盘“这是哪杯饮品”
+			# （_normalize_market_settlement 白名单同步保留）。
+			"base": String(test.get("base", "")), "milk": String(test.get("milk", "")),
+			"toppings": _string_array(test.get("toppings", [])),
+			"sugar": clampi(int(test.get("sugar", 50)), 0, 100),
 		}
 		if scores.size() >= STAGES:
 			if average >= TIER_HIT:
@@ -84,3 +93,11 @@ func _average(scores: Array) -> float:
 	for score in scores:
 		total += float(score)
 	return total / float(scores.size())
+
+
+func _string_array(values: Variant) -> Array:
+	var result: Array = []
+	if values is Array:
+		for value in values:
+			result.append(String(value))
+	return result

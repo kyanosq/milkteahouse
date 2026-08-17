@@ -206,25 +206,27 @@ func hot_featured_count() -> int:
 
 
 func traffic_multiplier() -> float:
+	# [P9-1 2026-08-17] 定价不再作用全局到店间隔（三槽饱和区被 ±1 杯噪声淹没，
+	# 全溢价事实占优）——让利/溢价改为只影响该款主推订单的出现节奏（pricing_spawn_slots）。
 	return (1.0 - LegacyRoutes.menu_traffic_step() * float(hot_featured_count())) \
-		* buzz_traffic_multiplier() * pricing_traffic_multiplier()
+		* buzz_traffic_multiplier()
 
 
-## 定价客流：主推中的自创饮品按价点偏离标准价的幅度修正到店间隔。
-## 该函数乘的是到店间隔——值更小 = 顾客更快上门。
-func pricing_traffic_multiplier() -> float:
-	var delta := 0.0
-	for item_data in featured_items():
-		var tier := String(item_data.get("tier", ""))
-		var standard := int(PRICE_STANDARD.get(tier, 0))
-		if standard == 0:
-			continue
-		var diff := int(item_data.get("price", standard)) - standard
-		if diff <= -2:
-			delta -= 0.02
-		elif diff >= 2:
-			delta += 0.03
-	return clampf(1.0 + delta, 0.90, 1.09)
+## [P9-1/P9-2 2026-08-17] 定价轮转权重：主推中的自创饮品按价点偏离标准价的幅度
+## 改变“该款”被点单的频率——让利款占 3 个轮转位（更常被点），标准 2 位，
+## 溢价款 1 位（更少被点）。传说保持作者定价，不参与调价（与 price_options 对齐）。
+func pricing_spawn_slots(item_data: Dictionary) -> int:
+	const SLOTS := { "budget": 3, "standard": 2, "premium": 1 }
+	var tier := String(item_data.get("tier", ""))
+	var standard := int(PRICE_STANDARD.get(tier, 0))
+	if String(item_data.get("type", "")) != "custom" or standard == 0:
+		return SLOTS["standard"]
+	var diff := int(item_data.get("price", standard)) - standard
+	if diff <= -2:
+		return SLOTS["budget"]
+	if diff >= 2:
+		return SLOTS["premium"]
+	return SLOTS["standard"]
 
 
 ## 自创饮品可选价点（让利/标准/溢价）；传说配方保持作者定价，不参与调价。
@@ -271,11 +273,17 @@ func featured_for_spawn(spawn_number: int, event_id := "") -> Dictionary:
 	var sequence := maxi(0, (spawn_number - 2) / interval)
 	# 当日风向匹配款获得双倍轮转权重，但不会挤掉其他主推。
 	# 这让夜间换菜单成为可预判策略，而不是永远选择最高价三款。
+	# [P9-1 2026-08-17] 每款占位数 = pricing_spawn_slots（标准 2 位与旧行为同比例；
+	# 让利 3 位更常被点、溢价 1 位更少被点），匹配款位翻倍且优先入列。
 	var rotation: Array = []
 	for item_data in featured:
 		if event_match_bonus(item_data, event_id) > 0:
-			rotation.append(item_data)
-	rotation.append_array(featured)
+			for _slot in range(pricing_spawn_slots(item_data) * 2):
+				rotation.append(item_data)
+	for item_data in featured:
+		if event_match_bonus(item_data, event_id) <= 0:
+			for _slot in range(pricing_spawn_slots(item_data)):
+				rotation.append(item_data)
 	return rotation[sequence % rotation.size()]
 
 

@@ -16,6 +16,9 @@ var _coin_label: Label
 var _feedback: Label
 var _close_button: Button
 var _dismiss_armed := false
+## 武装态重建后的「确认解雇」按钮引用：首按后焦点必须落在它上面，
+## 连按 A 才是「确认」而不是把面板关掉（P3-F7）。
+var _dismiss_confirm_button: Button = null
 var _panel: PanelContainer
 var _safe_offset := Vector2.ZERO
 
@@ -94,6 +97,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _refresh() -> void:
 	_coin_label.text = GameLocale.text("COMMON_COINS", [GameState.coins])
+	_dismiss_confirm_button = null
 	while _content.get_child_count() > 3:
 		_content.get_child(3).free()
 	if StaffCatalog.has_staff():
@@ -104,8 +108,20 @@ func _refresh() -> void:
 		_content.add_child(cards)
 		for data in StaffCatalog.candidates():
 			cards.add_child(_candidate_card(data))
-	# 卡片动作会销毁持有焦点的按钮；焦点丢失时回到关闭按钮保住键盘/手柄导航。
+	# 卡片动作会销毁持有焦点的按钮；焦点丢失时优先落回武装中的「确认解雇」
+	# （P3-F7），否则回到关闭按钮保住键盘/手柄导航。
 	if visible and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		if _dismiss_armed and _dismiss_confirm_button != null:
+			_dismiss_confirm_button.grab_focus()
+		else:
+			_close_button.grab_focus()
+
+
+## 焦点圈禁入口（P3-F1）：武装中优先「确认解雇」，否则关闭按钮。
+func confine_focus() -> void:
+	if _dismiss_armed and _dismiss_confirm_button != null:
+		_dismiss_confirm_button.grab_focus()
+	else:
 		_close_button.grab_focus()
 
 
@@ -223,6 +239,7 @@ func _current_staff_card() -> PanelContainer:
 	dismiss.disabled = GameState.coins < StaffCatalog.DISMISS_COST
 	dismiss.pressed.connect(_dismiss)
 	effect_box.add_child(dismiss)
+	_dismiss_confirm_button = dismiss
 	return card
 
 

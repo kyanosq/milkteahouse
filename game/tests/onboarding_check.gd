@@ -36,10 +36,47 @@ func _ready() -> void:
 	shop.tutorial_overlay._advance()
 	assert(shop.tutorial_overlay._step == 2 and shop.tutorial_overlay._gate_fails == 1,
 		"a gated step must refuse to advance until the action is done")
-	shop._on_base(GameData.bases[0])
+	# 门控步骤 3 必须经真实输入路径完成（P3-D1/V1 归因：遮罩 STOP + not running
+	# 双重阻断）——不是直调 _on_base。先走完整 GUI 管线（parse_input_event）。
+	var gate_gui_key := InputEventKey.new()
+	gate_gui_key.keycode = KEY_2
+	gate_gui_key.pressed = true
+	shop._reset_cup()
+	# 鼠标路径的归因是遮罩的 STOP 过滤器（V1 实验 C）：无头模式无法驱动真实
+	# 点击拾取，改为钉住过滤器本身——门控期教学层整体 IGNORE、观察期恢复 STOP。
+	assert(shop.tutorial_overlay.gated_practice_active())
+	for dim in [shop.tutorial_overlay._dim_top, shop.tutorial_overlay._dim_bottom,
+			shop.tutorial_overlay._dim_left, shop.tutorial_overlay._dim_right]:
+		assert(dim.mouse_filter == Control.MOUSE_FILTER_IGNORE,
+			"gated practice must let clicks pass the tutorial scrim to the shop controls")
+	Input.parse_input_event(gate_gui_key)
+	await get_tree().process_frame
+	assert(shop.cup_base != null,
+		"KEY_2 through the real GUI pipeline must reach the context button during gate step 3")
 	assert(shop.tutorial_overlay._step_completed(), "selecting a tea base completes gate step 3")
 	shop.tutorial_overlay._advance()
 	assert(shop.tutorial_overlay._step == 3, "gate step 4 (shake) is next")
+	# 门控步骤 4 的摇杯路径同样必须可达：奶基/糖度走数字捷径，封杯走 game_shake
+	# action 注入（V1 复现：四路输入在修复前全部 0 进度）。
+	var press_key := func(key: Key) -> void:
+		var ev := InputEventKey.new()
+		ev.keycode = key
+		ev.pressed = true
+		shop._input(ev)
+	var ready_guard := 0
+	while not shop._can_gesture_shake() and ready_guard < 8:
+		press_key.call(KEY_1)
+		ready_guard += 1
+	assert(shop._can_gesture_shake(),
+		"real number-key input during the gated tutorial must walk the prep flow")
+	var gate_shake := InputEventAction.new()
+	gate_shake.action = "game_shake"
+	gate_shake.pressed = true
+	while not shop.cup_sealed:
+		shop._input(gate_shake)
+	assert(shop.cup_sealed, "a real game_shake action during gate step 4 must seal the cup")
+	assert(shop.tutorial_overlay._step_completed(), "sealing the cup completes gate step 4")
+	shop._reset_cup()
 	# 防软锁：步骤 4 连续失败 2 次自动放行。
 	shop.tutorial_overlay._advance()
 	shop.tutorial_overlay._advance()
@@ -54,6 +91,22 @@ func _ready() -> void:
 	# 教程/事件简报期间暂停必须可达（CF 待办）：面板盖在覆盖层上，恢复不偷走教学。
 	shop._show_tutorial(true)
 	assert(shop.tutorial_overlay.visible)
+	# 重看必须重置门控（P11-F3）：上一轮的 bypass 与失败计数不得跨重看保留。
+	assert(not shop.tutorial_overlay._gate_bypassed, "replay must clear the gate bypass flag")
+	shop.tutorial_overlay._advance()
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._step == 2, "replay reaches the gated practice step")
+	assert(not shop.tutorial_overlay._step_completed(),
+		"a replayed gated step must demand real practice again")
+	shop._reset_cup()
+	# B 键退出教学（P3-F9）：教程可见时 ui_cancel 等同完成/跳过，不再死键。
+	var tutorial_cancel := InputEventAction.new()
+	tutorial_cancel.action = "ui_cancel"
+	tutorial_cancel.pressed = true
+	shop.tutorial_overlay._unhandled_input(tutorial_cancel)
+	assert(not shop.tutorial_overlay.visible, "ui_cancel must dismiss the tutorial overlay")
+	# 重新拉起教程，继续「暂停期间教学可见」的原有断言流。
+	shop._show_tutorial(true)
 	shop.running = false
 	shop._toggle_pause()
 	assert(get_tree().paused and shop.pause_panel.visible,
@@ -71,6 +124,15 @@ func _ready() -> void:
 	#（对抗审查发现：简报层挂在 ui_frame 之上）。Day1 是平静日，用 Day3 事件驱动。
 	GameState.day = 3
 	shop.day_event = DailyEvents.event_for_day(3)
+	shop._show_event_briefing()
+	assert(shop.event_overlay.visible)
+	# 简报 B 键等同开始（P3-F9）：夜间五面板都有 ui_cancel，简报不能再是死键。
+	var briefing_cancel := InputEventAction.new()
+	briefing_cancel.action = "ui_cancel"
+	briefing_cancel.pressed = true
+	shop._input(briefing_cancel)
+	assert(not shop.event_overlay.visible, "ui_cancel must dismiss the event briefing")
+	assert(shop.running, "a cancel-dismissed briefing must resume the shift")
 	shop._show_event_briefing()
 	assert(shop.event_overlay.visible)
 	shop._toggle_pause()
@@ -126,8 +188,30 @@ func _ready() -> void:
 	assert(not shop.pause_panel.visible)
 	assert(shop.running)
 
+	# 制杯状态行（P4-1）：最坏英文配方串实测 1112px > 505px 面板。
+	# 短名 + 自动换行 + 裁断保证状态行永远停在面板内。
+	shop.cup_base = GameData.bases[0]
+	shop.cup_milk = GameData.milks[0]
+	shop.cup_tops = [GameData.toppings[0], GameData.toppings[1]]
+	shop.cup_sugar = GameData.sugar_levels[4]
+	shop.cup_sealed = true
+	shop.cup_corrections = 1
+	GameLocale.set_locale("en", false)
+	shop._refresh_cup()
+	await get_tree().process_frame
+	assert(shop.status_label.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART,
+		"cup status line must autowrap inside its panel")
+	assert(shop.status_label.text_overrun_behavior == TextServer.OVERRUN_TRIM_ELLIPSIS)
+	assert(shop.status_label.get_line_count() <= 2,
+		"the worst-case status string must wrap within two lines, not run off-screen")
+	assert(shop.status_label.size.x <= 482.0,
+		"the status label must stay inside the 505px panel (minus theme margins)")
+	GameLocale.set_locale("zh_CN", false)
+	var shortcut_id := String(shop.cup_base["id"])
+	shop._reset_cup()
+
 	print("[ONBOARDING] passed tutorial=%s shortcut=%s volume=%.2f reduced_motion=%s paused=%s" % [
-		str(GameState.tutorial_completed), String(shop.cup_base["id"]), GameState.sfx_volume(),
+		str(GameState.tutorial_completed), shortcut_id, GameState.sfx_volume(),
 		str(GameState.reduced_motion()), str(get_tree().paused)])
 	Sfx.stop_all()
 	shop.queue_free()

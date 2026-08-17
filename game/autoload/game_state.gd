@@ -509,6 +509,13 @@ func _normalize_market_settlement(value: Variant) -> Dictionary:
 		var outcome := String(item.get("outcome", "testing"))
 		if outcome not in ["testing", "hit", "signature", "regular", "failed"]:
 			continue
+		# [P5-1 2026-08-17] 配方字段白名单同步：结算卡的配方行重进夜间不丢。
+		var toppings: Array = []
+		if item.get("toppings", []) is Array:
+			for topping_id in item.get("toppings", []):
+				toppings.append(String(topping_id).left(24))
+				if toppings.size() >= 4:
+					break
 		results.append({
 			"name": String(item.get("name", "")).left(40),
 			"stage": clampi(int(item.get("stage", 1)), 1, 3),
@@ -518,6 +525,10 @@ func _normalize_market_settlement(value: Variant) -> Dictionary:
 			"outcome": outcome,
 			"price": clampi(int(item.get("price", 0)), 0, 18),
 			"refund": clampi(int(item.get("refund", 0)), 0, 3),
+			"base": String(item.get("base", "")).left(24),
+			"milk": String(item.get("milk", "")).left(24),
+			"toppings": toppings,
+			"sugar": clampi(int(item.get("sugar", 50)), 0, 100),
 		})
 	return {
 		"day": day,

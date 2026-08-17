@@ -14,9 +14,9 @@ MENU_RESTART_BODY,You will restart from the Day 1 tutorial.,确认后会从第 1
 MENU_RESTART_KEEP,Keep Progress,保留进度
 MENU_RESTART_DO,Confirm Restart,确认重新开始
 PAUSE_HEADING,Pause & Settings,暂停与设置
-PAUSE_CONTROLS_HINT,Keyboard: 1–9 Select · Space Shake · Esc Pause\nTouch: Tap ingredients the shake button and order cards,键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡
+PAUSE_CONTROLS_HINT,"Keyboard: 1–9 Select · Space Shake · Esc Pause\nTouch: Tap ingredients, the shake button, and order cards",键盘：1–9 选择 · 空格摇茶 · Esc 暂停\n触控：直接点击原料、摇茶按钮和订单卡
 SETTINGS_MOTION,Reduce Motion,减少动态效果
-SETTINGS_MOTION_DESC,Disables camera shake flying coins cup wobble and customer idle motion.,关闭镜头震动、飞金币、杯体晃动和顾客待机动作。
+SETTINGS_MOTION_DESC,"Disables camera shake, flying coins, cup wobble, and customer idle motion.",关闭镜头震动、飞金币、杯体晃动和顾客待机动作。
 SETTINGS_HAPTICS,Haptic Feedback,触觉反馈
 SETTINGS_HAPTICS_DESC,Phone taps and controller rumble. Disabling this does not affect audio or motion.,手机轻震与手柄震动；关闭后不影响声音和动画。
 SETTINGS_DISPLAY,Display & Controls,显示与按键
@@ -41,7 +41,7 @@ UPGRADES_INTRO,Turn daytime earnings into efficiency. Every upgrade changes your
 STAFF_HIRE_TITLE,Staff Hiring · 1 Position,员工招聘 · 1 个岗位
 STAFF_HIRE_BODY,Stats define basic ability. Traits reveal through real events after hiring. Every benefit has a visible tradeoff.,数值决定基本能力；性格特质入职后由真实事件揭晓。每种好处都有看得见的代价。
 CONTRACT_INTRO_TITLE,District Contracts,商圈经营委托
-CONTRACT_INTRO_BODY,After Day 15 sign one contract each night. The fee is paid immediately. Success returns some coins and awards a sign stamp. Failure returns nothing.,第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。
+CONTRACT_INTRO_BODY,"After Day 15, sign one contract each night. The fee is paid immediately. Success returns some coins and awards a sign stamp. Failure returns nothing.",第 15 天后每晚可签一份明日委托。签约费立即扣除；成功返还一部分金币并获得店招印章，失败不返还。
 LAB_GROUP_BASE,Tea Base,茶底
 LAB_GROUP_MILK,Milk,奶基
 LAB_GROUP_TOPS,Toppings (≤2),小料(≤2)
@@ -119,7 +119,7 @@ CONTRACT_PRECISION_SHIFT_DESCRIPTION,Community judges arrive together. Lose nobo
 CONTRACT_PRECISION_SHIFT_CHALLENGE,Lose no customers and reach the perfect-drink target,零气走并完成指定完美杯数
 CONTRACT_REVENUE_SPRINT_NAME,District Revenue Sprint,商圈营收冲刺
 CONTRACT_REVENUE_SPRINT_SHORT,Revenue Sprint,营收冲刺
-CONTRACT_REVENUE_SPRINT_DESCRIPTION,"A promotion drives dense traffic. More orders arrive but only the signed revenue target counts. Aimed at a fully-stocked, upgraded shop - check your gear before signing.",联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。目标面向备货充足、升级到位的店铺——签约前先检查装备。
+CONTRACT_REVENUE_SPRINT_DESCRIPTION,"A promotion drives dense traffic. More orders arrive but only the signed revenue target counts. Aimed at a fully-stocked, upgraded shop — check your gear before signing.",联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。目标面向备货充足、升级到位的店铺——签约前先检查装备。
 CONTRACT_REVENUE_SPRINT_CHALLENGE,Reach the signed operating-revenue target,营业营收达到签约目标
 CONTRACT_TARGET_STREAK,Best combo ≥ x%d,最高连击 ≥ x%d
 CONTRACT_TARGET_PRECISION,0 lost · Perfect ≥ %d,气走 0 位 · 完美 ≥ %d 杯
@@ -138,8 +138,8 @@ CONTRACT_RANK_NEXT,%d more stamps to upgrade the sign,再获 %d 枚印章升级�
 PHASE_CAMPAIGN,First-Shop Report,首店评级
 PHASE_NIGHT,Night Research,夜间研发
 STAFF_SOLO,Solo Shift,独自经营
-MENU_SAVE_SUMMARY,Day %d · %s\n%d Coins · %d Inspiration · Shop %d/%d · Menu %d\nOn duty: %s,第 %d 天  ·  %s\n%d 金币  ·  %d 灵感  ·  店铺 %d/%d  ·  菜单 %d 款\n值班：%s
-MENU_SIGN_SUMMARY,\nSign: %s · %d Stamps,\n店招：%s  ·  印章 %d
+MENU_SAVE_SUMMARY,Day %d · %s\n%d coins · %d Inspiration · Shop %d/%d · Menu %d\nOn duty: %s,第 %d 天  ·  %s\n%d 金币  ·  %d 灵感  ·  店铺 %d/%d  ·  菜单 %d 款\n值班：%s
+MENU_SIGN_SUMMARY,\nSign: %s · Stamps: %d,\n店招：%s  ·  印章 %d
 MENU_ROUTE_SUMMARY,\nNew Shop+ Route: %s,\n新店+路线：%s
 MENU_SAVE_RECOVERED,\nRecovered last safe autosave,\n已从最近一次安全自动存档恢复
 ACTION_VIEW_REPORT,View Report,查看评级
@@ -150,7 +150,7 @@ MENU_NO_SAVE,Continue Shift · No Save,继续营业 · 暂无存档
 MENU_WELCOME_BODY,Start on Day 1 and build your first milk-tea shop.,从第 1 天开始经营你的第一间奶茶店。
 MENU_INPUT_GAMEPAD,Autosave · Controller %s Confirm / %s Back,自动保存 · 手柄 %s 确认 / %s 返回
 MENU_INPUT_KEYBOARD,Autosave · Keyboard/Mouse Enter Confirm / Esc Back,自动保存 · 键鼠 Enter 确认 / Esc 返回
-MENU_RESET_BODY,Your Day %d progress recipes and upgrades will be overwritten.\nAudio motion haptics and language settings will be kept. This cannot be undone.,现在的第 %d 天进度、配方和店铺升级会被覆盖。\n音量、动态、触觉与语言设置会保留。这个操作无法撤销。
+MENU_RESET_BODY,"Your Day %d progress, recipes, and upgrades will be overwritten.\nAudio, motion, haptics, and language settings will be kept. This cannot be undone.",现在的第 %d 天进度、配方和店铺升级会被覆盖。\n音量、动态、触觉与语言设置会保留。这个操作无法撤销。
 SETTINGS_TITLE_DAY,Pause & Settings,暂停与设置
 SETTINGS_TITLE_NIGHT,Lab Settings,研究室设置
 SETTINGS_TITLE_MENU,Settings,设置
@@ -159,8 +159,8 @@ SETTINGS_RESUME_NIGHT,Resume Research,继续研究
 SETTINGS_RETURN_MENU,Return to Main Menu,返回主菜单
 SETTINGS_CONFIRM_NIGHT,Unfinished cups from tonight will be cleared. Completed research upgrades and the signed contract are preserved.,本晚尚未试做的杯子会被清空；已经完成的研发、店铺升级与签约委托仍会保留。
 SETTINGS_CONFIRM_DAY,This shift has not settled. Returning restores the state before opening and does not keep today's income.,当前营业尚未结算。返回后会恢复到本日开店前，不会重复保留本日收入。
-SETTINGS_CONTROLS_MENU_GAMEPAD,D-pad: Navigate · %s Confirm · %s Back\nMusic SFX motion haptics and language save immediately.,手柄：十字键导航 · %s 确认 · %s 返回\n音乐、音效、动态、触觉与语言偏好会立即保存。
-SETTINGS_CONTROLS_MENU_KEYBOARD,Keyboard/Mouse: Arrows Navigate · Enter Confirm · Esc Back\nMusic SFX motion haptics and language save immediately.,键鼠：方向键导航 · Enter 确认 · Esc 返回\n音乐、音效、动态、触觉与语言偏好会立即保存。
+SETTINGS_CONTROLS_MENU_GAMEPAD,"D-pad: Navigate · %s Confirm · %s Back\nMusic, SFX, motion, haptics, and language save immediately.",手柄：十字键导航 · %s 确认 · %s 返回\n音乐、音效、动态、触觉与语言偏好会立即保存。
+SETTINGS_CONTROLS_MENU_KEYBOARD,"Keyboard/Mouse: Arrows Navigate · Enter Confirm · Esc Back\nMusic, SFX, motion, haptics, and language save immediately.",键鼠：方向键导航 · Enter 确认 · Esc 返回\n音乐、音效、动态、触觉与语言偏好会立即保存。
 SETTINGS_CONTROLS_NIGHT_GAMEPAD,D-pad: Navigate · %s Confirm · %s Back to Lab\nAll settings save immediately.,手柄：十字键导航 · %s 确认 · %s 返回研究室\n所有设置会立即保存。
 SETTINGS_CONTROLS_NIGHT_KEYBOARD,Keyboard: %s Settings · Esc Back · Mouse/Touch Select Ingredients\nAll settings save immediately.,键盘：%s 打开设置 · Esc 返回 · 鼠标或触控选择原料\n所有设置会立即保存。
 SETTINGS_CONTROLS_DAY_GAMEPAD,D-pad: Navigate · %s Confirm · %s Tea · %s Pearls · %s Shake · %s Staff · %s Pause\nTouch controls remain fully available.,手柄：十字键导航 · %s 确认 · %s 茶桶 · %s 珍珠锅 · %s 摇茶 · %s 店员 · %s 暂停\n触控操作仍然完整可用。
@@ -187,8 +187,8 @@ KEY_SPACE,Space,空格
 KEY_UNSET,Unassigned,未设置
 INPUT_CLICK_ENTER,Click / Enter,点击 / Enter
 DAY_SECONDS_SHORT,%ds,%d秒
-DAY_HUD_COSTS_NEXT,Stock%d · Rent D%d,补货%d · 租金D%d
-DAY_HUD_COSTS_TODAY,Stock%d · Rent≤%d,补货%d · 租金≤%d
+DAY_HUD_COSTS_NEXT,Stock %d · Rent D%d·%d,补货%d · 租金D%d·%d
+DAY_HUD_COSTS_TODAY,Stock %d · Rent ≤%d,补货%d · 租金≤%d
 DAY_TOMORROW_EVENT,Tomorrow · %s,明日预告 · %s
 DAY_ACTIVE_CONTRACT,Today's Contract · %s · %s,今日委托 · %s · %s
 DAY_MISSING_BASE,?Tea Base,?茶底
@@ -232,7 +232,7 @@ DAY_STAFF_TRAIT_HIDDEN,Trait · Hidden,特质 · 尚未揭晓
 DAY_STAFF_SLACKER_IDLE,Slacking · Back Queue Support Paused,正在摸鱼 · 后排照看暂停
 DAY_STAFF_SLACKER_WORKING,Watching Back Queue · Patience Drain -30%,照看后排 · 耐心消耗 -30%
 DAY_STAFF_SOCIAL,Warming Up the Queue · Patience +20% / Traffic +12%,热场中 · 耐心 +20% / 客流 +12%
-DAY_STAFF_PERFECTIONIST,Correct Cup +2 Coins · Mistake Guard: %s · +1 Shake,正确杯 +2 金币 · 错杯保护：%s · 多摇 1 下
+DAY_STAFF_PERFECTIONIST,Correct Cup +2 coins · Mistake Guard: %s · +1 Shake,正确杯 +2 金币 · 错杯保护：%s · 多摇 1 下
 DAY_STAFF_ADAPTING,Settling into the Role,适应岗位中
 DAY_STAFF_WAKE,Wake %s · %s,拍醒 %s · %s
 DAY_STAFF_INTERACT,Interact with 3D Staff,点击 3D 店员互动
@@ -250,7 +250,7 @@ DAY_FEEDBACK_INCOMPLETE,"Choose a tea base, milk, and sugar level first!",请先
 DAY_FEEDBACK_SEALED,Sealed! Review the customer's order then confirm delivery.,封口完成！核对顾客订单后确认交付
 DAY_FEEDBACK_REWORK,Rework ×%d · The drink can still sell but Perfect is lost,返工 ×%d · 仍可售出，但本杯不再计完美
 DAY_FEEDBACK_DISCARDED,Cup discarded · %d coins stock loss,已倒杯 · 原料损耗 %d 金币
-DAY_REWARD_COINS,+%d Coins,+%d 金币
+DAY_REWARD_COINS,+%d coins,+%d 金币
 DAY_REWARD_TIP, · Tip %d, · 小费 %d
 DAY_REWARD_REASON, · %s, · %s
 DAY_REWARD_BUZZ, +%d Buzz, +%d 话题
@@ -301,22 +301,22 @@ DAY_LEDGER_WASTE, · waste %d, · 损耗 %d
 DAY_LEDGER_RELIEF, · startup relief +%d, · 新店扶持 +%d
 DAY_RESULT_THREE_STAR,Three-Star Bonus: +3 Inspiration,三星奖励：额外 +3 灵感
 DAY_RESULT_DARK_MENU,Dark Menu: %d Sales · Buzz +%d,黑暗菜单：成交 %d 单，话题度 +%d
-DAY_RESULT_EVENT_COINS,%s: Bonus +%d Coins,%s：额外 +%d 金币
+DAY_RESULT_EVENT_COINS,%s: Bonus +%d coins,%s：额外 +%d 金币
 DAY_RESULT_BUZZ,Buzz +%d,话题度 +%d
 DAY_RESULT_SPECIAL,%s ×%d,%s %d 次
-DAY_RESULT_WAGE,%s Wage -%d Coins,%s 日薪 -%d 金币
+DAY_RESULT_WAGE,%s Wage -%d coins,%s 日薪 -%d 金币
 DAY_RESULT_WAGE_SHORTFALL,%s wage %d/%d · rests Day %d,%s 工资实付 %d/%d · 第 %d 天休整
 DAY_RESULT_STAFF_REST_COMPLETE,%s rested today · returns Day %d,%s 今日休整完成 · 第 %d 天复工
-DAY_RESULT_STAFF_BONUS,Staff Check +%d Coins,员工复核 +%d 金币
+DAY_RESULT_STAFF_BONUS,Staff Check +%d coins,员工复核 +%d 金币
 DAY_RESULT_STAFF_WAKES,Staff Woken %d Times,拍醒店员 %d 次
 DAY_RESULT_STAFF_RESCUES,Wrong Drinks Stopped %d Times,店员拦下错杯 %d 次
-DAY_RESULT_CONTRACT_SUCCESS,Contract Complete: +1 Stamp · +%d Inspiration · %d Coins Refunded,委托完成：+1 印章 · +%d 灵感 · 返还 %d 金币
-DAY_RESULT_CONTRACT_FAILED,Contract Failed: %d-Coin Fee Not Refunded,委托未完成：签约费 %d 金币不返还
+DAY_RESULT_CONTRACT_SUCCESS,Contract Complete: +1 Stamp · +%d Inspiration · %d coins refunded,委托完成：+1 印章 · +%d 灵感 · 返还 %d 金币
+DAY_RESULT_CONTRACT_FAILED,Contract Failed: %d-coin fee not refunded,委托未完成：签约费 %d 金币不返还
 DAY_RESULT_NO_REWARDS,Keep serving steadily to raise your rating and upgrade faster.,继续稳定出杯，可提高星级与升级速度。
 DAY_RESULT_UNLOCKS,New Tomorrow · %s,明日新原料  ·  %s
 LIST_SEPARATOR,; ,、
-DAY_RESULT_ENDLESS_HINT,%d Coins · Sign %s / %d Stamps · Choose Tomorrow's Contract in the Lab,现有 %d 金币  ·  店招 %s / %d 枚  ·  研发室可签下一份委托
-DAY_RESULT_UPGRADE_HINT,%d Coins · Buy Shop Upgrades in the Lab,现有 %d 金币  ·  研发室可购买店铺升级
+DAY_RESULT_ENDLESS_HINT,%d coins · Sign %s · Stamps: %d · Choose Tomorrow's Contract in the Lab,现有 %d 金币  ·  店招 %s / %d 枚  ·  研发室可签下一份委托
+DAY_RESULT_UPGRADE_HINT,%d coins · Buy Shop Upgrades in the Lab,现有 %d 金币  ·  研发室可购买店铺升级
 DAY_RESULT_TO_LAB,Go to Research Lab,去研发室
 TUTORIAL_PROGRESS,Tutorial  %d / %d,新手教学  %d / %d
 TUTORIAL_SKIP,Skip Tutorial,跳过教学
@@ -330,10 +330,10 @@ TUTORIAL_3_TITLE,Follow the Center Steps,跟着中央步骤制作
 TUTORIAL_3_BODY,"The center panel shows only the ingredient needed now. Choose tea, milk, toppings, and sugar in order. If tea or pearls run out the matching prep station tells you exactly what to refill.",中央面板只显示当前需要的原料。依次选择茶底、奶基、小料和糖度；茶底或珍珠缺货时，对应备料工位会明确提示补哪一项。
 TUTORIAL_3_HINT,Numbers before buttons map to keyboard keys 1–9.,按钮前的数字对应键盘 1–9。
 TUTORIAL_4_TITLE,Shake Seal Then Deliver,摇匀、封口、再交付
-TUTORIAL_4_BODY,After all ingredients are ready shake the cup. Flick the mouse side to side or shake a mobile device; the button and shortcut always remain available. Reworked drinks still sell but are not Perfect. Once sealed review the correct order then confirm delivery.,材料齐全后摇匀杯子。鼠标可左右快速甩动、手机可摇晃设备；按钮和快捷键始终可用。返工杯仍可售出但不计完美；封口后核对正确订单再确认交付。
+TUTORIAL_4_BODY,"After all ingredients are ready, shake the cup. Flick the mouse side to side or shake a mobile device; the button and shortcut always remain available. Reworked drinks still sell but are not Perfect. Once sealed, review the correct order, then confirm delivery.",材料齐全后摇匀杯子。鼠标可左右快速甩动、手机可摇晃设备；按钮和快捷键始终可用。返工杯仍可售出但不计完美；封口后核对正确订单再确认交付。
 TUTORIAL_4_HINT,Mouse: flick side to side · Mobile: shake device · %s remains available.,鼠标：左右快速甩动 · 手机：摇晃设备 · 也可按%s键
 TUTORIAL_5_TITLE,Get Stronger Every Day,每天都会变得更强
-TUTORIAL_5_BODY,Fast correct drinks and golden batches improve tips combos and research resources. After closing use coins for shop upgrades and inspiration for night research.,快速正确出杯与黄金批次能提高小费、连击和研发资源。打烊后用金币升级店铺，再用灵感在夜间研发新品。
+TUTORIAL_5_BODY,"Fast, correct drinks and golden batches improve tips, combos, and research resources. After closing, use coins for shop upgrades and inspiration for night research.",快速正确出杯与黄金批次能提高小费、连击和研发资源。打烊后用金币升级店铺，再用灵感在夜间研发新品。
 TUTORIAL_5_HINT,The goal is not to max everything at once. Make tomorrow smoother than today.,目标不是一次全满，而是让下一天比今天更顺手。
 TUTORIAL_START,Open the Shop,开始营业
 TUTORIAL_NEXT,Next,下一步
@@ -343,7 +343,7 @@ TUTORIAL_GAMEPAD_2,Controller: %s operates the tea vat and %s operates the pearl
 TUTORIAL_GAMEPAD_3,Controller: Use the D-pad to move focus and %s to confirm an ingredient.,手柄：十字键移动焦点，%s 确认原料。
 TUTORIAL_GAMEPAD_4,Controller: %s shakes quickly. After sealing select an order and press %s to deliver.,手柄：%s 快速摇茶；封口后选中订单并按 %s 交付。
 TUTORIAL_GAMEPAD_5,Controller and keyboard/mouse support the same full shop flow.,手柄与键鼠拥有相同的完整经营流程。
-COMMON_COINS,%d Coins,%d 金币
+COMMON_COINS,%d coins,%d 金币
 COMMON_CUPS,%d Cups,%d 杯
 COMMON_TIMES,%d Times,%d 次
 UPGRADE_COMFORT_NAME,Lounge Comfort,等候区软装
@@ -357,18 +357,18 @@ UPGRADE_SHAKER_EFFECT_1,4 Shakes per Cup,每杯摇 4 次
 UPGRADE_SHAKER_EFFECT_2,3 Shakes per Cup,每杯摇 3 次
 UPGRADE_SHAKER_EFFECT_3,2 Shakes per Cup,每杯摇 2 次
 UPGRADE_SMART_SUGAR_NAME,Smart Sugar Station,智能糖控台
-UPGRADE_SMART_SUGAR_DESCRIPTION,After milk is selected the current order sugar level is matched automatically.,选好奶基后自动匹配当前订单糖度，少一步也少一次失误。
+UPGRADE_SMART_SUGAR_DESCRIPTION,"After milk is selected, the current order sugar level is matched automatically.",选好奶基后自动匹配当前订单糖度，少一步也少一次失误。
 UPGRADE_SMART_SUGAR_EFFECT_1,Auto-Match Sugar Level,自动匹配糖度
 UPGRADE_TIP_JAR_NAME,Signature Tip Jar,招牌小费罐
 UPGRADE_TIP_JAR_DESCRIPTION,Better service presentation earns an extra tip for every correct drink.,提升服务仪式感，正确出杯会获得额外小费。
-UPGRADE_TIP_JAR_EFFECT_1,+1 Coin per Cup,每杯额外 +1 金币
-UPGRADE_TIP_JAR_EFFECT_2,+2 Coins per Cup,每杯额外 +2 金币
-UPGRADE_TIP_JAR_EFFECT_3,+3 Coins per Cup,每杯额外 +3 金币
+UPGRADE_TIP_JAR_EFFECT_1,+1 coin per Cup,每杯额外 +1 金币
+UPGRADE_TIP_JAR_EFFECT_2,+2 coins per Cup,每杯额外 +2 金币
+UPGRADE_TIP_JAR_EFFECT_3,+3 coins per Cup,每杯额外 +3 金币
 UPGRADE_LEVEL,Level %d / %d,等级 %d / %d
 UPGRADE_CURRENT_EFFECT,Current: %s,当前：%s
 UPGRADE_NEXT_EFFECT,Next: %s,升级后：%s
 UPGRADE_MAXED,Max Level,已满级
-UPGRADE_BUY,Buy · %d Coins,购买 · %d 金币
+UPGRADE_BUY,Buy · %d coins,购买 · %d 金币
 UPGRADE_RESERVE_SUMMARY,Day %d reserve · Wage %d + Rent %d · Safe to invest %d,第 %d 天预留 · 工资 %d + 租金 %d · 可安心投入 %d
 UPGRADE_RESERVE_RISK,Buying leaves %d coins below the %d-coin reserve.,购买后仅余 %d，低于 %d 金币预留。
 UPGRADE_SUCCESS,%s upgraded. It takes effect next shift.,%s 已升级，明天营业立即生效。
@@ -383,18 +383,18 @@ STAFF_CANDIDATE_WAGE,Candidate · Daily Wage %d,候选店员 · 日薪 %d
 STAFF_INTRO_TITLE,Introduction,自我介绍
 STAFF_QUOTE,“%s”,“%s”
 STAFF_TRAIT_HIDDEN,Trait: Hidden,特质：尚未揭晓
-STAFF_HIRE,Hire · %d Coins,录用 · %d 金币
+STAFF_HIRE,Hire · %d coins,录用 · %d 金币
 STAFF_ON_DUTY,Currently on Duty,当前在岗
 STAFF_REST_SCHEDULED,Next Shift · Rest Day %d,下个班次 · 第 %d 天休整
 STAFF_REST_COMPLETE,Rest Complete · Returns Day %d,休整完成 · 第 %d 天复工
-STAFF_WAGE_DAYS,Daily Wage %d Coins · %d Days Worked,日薪 %d 金币 · 已值班 %d 天
+STAFF_WAGE_DAYS,Daily Wage %d coins · %d Days Worked,日薪 %d 金币 · 已值班 %d 天
 STAFF_WAGE_SHORTFALL_STATUS,Wage shortfall %d · No wage or debt on Day %d rest,少发工资 %d · 第 %d 天休整不计工资也不留债
 STAFF_WAGE_REST_STATUS,No wage today · Returns Day %d,今日不计工资 · 第 %d 天复工
 STAFF_TRAIT_REVEALED,Trait Revealed · %s,已觉醒特质 · %s
 STAFF_TRAIT_UNREVEALED,Trait Not Yet Revealed,特质尚未揭晓
 STAFF_JOINED_QUOTE,Said on Hiring: “%s”,入职时说： “%s”
 STAFF_DISMISS_CONFIRM,Click Again to Confirm Dismissal,再次点击确认解除合同
-STAFF_DISMISS,Dismiss · %d Coins,解除合同 · %d 金币
+STAFF_DISMISS,Dismiss · %d coins,解除合同 · %d 金币
 STAFF_STAT_SPEED,Speed,手速
 STAFF_STAT_CARE,Care,细心
 STAFF_STAT_CHARM,Charm,亲和
@@ -411,12 +411,12 @@ TRAIT_SLACKER_EFFECT,Back-queue patience drain -30% · May slack off and needs a
 TRAIT_SOCIAL_KING_EFFECT,All patience +20% · Arrivals 12% faster for more traffic and pressure,全场耐心 +20% · 到店间隔 -12%，客流与压力同增
 TRAIT_PERFECTIONIST_EFFECT,Correct cup +2 coins · Blocks 1 wrong cup daily · +1 shake per cup,正确出杯 +2 金币、每天拦下 1 杯错单 · 每杯多摇 1 下
 STAFF_TRAIT_UNKNOWN_EFFECT,No staff effect recorded,尚未记录员工效果
-ENDLESS_SIGN_RANK,Sign · %s | %d Stamps | %s,店招 · %s  ｜  印章 %d  ｜  %s
+ENDLESS_SIGN_RANK,Sign · %s · Stamps: %d · %s,店招 · %s · 印章 %d · %s
 ENDLESS_TARGET_DAY,Day %d · %s,第 %d 天 · %s
-ENDLESS_REWARD,Success: +1 Stamp · +%d Inspiration · Refund %d Coins\nFailure: Contract Fee Lost,成功：+1 印章 · +%d 灵感 · 返还 %d 金币\n失败：签约费不返还
+ENDLESS_REWARD,Success: +1 Stamp · +%d Inspiration · Refund %d coins\nFailure: Contract Fee Lost,成功：+1 印章 · +%d 灵感 · 返还 %d 金币\n失败：签约费不返还
 ENDLESS_SIGNED,Signed · Active Tomorrow,已签约 · 明日生效
 ENDLESS_OTHER_SIGNED,Another Contract Already Signed,本晚已签其他委托
-ENDLESS_SIGN_COST,Sign · %d Coins,签约 · %d 金币
+ENDLESS_SIGN_COST,Sign · %d coins,签约 · %d 金币
 ENDLESS_TRAFFIC_DELTA,Arrival Interval -%d%%,客流间隔 -%d%%
 ENDLESS_TRAFFIC_NORMAL,Normal Traffic,标准客流
 ENDLESS_PATIENCE_DELTA,Patience %+d%%,耐心 %+d%%
@@ -431,7 +431,7 @@ CAMPAIGN_VERDICT_B,The shop has a clear identity. Chase more three-star days and
 CAMPAIGN_TITLE_A,Popular Signature Shop,人气招牌店
 CAMPAIGN_VERDICT_A,Service and menu identity are taking shape. Finish the upgrades to reach landmark status.,稳定服务与特色菜单都已成形，再补齐升级就能冲击名店。
 CAMPAIGN_TITLE_S,City-Limited Landmark,城市限定名店
-CAMPAIGN_VERDICT_S,Service research and management now form a strong loop. Guests travel here on purpose.,手速、研发与经营形成了漂亮闭环，客人已经会专程而来。
+CAMPAIGN_VERDICT_S,"Service, research, and management now form a strong loop. Guests travel here on purpose.",手速、研发与经营形成了漂亮闭环，客人已经会专程而来。
 CAMPAIGN_EYEBROW,First Shop · 14-Day Report,第一家店 · 14 天经营报告
 CAMPAIGN_RATING,First-Shop Rating,首店评级
 CAMPAIGN_DIMENSIONS,Business Dimensions,经营维度
@@ -448,36 +448,36 @@ CAMPAIGN_HIGHLIGHT_REVENUE,Total Revenue,累计营收
 CAMPAIGN_HIGHLIGHT_SPECIAL,Special Orders,特殊订单
 CAMPAIGN_HIGHLIGHT_COMBO,Best Combo,最佳连击
 CAMPAIGN_TEAM,Team · %s on Duty %d Days · ,团队 · %s值班 %d 天  ·  
-CAMPAIGN_LEGACY,Sign Legacy · %d Runs · Best %s / %d,店招荣誉 · 已完成 %d 轮  ·  历史最佳 %s / %d 分
+CAMPAIGN_LEGACY,Sign Legacy · Runs: %d · Best %s / %d,店招荣誉 · 已完成 %d 轮  ·  历史最佳 %s / %d 分
 CAMPAIGN_ROUTES_CLEARED, · Routes %d/%d,  ·  路线通关 %d/%d
 CAMPAIGN_CONTINUE,Continue · Start Day 15,继续经营 · 开启第 15 天
-CAMPAIGN_NEW_SHOP,Open New Shop +,带着店招开新店 +
+CAMPAIGN_NEW_SHOP,Open New Shop+,带着店招开新店+
 CAMPAIGN_RETURN_TITLE,Return to Title,返回标题
 CAMPAIGN_CONFIRM_TITLE,Open a New Shop with Your Sign?,带着店招开新店？
-CAMPAIGN_CONFIRM_BODY,Recipes equipment and current progress reset while your best rating remains.\nA new %s shop inherits %d coins and %d inspiration; skips the tutorial; and takes an 8%% higher goal.,本轮配方、设备和经营进度会重置，但历史最佳评级永久保留。\n%s 评级的新店继承 %d 金币与 %d 灵感；跳过教学；每日目标提高 8%%。
+CAMPAIGN_CONFIRM_BODY,"Recipes, equipment, and current progress reset while your best rating remains.\nA new %s shop inherits %d coins and %d inspiration; skips the tutorial; and takes an 8%% higher goal.",本轮配方、设备和经营进度会重置，但历史最佳评级永久保留。\n%s 评级的新店继承 %d 金币与 %d 灵感；跳过教学；每日目标提高 8%%。
 LEGACY_ROUTE_SELECT_TITLE,Choose one sign route · Clear all three for a complete legacy,选择一条店招路线 · 通关三条路线完成店招荣誉
 LEGACY_ROUTE_CARD,%s %s\n%s\n%s,%s %s\n%s\n%s
 LEGACY_ROUTE_RUSH_NAME,Turnover District,翻台街区
 LEGACY_ROUTE_RUSH_SHORT,Turnover,翻台
-LEGACY_ROUTE_RUSH_RISK,Arrivals +12%,到店速度 +12%
-LEGACY_ROUTE_RUSH_REWARD,Every 3 correct cups +1 Coin,每 3 杯正确出杯 +1 金币
-LEGACY_ROUTE_RUSH_SUMMARY,Keep the queue moving: every third correct cup pays +1 coin while customers refill 12% faster.,让队列持续周转：每 3 杯正确出杯 +1 金币，但顾客补位速度提高 12%。
-LEGACY_ROUTE_RUSH_CALENDAR,Second week opens with Group Visit → Lunch Rush.,第二周从结伴到店 → 午间热浪开场。
+LEGACY_ROUTE_RUSH_RISK,Arrivals +15%,到店速度 +15%
+LEGACY_ROUTE_RUSH_REWARD,Every 3 correct cups +2 coins,每 3 杯正确出杯 +2 金币
+LEGACY_ROUTE_RUSH_SUMMARY,Keep the queue moving: every third correct cup pays +2 coins while customers refill 15% faster.,让队列持续周转：每 3 杯正确出杯 +2 金币，但顾客补位速度提高 15%。
+LEGACY_ROUTE_RUSH_CALENDAR,Second week opens with Friends' Day → Lunch Rush.,第二周从结伴到店 → 午间热浪开场。
 LEGACY_ROUTE_PRECISION_NAME,Reputation District,口碑街区
 LEGACY_ROUTE_PRECISION_SHORT,Reputation,口碑
 LEGACY_ROUTE_PRECISION_RISK,Customer patience -12%,顾客耐心 -12%
-LEGACY_ROUTE_PRECISION_REWARD,Fast service earns +1 Coin,高耐心交付 +1 金币
+LEGACY_ROUTE_PRECISION_REWARD,Fast service earns +1 coin,高耐心交付 +1 金币
 LEGACY_ROUTE_PRECISION_SUMMARY,Protect first impressions: patience is 12% shorter and cups delivered above 70% patience earn +1 coin.,守住第一印象：耐心缩短 12%；在耐心 70% 以上交付可额外获得 1 金币。
-LEGACY_ROUTE_PRECISION_CALENDAR,Second week opens with Critic Day → Light-Drink Trend.,第二周从探店日 → 轻饮风向开场。
+LEGACY_ROUTE_PRECISION_CALENDAR,Second week opens with Critic Visit → Light-Drink Trend.,第二周从探店日 → 轻饮风向开场。
 LEGACY_ROUTE_TREND_NAME,Trend District,潮流街区
 LEGACY_ROUTE_TREND_SHORT,Trend,潮流
 LEGACY_ROUTE_TREND_RISK,Each hot feature adds 6% traffic,每款热卖带来 +6% 客流
-LEGACY_ROUTE_TREND_REWARD,Trend-match sales earn +3 Coins,风向契合杯额外 +3 金币
+LEGACY_ROUTE_TREND_REWARD,Trend-match sales earn +3 coins,风向契合杯额外 +3 金币
 LEGACY_ROUTE_TREND_SUMMARY,Read tomorrow's trend: hot features attract 6% traffic each and every matching featured sale earns +3 coins.,读懂明日风向：每款热卖带来 6% 客流；每杯契合风向的主推额外 +3 金币。
-LEGACY_ROUTE_TREND_CALENDAR,Second week opens with Camera Visit → Brown-Sugar Trend.,第二周从镜头来访 → 黑糖热搜开场。
+LEGACY_ROUTE_TREND_CALENDAR,Second week opens with Camera Crew → Brown-Sugar Buzz.,第二周从镜头来访 → 黑糖热搜开场。
 CAMPAIGN_CONFIRM_NOTE,You can also go back and continue endless operation after Day 15.,也可以返回，继续第 15 天后的无限经营。
 CAMPAIGN_CANCEL,Think Again,再想想
-CAMPAIGN_CONFIRM,Confirm New Shop +,确认开启新店 +
+CAMPAIGN_CONFIRM,Confirm New Shop+,确认开启新店+
 DAY_HUD_ROUTE,%s · %s,%s · %s
 DAY_ROUTE_PROGRESS_RUSH,Sign +%d · Cycle %d/3,店招 +%d · 周转 %d/3
 DAY_ROUTE_PROGRESS_PRECISION,Sign +%d · Fast %d,店招 +%d · 快交 %d
@@ -486,7 +486,7 @@ DAY_SECONDS_ROUTE_READY,%ds · +1,%d秒 · +1
 DAY_ROUTE_PATIENCE_TOOLTIP,The purple tick marks the 70% reputation-bonus threshold.,紫色刻度表示 70% 口碑奖励门槛。
 DAY_ROUTE_ACTIVE,New Shop+ · %s — %s,新店+ · %s —— %s
 DAY_REWARD_ROUTE, · Sign +%d (%s), · 店招 +%d（%s）
-DAY_RESULT_ROUTE_BONUS,%s · Sign-route bonus +%d Coins,%s · 店招路线额外 +%d 金币
+DAY_RESULT_ROUTE_BONUS,%s · Sign-route bonus +%d coins,%s · 店招路线额外 +%d 金币
 CAMPAIGN_CHALLENGE_CRAFT,Finish equipment upgrades to handle rushes and group orders smoothly,补齐设备升级，让高峰和团单周转更从容
 CAMPAIGN_CHALLENGE_CREATIVITY,Expand the collection and menu to create a true signature,扩充图鉴与正式菜单，做出真正的店铺招牌
 CAMPAIGN_CHALLENGE_MOMENTUM,Build coins and buzz to turn traffic into long-term momentum,积累金币与话题度，把流量转成长期经营势能
@@ -554,9 +554,9 @@ NIGHT_CONTRACT_ACTIVE,Contract · %s,经营委托 · %s
 NIGHT_CONTRACT_CHOOSE,Contract · Choose Tomorrow's Challenge,经营委托 · 选择明日挑战
 NIGHT_SELECT_TOOLTIP,Select: %s,选择：%s
 NIGHT_SELECTED_TOOLTIP,Selected: %s,已选择：%s
-NIGHT_HUD,Day %d · Research Lab | Tonight %d · Saved %d,第 %d 天 · 研发室 ｜ 今晚 %d · 留存 %d
+NIGHT_HUD,Day %d · Research Lab · Tonight %d · Saved %d,第 %d 天 · 研发室 · 今晚 %d · 留存 %d
 NIGHT_BUDGET_TOOLTIP,Tonight holds at most %d active inspiration. Unused saved inspiration returns to reserve when you close.,每晚最多装入 %d 点活跃灵感；收工时未用的持久灵感会退回留存。
-NIGHT_BOOK,Collection %d/%d | Dark %d/%d | Testing %d,图鉴 %d/%d ｜ 黑暗配方 %d/%d ｜ 检验中 %d
+NIGHT_BOOK,Collection %d/%d · Dark %d/%d · Testing %d,图鉴 %d/%d · 黑暗配方 %d/%d · 检验中 %d
 NIGHT_NO_TOPPINGS,No Toppings,无小料
 NIGHT_SELECTION,%s · %s · %s · %s,%s  ·  %s  ·  %s  ·  %s
 NIGHT_BASE_UNSELECTED,Tea Base Unselected,茶底未选
@@ -665,7 +665,7 @@ RECIPE_BOOK_TARGET_SET,Target Set,目标已锁定
 RECIPE_BOOK_TARGET_SUCCESS,Research target set: %s,研究目标已设定：%s
 RECIPE_BOOK_TARGET_CLEARED,Research target cleared,研究目标已清除
 RECIPE_BOOK_DARK_BADGE,Buzz +%d,话题度 +%d
-RECIPE_BOOK_TIER,«%s»,《%s》
+RECIPE_BOOK_TIER,“%s”,《%s》
 RECIPE_BOOK_TAB_RESEARCH,Pairings %d/%d,相性 %d/%d
 RESEARCH_SUBTITLE,Try a tea-and-milk pair once to reveal its affinity. Ingredient Lv3+ strengthens its main flavor.,每组茶底与奶基试作一次即可点亮相性。原料达到 Lv3 后会强化主风味。
 RESEARCH_STATUS_COMPLETE,Pairing notebook complete · Permanent nightly inspiration +%d,相性图鉴已完成 · 每晚永久灵感 +%d
@@ -738,22 +738,22 @@ MENU_BOARD_TITLE,Tomorrow's Featured Menu,明日主推菜单
 MENU_BOARD_PROGRESS,%d/%d slots · %d hot,%d/%d 槽 · %d 款热卖
 MENU_BOARD_SUBTITLE,Choose up to three recipes. Featured drinks become real customer orders and use their menu price.,最多选择三款。主推饮品会成为真实顾客订单，并按研发菜单价结算。
 MENU_BOARD_TRAFFIC,Fresh releases attract customers sooner · Current arrival speed +%d%%,上新热度会让顾客更早到店 · 当前到店速度 +%d%%
-MENU_BOARD_FORECAST,Tomorrow: %s · %d featured matches · Arrival speed +%d%%,明日：%s · %d 款主推契合 · 到店速度 +%d%%
-MENU_BOARD_EVENT_MATCH,Tomorrow's trend match · +%d Coins per sale,契合明日风向 · 每杯额外 +%d 金币
+MENU_BOARD_FORECAST,Tomorrow: %s · %d featured matches · Arrival speed %s%%,明日：%s · %d 款主推契合 · 到店速度 %s%%
+MENU_BOARD_EVENT_MATCH,Tomorrow's trend match · +%d coins per sale,契合明日风向 · 每杯额外 +%d 金币
 MENU_BOARD_EVENT_NEUTRAL,Normal demand tomorrow,明日常规需求
 MENU_BOARD_CLOSE,Back to Lab,返回研发室
 MENU_BOARD_FEATURED,FEATURED TOMORROW,明日主推
 MENU_BOARD_AVAILABLE,AVAILABLE,可主推
 MENU_BOARD_LEGACY,LEGACY ITEM,旧版配方
 MENU_BOARD_META,%s · %d coins · %s,%s · %d 金币 · %s
-MENU_BOARD_PRICE,Pricing,Pricing
-MENU_BOARD_PRICE_BUDGET,Budget · %d,Value · %d
-MENU_BOARD_PRICE_STANDARD,Standard · %d,Standard · %d
-MENU_BOARD_PRICE_PREMIUM,Premium · %d,Premium · %d
-MENU_BOARD_PRICE_BUDGET_TIP,−2 coins per cup · featured arrivals +2% faster,2 coins cheaper per cup · featured arrivals 2% faster
-MENU_BOARD_PRICE_STANDARD_TIP,The tested market price — no traffic change,Market-verified price · no change to foot traffic
-MENU_BOARD_PRICE_PREMIUM_TIP,+3 coins per cup · featured arrivals 3% slower,3 coins more expensive per cup · arrivals 3% slower
-MENU_BOARD_PRICE_SET,Price set to %d,Price set to %d
+MENU_BOARD_PRICE,Pricing,定价
+MENU_BOARD_PRICE_BUDGET,Budget · %d,让利 · %d
+MENU_BOARD_PRICE_STANDARD,Standard · %d,标准 · %d
+MENU_BOARD_PRICE_PREMIUM,Premium · %d,溢价 · %d
+MENU_BOARD_PRICE_BUDGET_TIP,−2 coins per cup · this drink is ordered more often,每杯少 2 金币 · 该款会更常被点
+MENU_BOARD_PRICE_STANDARD_TIP,The tested market price · normal order frequency,市场验证价 · 点单频率不变
+MENU_BOARD_PRICE_PREMIUM_TIP,+2~3 coins per cup (by tier) · this drink is ordered less often,每杯多 2~3 金币（按档位）· 该款会更少被点
+MENU_BOARD_PRICE_SET,Price set to %d,已定价 %d
 MENU_BOARD_SALES,Lifetime featured sales · %d cups,累计主推销量 · %d 杯
 MENU_BOARD_FEATURE,Feature Tomorrow,加入明日主推
 MENU_BOARD_REMOVE,Remove from Featured,移出主推
@@ -827,7 +827,7 @@ DAY_HUD_INSP_TIP,Inspiration: spent at night on trials and research.,灵感：�
 DAY_HUD_COSTS_TIP,Today's restock cost so far and the upcoming rent day.,今日已计的补货成本与下一个租金日。
 CAMPAIGN_DIM_DEFICIT,+%d to max,距满分 +%d
 TUTORIAL_6_TITLE,"Goals, Stars & the Clock",目标、星级与打烊
-TUTORIAL_6_BODY,Each shift lasts 120 seconds. Earning the goal gives 2 stars; 1.4x the goal gives 3 stars and +3 inspiration. Miss 70% of it and the day lands at 1 star — stars decide your final report.,每班营业 120 秒：营收达到目标得 2 星，1.4 倍得 3 星并奖励 3 灵感；不足七成只有 1 星。星级决定收官报告的评级。
+TUTORIAL_6_BODY,"Each shift lasts 120 seconds. Reaching 70% of the goal gives 1 star, the goal itself 2 stars, and 1.4x the goal 3 stars with +3 inspiration. Below 70% the day scores no stars — stars decide your final report.",每班营业 120 秒：达到目标七成得 1 星，达到目标得 2 星，1.4 倍得 3 星并奖励 3 灵感；不足七成则没有星。星级决定收官报告的评级。
 TUTORIAL_6_HINT,"The goal bar keeps filling past 100% — the tick marks the goal, the end of the bar is the 3-star line.",目标条超过 100% 仍会继续涨：刻度是目标线，条尾就是三星线。
 MARKET_SETTLEMENT_TIERS,Tiers: ≥%d hit · ≥%d signature · ≥%d regular.,分档线：≥%d 爆款 · ≥%d 招牌 · ≥%d 普通。
 MARKET_SETTLEMENT_FORMULA,Formula: %s,配方：%s
@@ -898,3 +898,17 @@ CAMPAIGN_ROUTE_STAT_PRECISION, · Critics served: %d, · 评论家接待：%d
 CAMPAIGN_ROUTE_STAT_RUSH, · Total cups: %d, · 总出杯数：%d
 TUTORIAL_GATE_HINT,Try it yourself first — %d more attempt(s) before this step is skipped.,先动手试一次——再尝试 %d 次后将跳过此步。
 TUTORIAL_GATE_RELEASED_NOTE,(Practice step skipped — replay the tutorial from Pause anytime.),（练习步骤已跳过——可随时在暂停菜单重看教学。）
+NIGHT_NAME_REQUIRED,Give the drink a name before shelving it.,先给这杯饮品起个名字，再上架送检。
+MENU_BOARD_SUBTITLE_SLOTS,Choose up to %d featured slots. Featured drinks become real customer orders and use their menu price.,最多选择 %d 款主推。主推饮品会成为真实顾客订单，并按研发菜单价结算。
+MENU_BOARD_FULL_SLOTS,All %d featured slots are full. Remove one featured drink first.,%d 个主推槽已满，请先移出一款。
+TUTORIAL_3_HINT_TOUCH,Tap the highlighted ingredient buttons.,点按高亮的原料按钮即可。
+TUTORIAL_SHAKE_HINT_TOUCH,"Shake your device, or tap the big shake button.",摇晃设备，或点按大摇茶按钮。
+SETTINGS_CONTROLS_MENU_TOUCH,"Touch: Tap to select · Back button to exit\nMusic, SFX, motion, haptics, and language save immediately.",触控：点按选择 · 返回键退出\n音乐、音效、动态、触觉与语言偏好会立即保存。
+SETTINGS_CONTROLS_NIGHT_TOUCH,Touch: Tap ingredients to select · Settings button in the top-right corner\nAll settings save immediately.,触控：点按原料选择 · 设置在右上角\n所有设置会立即保存。
+SETTINGS_CONTROLS_DAY_TOUCH,Touch: Tap ingredients · Shake the device or tap the big button to shake\nTap the staff card or order cards to interact.,触控：点按原料 · 摇晃设备或点按大按钮摇茶\n点按店员卡或订单卡进行互动。
+SETTINGS_KEY_RESERVED,"%s is reserved: number keys, Enter, and Tab run shop shortcuts and menus.",%s 是保留键：数字键、Enter 与 Tab 承担店铺捷径和菜单操作。
+MENU_LEGACY_SUMMARY,\nBest Run: %s · %d pts · Routes %d/%d,\n历史最佳：%s · %d 分 · 路线 %d/%d
+CONTRACT_RANK_DEFEND_COUNT,Defending · %d cleared / %d failed,守擂中 · 完成 %d · 失败 %d
+POSITIONING_REDUNDANT,Smart Sugar already owned — Flavor adds nothing,已拥有智能糖控台——风味无额外效果
+UPGRADE_SMART_SUGAR_REDUNDANT,Flavor positioning already automates sugar — this level adds nothing (tier II still applies),「风味」定位已自动匹配糖度——一级无额外效果（二级仍有效）
+LUNCH_RUSH_PRICE_HINT,Today's quick-serve trend: value-priced drinks (≤%d coins) get ordered more often.,今日快手风向：让利价点（≤%d 金币）的饮品更常被点。

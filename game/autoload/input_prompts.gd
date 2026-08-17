@@ -15,6 +15,12 @@ const JOY_BUTTONS := {
 	"staff_interact": JOY_BUTTON_Y,
 }
 const FIXED_KEYS := {"prep_tea": KEY_Q, "prep_pearl": KEY_E}
+## 保留键（P11-F2）：数字 1–9 是情境选择的效率捷径，Enter 是 UI 确认，
+## Tab 是焦点遍历——改键占用会让对应功能静默失效。
+const RESERVED_KEYS := [
+	KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9,
+	KEY_ENTER, KEY_KP_ENTER, KEY_TAB,
+]
 const FIXED_JOY_BUTTONS := {"prep_tea": JOY_BUTTON_LEFT_SHOULDER, "prep_pearl": JOY_BUTTON_RIGHT_SHOULDER}
 const CONTROLLER_LABELS := {
 	"xbox": {"accept": "A", "cancel": "B", "shake": "X", "staff": "Y", "tea": "LB", "pearl": "RB", "pause": "Menu"},
@@ -82,6 +88,8 @@ func conflict_for(action_name: String, keycode: Key) -> String:
 	for fixed_action in FIXED_KEYS:
 		if FIXED_KEYS[fixed_action] == keycode:
 			return fixed_action
+	if keycode in RESERVED_KEYS:
+		return "_reserved"
 	return ""
 
 

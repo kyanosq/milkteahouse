@@ -35,6 +35,11 @@ func _ready() -> void:
 	assert(first["results"][0]["score"] == expected)
 	assert(first["results"][0]["stage"] == 1)
 	assert(first["results"][0]["outcome"] == "testing")
+	# [P5-1 2026-08-17] 结算结果随行配方字段：结算卡的配方行据此渲染。
+	assert(String(first["results"][0].get("base", "")) == "black_tea")
+	assert(String(first["results"][0].get("milk", "")) == "fresh_milk")
+	assert(first["results"][0].get("toppings", []) == ["boba"])
+	assert(int(first["results"][0].get("sugar", -1)) == 50)
 	assert(GameState.tests[0]["scores"].size() == 1)
 	var repeated := MarketTests.advance(9)
 	assert(repeated == first)
@@ -65,14 +70,49 @@ func _ready() -> void:
 	assert(failed["refund"] == 3)
 	assert(GameState.inspiration == inspiration_before + 3)
 
+	# [P5-3 2026-08-17] 失败线 62 → 76：deterministic_score 三晚偏移强相关（和 ≥ -14），
+	# 上架最低 80 分杯的可达最差均分 = 75.33 —— 搜索和 = -14 的最差样本钉「failed」可达。
+	assert(int(MarketTests.TIER_REGULAR) == 76)
+	GameState.day = 12
+	GameState.market_settlement = {}
+	var fail_name := ""
+	for sample in range(4000):
+		var candidate := "fail_%d" % sample
+		var offset_sum := 0
+		for stage in range(1, 4):
+			var probe := _test_item(80, [])
+			probe["name"] = candidate
+			offset_sum += MarketTests.deterministic_score(probe, 9 + stage, stage) - 80
+		if offset_sum <= -14:
+			fail_name = candidate
+			break
+	assert(not fail_name.is_empty(),
+		"quality-80 cups must have reachable failing variance under the 76 tier line")
+	var shelf_test := _test_item(80, [])
+	shelf_test["name"] = fail_name
+	shelf_test["scores"] = [
+		MarketTests.deterministic_score(shelf_test, 9, 1),
+		MarketTests.deterministic_score(shelf_test, 10, 2),
+	]
+	GameState.tests = [shelf_test]
+	var failed_shelf: Dictionary = MarketTests.advance(12)["results"][0]
+	assert(failed_shelf["stage"] == 3)
+	assert(failed_shelf["outcome"] == "failed",
+		"a shelfed 80-quality cup can now fail the three-night average")
+	assert(failed_shelf["refund"] == 3)
+
 	var panel: NightSettlementPanel = load("res://ui/night_settlement_panel.gd").new()
 	add_child(panel)
 	panel.show_results(9, first)
 	assert(panel.result_card_count() == 1)
 	assert(_panel_contains_prefix(panel, GameLocale.text("MARKET_SETTLEMENT_FORMULA", ["\uFFFF"]).split("\uFFFF")[0]),
 		"settlement cards must show each drink's formula for post-hoc review")
+	assert(_panel_contains(panel, GameLocale.ingredient_name(RecipeJournal.ingredient("black_tea"))),
+		"the formula row must render the drink's real recipe (P5-1)")
 	assert(panel._subtitle.text.contains(str(int(MarketTests.TIER_HIT))),
 		"the tier cutoff numbers must be visible in the panel header")
+	assert(panel._subtitle.text.contains(str(int(MarketTests.TIER_REGULAR))),
+		"the raised 74 failure line must be disclosed in the panel header")
 	assert(panel._continue.text.contains("10"))
 	GameLocale.set_locale("en", false)
 	panel.show_results(9, first)
@@ -96,7 +136,7 @@ func _ready() -> void:
 	resumed_lab.queue_free()
 	GameState.settings = original_settings
 	TranslationServer.set_locale(GameState.locale())
-	print("[MARKET_TEST] passed deterministic=true variance=8 stages=3 idempotent=true tiers=true refund=3 panel=true bilingual=true")
+	print("[MARKET_TEST] passed deterministic=true variance=8 stages=3 idempotent=true tiers=true tier_regular=76 refund=3 failed_reachable=true panel=true formula_row=true bilingual=true")
 	get_tree().quit()
 
 
@@ -122,5 +162,14 @@ func _panel_contains_prefix(node: Node, prefix: String) -> bool:
 		return true
 	for child in node.get_children():
 		if _panel_contains_prefix(child, prefix):
+			return true
+	return false
+
+
+func _panel_contains(node: Node, needle: String) -> bool:
+	if node is Label and String(node.text).contains(needle):
+		return true
+	for child in node.get_children():
+		if _panel_contains(child, needle):
 			return true
 	return false

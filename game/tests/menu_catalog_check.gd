@@ -136,10 +136,13 @@ func _ready() -> void:
 	assert(MenuCatalog.should_offer(2, "regular"))
 	assert(not MenuCatalog.should_offer(6, "regular"), "evergreen orders must use the slower cadence")
 
-	# DP#4 定价：自创饮品三档价点、客流权衡与默认不变性。
+	# DP#4 定价（P9-1/P9-2 2026-08-17 重钉）：定价只改“该款”主推订单的轮转权重
+	# （让利 3 槽 / 标准 2 槽 / 溢价 1 槽），不再作用全局到店间隔；传说不参与调价。
 	for legend_id in ["legend:classic_boba", "legend:oolong_pudding", "legend:taro_boba"]:
 		assert(MenuCatalog.price_options(MenuCatalog.item(legend_id)).is_empty(),
 			"legend recipes must keep authored prices")
+		assert(MenuCatalog.pricing_spawn_slots(MenuCatalog.item(legend_id)) == 2,
+			"legends must not participate in pricing weights even at authored price gaps (P9-2)")
 	var priced := MenuCatalog.register_custom({
 		"name": "定价测试", "base": "black_tea", "milk": "fresh_milk",
 		"toppings": ["boba"], "sugar": 50, "quality": 90,
@@ -153,14 +156,34 @@ func _ready() -> void:
 	assert(MenuCatalog.set_featured("legend:classic_boba", false, false) == "ok")
 	assert(MenuCatalog.set_featured(String(priced["id"]), true, false) == "ok")
 	MenuCatalog.set_item_price(String(priced["id"]), 18, false)
-	assert(is_equal_approx(MenuCatalog.pricing_traffic_multiplier(), 1.0),
-		"standard pricing must leave traffic untouched")
+	assert(MenuCatalog.pricing_spawn_slots(MenuCatalog.item(String(priced["id"]))) == 2,
+		"standard pricing must keep the neutral rotation cadence")
 	MenuCatalog.set_item_price(String(priced["id"]), 16, false)
-	assert(is_equal_approx(MenuCatalog.pricing_traffic_multiplier(), 0.98),
-		"budget pricing must speed featured arrivals by 2%")
+	assert(MenuCatalog.pricing_spawn_slots(MenuCatalog.item(String(priced["id"]))) == 3,
+		"budget pricing must win more featured order slots")
+	# P9-1：定价摆动不再拉动全局到店间隔（旧 ±2%/3% 在三槽饱和区被噪声淹没）。
+	var traffic_at_budget := MenuCatalog.traffic_multiplier()
 	MenuCatalog.set_item_price(String(priced["id"]), 21, false)
-	assert(is_equal_approx(MenuCatalog.pricing_traffic_multiplier(), 1.03),
-		"premium pricing must slow featured arrivals by 3%")
+	assert(is_equal_approx(MenuCatalog.traffic_multiplier(), traffic_at_budget),
+		"pricing must no longer touch the global arrival interval")
+	assert(MenuCatalog.pricing_spawn_slots(MenuCatalog.item(String(priced["id"]))) == 1,
+		"premium pricing must win fewer featured order slots")
+	# 轮转分布钉：让利款 3 槽 vs 溢价款 1 槽（同为爆款热度，FRESH 节奏）。
+	MenuCatalog.set_item_price(String(priced["id"]), 16, false)
+	var premium_item := MenuCatalog.register_custom({
+		"name": "溢价测试", "base": "black_tea", "milk": "fresh_milk",
+		"toppings": ["boba"], "sugar": 50, "quality": 90,
+	}, "爆款", 21, false)
+	assert(MenuCatalog.set_featured(String(premium_item["id"]), true, false) == "ok")
+	var slot_counts := {}
+	for sequence in range(8):
+		var picked := String(MenuCatalog.featured_for_spawn(
+			2 + sequence * MenuCatalog.FRESH_ORDER_INTERVAL).get("id", ""))
+		slot_counts[picked] = int(slot_counts.get(picked, 0)) + 1
+	assert(int(slot_counts.get(String(priced["id"]), 0)) == 6,
+		"budget pricing must hold 3/4 rotation slots")
+	assert(int(slot_counts.get(String(premium_item["id"]), 0)) == 2,
+		"premium pricing must hold 1/4 rotation slots")
 	MenuCatalog.set_item_price(String(priced["id"]), 18, false)
 
 	panel.queue_free()

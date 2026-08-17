@@ -75,8 +75,9 @@ const ROTATION := [
 	},
 ]
 
-# 首轮事件按原料解锁顺序教学；从 Day 9 起，店招路线重排同一组六事件；
-# 无路线的首战役也用 trend 表重排（D4-B），第二遍统一叠加强度弯与修饰词。
+# 首轮事件按原料解锁顺序教学；Day 9 起无路线的首战役借 trend 表重排（D4-B），
+# 店招路线（New Shop+）从 Day 3 起即用各自的路线表（P2-F5），
+# 第二遍统一叠加强度弯与修饰词（仍只从 Day 9 起）。
 # 每条路线每六天仍恰好出现一次所有事件，避免某条路线因奖励事件更多而占优。
 const ROUTE_ROTATIONS := {
 	"rush": ["group_day", "lunch_rush", "influencer_day", "critic_day", "light_drinks", "brown_sugar_trend"],
@@ -113,8 +114,10 @@ func event_for_day(day: int) -> Dictionary:
 		return _localized_event(CALM.duplicate(true))
 	var slot := (day - 3) % ROTATION.size()
 	var base_event: Dictionary = {}
-	if day >= 9:
-		# D4-B：Day9+ 一律重排；无路线时借用 trend 表，首战役第二周不再是第一周的回放。
+	# [P2-F5 2026-08-17] 路线激活即用路线日历（day>=3），不再等 Day9——
+	# 否则 NG+ 首周与首战役第一周完全同序，「选路线」到第二周才生效。
+	# 首周目（无路线）仍只在 Day9+ 借 trend 表重排（D4-B）。
+	if day >= 9 or LegacyRoutes.is_active():
 		var schedule: Array = ROUTE_ROTATIONS.get(LegacyRoutes.active_id(),
 			ROUTE_ROTATIONS["trend"])
 		if schedule.size() == ROTATION.size():

@@ -21,7 +21,9 @@ const SHAKE_GRACE_SECONDS := 0.5
 ## 三星线 = 目标的 1.4 倍（与 _end_day 判星共用，显示与判定不会漂移）。
 const STAR_GOAL_MULT := 1.4
 ## 耐心秒数标签的色档（与条填充、小费档位共用阈值 0.7/0.4）。
-const PATIENCE_BAND_COLORS := [Color("E5484D"), Color("D99A43"), Color("27B9A7")]
+## 加深档：秒数是 16px 常规字，原三色对订单卡底只有 2.3–3.7:1（P12 试玩），
+## 加深后全部 ≥4.5:1 且保留红/琥珀/薄荷的档位色相；进度条填充仍用原亮色。
+const PATIENCE_BAND_COLORS := [Color("B3261E"), Color("8A5A00"), Color("0E7A6C")]
 
 var time_left := DAY_LENGTH
 var running := false
@@ -139,6 +141,8 @@ var staff_trait_label: Label
 var staff_status_label: Label
 var staff_action_button: Button
 var _resume_after_pause := false
+## 离场自动晋升后等待一次「核对」单击的新队首（P11-F1）；倒杯/交付即清除。
+var _promoted_needs_review: Variant = null
 var _context_shortcuts: Array[Button] = []
 var ui_frame: SafeFrame
 var _order_progress_styles: Dictionary = {}
@@ -266,13 +270,20 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.echo:
 		return
+	# 事件简报 B 键等同“开始营业”（P3-F9：五面板都有 ui_cancel，唯独简报没有）。
+	if event_overlay != null and event_overlay.visible and event.is_action_pressed("ui_cancel"):
+		_dismiss_event_briefing()
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("game_pause") and not overlay.visible:
 		# 教程/事件简报期间也允许暂停（CF 待办）：设置与安全退出不应被教学卡住。
 		# 日结算 overlay 保持独占模态，不在其上叠暂停。
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
 		return
-	if not running:
+	# 教学门控练习步骤（选茶基/摇杯）放行真实输入：时钟保持冻结，
+	# 但点击/键盘/摇茶必须能到达店铺控件（P3-D1，V1 归因：遮罩 STOP + not running）。
+	if not running and not _tutorial_practice_active():
 		return
 	if event.is_action_pressed("prep_tea"):
 		_on_tea_batch_pressed()
@@ -390,6 +401,12 @@ func _build_ui() -> void:
 	ui_frame.add_child(status_panel)
 	status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 17)
+	# 最坏英文配方串实测 1112px，远超 505px 面板（P4 试玩/V3 核实）：
+	# 短名 + 自动换行两行 + 超出裁断，保证状态行永远停在面板内。
+	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	status_label.max_lines_visible = 2
+	status_label.custom_minimum_size = Vector2(0, 24)
 	status_panel.add_child(status_label)
 
 	# 情境原料选择：只显示当前步骤，世界道具和大触控按钮都可以操作。
@@ -409,6 +426,15 @@ func _build_ui() -> void:
 	context_choices.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	context_choices.add_theme_constant_override("separation", 8)
 	context_box.add_child(context_choices)
+	if OS.has_feature("mobile"):
+		# 触屏把情境按钮加高到 82px（P10-1）：小屏 SafeFrame 缩放 ~0.542 下
+		# 54px 只剩 ~29pt；82px ≈ 44.4pt。收紧面板内边距让加高后的网格
+		# 仍收在备料面板（y=198）上方。
+		var slim_panel := (get_theme_stylebox("panel", "PanelContainer") as StyleBox).duplicate()
+		slim_panel.content_margin_top = 5
+		slim_panel.content_margin_bottom = 5
+		context_panel.add_theme_stylebox_override("panel", slim_panel)
+		context_panel.custom_minimum_size = Vector2(800, 124)
 	_build_prep_panel()
 
 	# 底部唯一主提示 + 可恢复的重置操作。
@@ -464,6 +490,7 @@ func _build_ui() -> void:
 	pause_panel.resume_requested.connect(_resume_from_pause)
 	pause_panel.tutorial_requested.connect(_replay_tutorial)
 	pause_panel.menu_requested.connect(_return_to_menu)
+	pause_panel.motion_toggled.connect(_on_reduced_motion_toggled)
 	ui_frame.add_child(pause_panel)
 	_build_event_overlay()
 
@@ -691,6 +718,20 @@ func _show_event_briefing() -> void:
 func _dismiss_event_briefing() -> void:
 	event_overlay.visible = false
 	running = time_left > 0.0
+	_return_focus_to_mainline()
+
+
+## 简报关闭/暂停恢复后的焦点落点（P3-F10）：手柄回到制杯主线——
+## 未封杯交给情境按钮（自带延迟 grab），已封杯交给当前订单卡；
+## 仅无主线可依（指针模式/无按钮）时兜底右上角暂停按钮。
+func _return_focus_to_mainline() -> void:
+	if InputPrompts.gamepad_mode:
+		if cup_sealed:
+			_focus_active_order()
+			return
+		if _context_shortcuts.size() > 0:
+			_refresh_context_controls()
+			return
 	pause_button.grab_focus()
 
 
@@ -715,9 +756,18 @@ func _tutorial_step_done(step: int) -> bool:
 	return true
 
 
+## 教学门控练习期：教程可见且正处于步骤 3/4（选料/摇杯）。
+func _tutorial_practice_active() -> bool:
+	return tutorial_overlay != null and tutorial_overlay.gated_practice_active()
+
+
 func _on_tutorial_finished() -> void:
 	if time_left > 0.0 and not overlay.visible:
 		running = true
+	if InputPrompts.gamepad_mode:
+		# 教学期间情境按钮的延迟 grab 被守卫拦下（防偷走 _next 焦点，P3-F4）；
+		# 结束时补一次重建，让 deferred 焦点正确接管制杯主线。
+		_refresh_context_controls()
 
 
 func _toggle_pause() -> void:
@@ -736,7 +786,7 @@ func _resume_from_pause() -> void:
 	get_tree().paused = false
 	pause_panel.hide_panel()
 	running = _resume_after_pause and time_left > 0.0 and not overlay.visible
-	pause_button.grab_focus()
+	_return_focus_to_mainline()
 
 
 func _replay_tutorial() -> void:
@@ -756,6 +806,23 @@ func _return_to_menu() -> void:
 	else:
 		GameState.reset_progress()
 	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
+
+
+## 减弱动态的创建点门控在日内开启后不会自停存量循环（P12-F3）：
+## 开启时重建舞台上的店员/顾客（reduced_motion 分支直接静态就位）。
+## 关闭时刻意不重建——中途补回动画收益低且会造成可见的位置跳变。
+func _on_reduced_motion_toggled(enabled: bool) -> void:
+	if not enabled or stage == null:
+		return
+	if StaffCatalog.is_on_duty():
+		stage.remove_staff()
+		stage.add_staff(String(StaffCatalog.current().get("id", "")))
+		stage.set_staff_state(staff_state)
+	for c in customers:
+		var node: Node3D = stage.add_customer(int(c["slot"]), Color(c.get("tint", Color.WHITE)), \
+			String(c.get("kind", "regular")))
+		stage.remove_customer(c["node"], false)
+		c["node"] = node
 
 
 func _pill(hud: HBoxContainer, icon_texture: Texture2D) -> Label:
@@ -1063,7 +1130,7 @@ func _batch_quality_text() -> String:
 	return GameLocale.text("DAY_BATCH_STANDARD")
 
 func _on_ingredient(kind: String, item: Dictionary) -> void:
-	if not running or cup_sealed:
+	if (not running and not _tutorial_practice_active()) or cup_sealed:
 		return
 	match kind:
 		"base":
@@ -1172,7 +1239,7 @@ func _on_sugar(item: Dictionary) -> void:
 
 
 func _on_shake() -> void:
-	if cup_sealed or not running:
+	if cup_sealed or (not running and not _tutorial_practice_active()):
 		return
 	if cup_base == null or cup_milk == null or cup_sugar == null or not sugar_confirmed:
 		_flash(GameLocale.text("DAY_FEEDBACK_INCOMPLETE"), Color.ORANGE)
@@ -1194,8 +1261,8 @@ func _on_shake() -> void:
 
 
 func _can_gesture_shake() -> bool:
-	return running and not cup_sealed and cup_base != null and cup_milk != null \
-		and cup_sugar != null and sugar_confirmed
+	return (running or _tutorial_practice_active()) and not cup_sealed and cup_base != null \
+		and cup_milk != null and cup_sugar != null and sugar_confirmed
 
 
 func _mark_cup_correction() -> void:
@@ -1248,6 +1315,7 @@ func _on_reset_cup_pressed() -> void:
 func _reset_cup() -> void:
 	_shake_gesture.reset()
 	_shake_grace_left = 0.0
+	_promoted_needs_review = null
 	# 确认窗口只在营业中倒计时：跨天/自动清杯时必须一并解除武装，
 	# 否则冻结的窗口会泄漏到新的一天（对抗审查发现）。
 	_reset_confirm_left = 0.0
@@ -1270,11 +1338,12 @@ func _refresh_cup() -> void:
 	stage.cup.update_cup(cup_base, cup_milk, cup_tops, cup_sugar,
 		shake_progress / float(_shakes_needed()), cup_sealed)
 	var parts: Array = []
-	parts.append(GameLocale.ingredient_name(cup_base) if cup_base else GameLocale.text("DAY_MISSING_BASE"))
-	parts.append(GameLocale.ingredient_name(cup_milk) if cup_milk else GameLocale.text("DAY_MISSING_MILK"))
+	# 状态行空间有限：一律用短名（全名最坏串实测 1112px > 505px 面板，P4-1）。
+	parts.append(GameLocale.ingredient_short_name(cup_base) if cup_base else GameLocale.text("DAY_MISSING_BASE"))
+	parts.append(GameLocale.ingredient_short_name(cup_milk) if cup_milk else GameLocale.text("DAY_MISSING_MILK"))
 	for t in cup_tops:
-		parts.append(GameLocale.ingredient_name(t))
-	var sugar_name: String = GameLocale.ingredient_name(cup_sugar) if cup_sugar else "?"
+		parts.append(GameLocale.ingredient_short_name(t))
+	var sugar_name: String = GameLocale.ingredient_short_name(cup_sugar) if cup_sugar else "?"
 	var state := GameLocale.text("DAY_CUP_SEALED") if cup_sealed else ""
 	if cup_corrections > 0:
 		state += GameLocale.text("DAY_CUP_REWORKED", [cup_corrections])
@@ -1364,14 +1433,14 @@ func _refresh_context_controls() -> void:
 	var shake := Button.new()
 	shake.text = _shake_button_text()
 	shake.tooltip_text = GameLocale.text("DAY_SHAKE_GESTURE_HINT")
-	shake.custom_minimum_size = Vector2(300, 58)
+	shake.custom_minimum_size = Vector2(300, 58.0 if not OS.has_feature("mobile") else _context_button_height())
 	shake.pressed.connect(_on_shake)
 	context_choices.add_child(shake)
 	var right_space := Control.new()
 	right_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	context_choices.add_child(right_space)
 	_context_shortcuts.append(shake)
-	if InputPrompts.gamepad_mode:
+	if InputPrompts.gamepad_mode and not tutorial_overlay.visible:
 		shake.call_deferred("grab_focus")
 
 
@@ -1425,8 +1494,8 @@ func _set_context_panel_visible(show_panel: bool) -> void:
 func _add_context_button(item: Dictionary, handler: Callable, selected := false, button_width := 106.0) -> void:
 	var btn := Button.new()
 	var item_name := GameLocale.ingredient_short_name(item).replace("（纯茶）", "")
-	btn.text = item_name if InputPrompts.gamepad_mode else "%d  %s" % [_context_shortcuts.size() + 1, item_name]
-	btn.custom_minimum_size = Vector2(button_width, 54)
+	btn.text = _context_button_label(_context_shortcuts.size() + 1, item_name)
+	btn.custom_minimum_size = Vector2(button_width, _context_button_height())
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.add_theme_font_size_override("font_size", 16)
 	btn.tooltip_text = GameLocale.ingredient_name(item)
@@ -1466,8 +1535,26 @@ func _add_context_button(item: Dictionary, handler: Callable, selected := false,
 	btn.mouse_exited.connect(stage.clear_prop_hint.bind(item_id, "button_hover"))
 	context_choices.add_child(btn)
 	_context_shortcuts.append(btn)
-	if InputPrompts.gamepad_mode and _context_shortcuts.size() == 1:
+	# 延迟 grab 不得落在教学遮罩之下：_next 的同帧焦点会被后入队的延迟
+	# 调用偷走（P3-F4）。教程结束时会补一次重建接管。
+	if InputPrompts.gamepad_mode and _context_shortcuts.size() == 1 and not tutorial_overlay.visible:
 		btn.call_deferred("grab_focus")
+
+
+## 情境按钮文案：键盘用「1  名字」效率捷径；手柄/触屏没有数字键——
+## 触屏显示编号是键盘泄漏（P10-4）。
+func _context_button_label(index: int, item_name: String, mobile_override: Variant = null) -> String:
+	var mobile := OS.has_feature("mobile") if mobile_override == null else bool(mobile_override)
+	if InputPrompts.gamepad_mode or mobile:
+		return item_name
+	return "%d  %s" % [index, item_name]
+
+
+## 触屏主操作的触控目标补偿（P10-1）：最小手机可视高度下 SafeFrame 缩放
+## ~0.542，authored 54px 只剩 ~29pt；触屏把主按钮加高到 82px（≈44.4pt）。
+func _context_button_height(mobile_override: Variant = null) -> float:
+	var mobile := OS.has_feature("mobile") if mobile_override == null else bool(mobile_override)
+	return 82.0 if mobile else 54.0
 
 
 func _style_utility_button(button: Button, accent: Color, danger_copy := false) -> void:
@@ -1833,7 +1920,7 @@ func _spawn_customer() -> void:
 		"order": order, "orders": orders, "group_index": 0, "group_total": orders.size(),
 		"patience": patience, "max_patience": patience,
 		"editor": editor, "live_second": live_second,
-		"node": node, "bubble": bubble, "btn": btn, "slot": slot,
+		"node": node, "bubble": bubble, "btn": btn, "slot": slot, "tint": customer_color,
 		"patience_bar": patience_bar, "patience_label": patience_label,
 		"order_title": order_title, "order_progress": order_progress,
 		"order_row": row, "hint": hint,
@@ -2104,6 +2191,13 @@ func _on_order_card_pressed(c: Dictionary) -> void:
 	if not running:
 		return
 	if cup_sealed:
+		# 离场自动晋升的新队首要先核对一次：手中的封杯是为已离场顾客做的，
+		# 单击直接交付会把料损+耐心惩罚+连击清零一次全齐（P11-F1）。
+		if _promoted_needs_review == c:
+			_promoted_needs_review = null
+			_flash(GameLocale.text("DAY_ORDER_REVIEW_GAMEPAD" if InputPrompts.gamepad_mode \
+				else "DAY_ORDER_REVIEW_POINTER"), Color("E88B32"))
+			return
 		# The focused/active card is already reviewed, so confirm it immediately.
 		# A different pointer or number-key target gets one non-destructive review
 		# step first, matching the focus-then-A flow used by gamepads.
@@ -2419,6 +2513,9 @@ func _remove_customer(c: Dictionary, served := false) -> void:
 		active_customer = customers[0] if not customers.is_empty() else null
 		if active_customer != null:
 			_notify_head_promotion(active_customer)
+			# 封杯在手时，自动晋升的新队首挂一次性「先核对」标记（P11-F1）。
+			if cup_sealed:
+				_promoted_needs_review = active_customer
 	for item in customers:
 		_style_order_card(item, item == active_customer)
 	_refresh_context_controls()
@@ -2855,8 +2952,12 @@ func _update_info() -> void:
 		hud_upgrade.get_parent().tooltip_text = GameLocale.text("DAY_HUD_SHOP_TIP")
 	hud_coin.text = "%d" % GameState.coins
 	var rent_today := OperatingCosts.rent_base(GameState.day)
-	hud_cost.text = GameLocale.text("DAY_HUD_COSTS_TODAY", [stock_cost, rent_today]) if rent_today > 0 \
-		else GameLocale.text("DAY_HUD_COSTS_NEXT", [stock_cost, OperatingCosts.next_rent_day(GameState.day)])
+	if rent_today > 0:
+		hud_cost.text = GameLocale.text("DAY_HUD_COSTS_TODAY", [stock_cost, rent_today])
+	else:
+		# 周租金额提前可见（P6-F3）：非租金日预告下一次租金的日期与具体数额。
+		var rent := OperatingCosts.rent_preview()
+		hud_cost.text = GameLocale.text("DAY_HUD_COSTS_NEXT", [stock_cost, rent["day"], rent["amount"]])
 	hud_insp.text = "%d" % GameState.inspiration
 	hud_perfect.text = GameLocale.text("DAY_HUD_PERFECT", [perfect])
 	hud_streak.text = "x%d" % streak

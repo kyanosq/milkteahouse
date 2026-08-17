@@ -40,6 +40,22 @@ func next_rent_base(day_number: int) -> int:
 	return rent_base(next_rent_day(day_number))
 
 
+## [P6-F3 2026-08-17] HUD 成本胶囊的租金预告：白天即可看到下一次租金的“天数+金额”。
+## 接线点（day_shop.gd:2858-2859，主会话接一行）：
+##   var rent := OperatingCosts.rent_preview()
+##   hud_cost.text = ... GameLocale.text("DAY_HUD_COSTS_NEXT", [stock_cost, rent["day"], rent["amount"]])
+## DAY_HUD_COSTS_NEXT 需在 ui.csv 增加第三个参数（“补货%d · 租金D%d·%d”）。
+func rent_preview(day_number := -1) -> Dictionary:
+	var target_day := GameState.day if day_number < 0 else maxi(1, day_number)
+	var rent_day := next_rent_day(target_day)
+	var due_today := rent_day == target_day and rent_base(target_day) > 0
+	return {
+		"day": rent_day,
+		"amount": rent_base(rent_day),
+		"due_today": due_today,
+	}
+
+
 ## 工资应先由 StaffCatalog 结算；周租保护上限基于补货后仍可用的现金。
 func settle(day_number: int, stock_due: int, waste_due: int) -> Dictionary:
 	var safe_stock := maxi(0, stock_due)

@@ -46,13 +46,16 @@ func _ready() -> void:
 	GameState.endless = GameState._new_endless_state()
 	assert(EndlessContracts.target_for("streak_stage", 40) == 30, "targets keep the legacy curve through day 40")
 	assert(EndlessContracts.target_for("streak_stage", 46) == 31, "targets creep +1 per 6 days past day 40")
-	assert(EndlessContracts.target_for("precision_shift", 100) == 40, "creeping targets cap at 40")
+	# [P8-F1 2026-08-17] 可赢包络：杯数目标封顶 36（满配 skilled 实测极限 38-42 的 0.9 折）。
+	assert(EndlessContracts.target_for("precision_shift", 100) == 36,
+		"creeping cup targets clamp to the winnable envelope, not 40")
 	var offers := EndlessContracts.available_for_day(16)
 	assert(offers.size() == 3)
 	assert(int(offers[0]["cost"]) == 120, "day-16 anchor stays at the base fee")
 	assert(int(offers[0]["refund"]) == 42)
 	assert(String(offers[0]["target_text"]) == "最高连击 ≥ x28")
-	assert(int(offers[2]["target"]) == 497)
+	# [P8-F2 2026-08-17] 冲刺系数 1.35 → 1.15：无历史回退 368×1.15 = 424。
+	assert(int(offers[2]["target"]) == 424)
 	# 1.0（D1①）：签约费无上限复利——每天 +15%，后期金币重新有用途。
 	assert(EndlessContracts.cost_for({"base_cost": 120}, 20) == 192,
 		"fee grows 15% per day past day 16")
@@ -65,13 +68,54 @@ func _ready() -> void:
 	assert(EndlessContracts.rank_name(20) == GameLocale.text("CONTRACT_RANK_LEGEND"))
 	assert(EndlessContracts.rank_name(30) == GameLocale.text("CONTRACT_RANK_IMMORTAL"),
 		"the seventh rank tier exists (D6B)")
-	assert(EndlessContracts.next_rank_text(30) == GameLocale.text("CONTRACT_RANK_DEFEND"))
+	# [P8-F3/P8-F5 2026-08-17] 30+ 接入 CONTRACT_RANK_MAX 并带守擂计数（完成/失败）；
+	# 计数键未上本地化表前退回无参数的 CONTRACT_RANK_DEFEND。
+	GameState.endless["completed"] = 3
+	GameState.endless["failed"] = 2
+	var defend_line := EndlessContracts.next_rank_text(30)
+	assert(defend_line.contains(GameLocale.text("CONTRACT_RANK_MAX")))
+	if TranslationServer.translate("CONTRACT_RANK_DEFEND_COUNT") != "CONTRACT_RANK_DEFEND_COUNT":
+		assert(defend_line.contains("3") and defend_line.contains("2"))
+	else:
+		assert(defend_line.contains(GameLocale.text("CONTRACT_RANK_DEFEND")))
+	GameState.endless["completed"] = 0
+	GameState.endless["failed"] = 0
 	assert(EndlessContracts.next_rank_text(13).contains("2"))
+	# [P8-F3 2026-08-17] 20-29 段显示距不朽档（30）的枚数——不再出现 -2/-5 负数。
+	assert(EndlessContracts.next_rank_text(22) == GameLocale.text("CONTRACT_RANK_NEXT", [8]))
+	assert(EndlessContracts.next_rank_text(25) == GameLocale.text("CONTRACT_RANK_NEXT", [5]))
+	assert(not EndlessContracts.next_rank_text(25).contains("-"))
 	# 不朽章节：20 章后每个印章要求 ×1.05（D6B）。
 	GameState.endless["stamps"] = 22
 	assert(EndlessContracts.target_for("streak_stage", 46) == roundi(31.0 * 1.05 * 1.05),
 		"stamps past 20 scale the requirement by 1.05 each")
+	# [P8-F1 2026-08-17] 包络断言：stamps 25/30 的杯数目标仍钳在可赢包络内。
+	GameState.endless["stamps"] = 25
+	assert(EndlessContracts.target_for("precision_shift", 58) == EndlessContracts.WINNABLE_TARGET_CAP,
+		"stamps=25 must clamp the D58 precision target to the winnable envelope")
+	GameState.endless["stamps"] = 30
+	assert(EndlessContracts.target_for("streak_stage", 100) == EndlessContracts.WINNABLE_TARGET_CAP,
+		"stamps=30 must clamp even the day-100 creeped target")
+	# [P8-F2 2026-08-17] 收敛态可赢：MA5=900 → 目标 = 1.15×0.85×900 = 880，
+	# 落在冲刺弹性带（+6~15%）内可重复达成；印章缩放后钳到历史最佳×1.10 = 990。
+	GameState.endless["revenue_history"] = [900, 900, 900, 900, 900]
+	GameState.endless["goal_state"] = 765
 	GameState.endless["stamps"] = 0
+	assert(EndlessContracts.target_for("revenue_sprint", 58) == 880,
+		"converged sprint target = 1.15 * 0.85 * MA5")
+	assert(EndlessContracts.target_for("revenue_sprint", 58) < 945,
+		"converged target must stay below MA5 + 5% headroom")
+	GameState.endless["stamps"] = 30
+	assert(EndlessContracts.target_for("revenue_sprint", 58) == 990,
+		"stamps escalation clamps the sprint target to best revenue x1.10")
+	GameState.endless["stamps"] = 0
+	# [P8-F4 2026-08-17] 退款比例随天数上调（+0.002/天，封顶 0.55）：day16 锚点不变，
+	# D58 净成本从 ≈888 币/印章回落到约一半。
+	assert(absf(EndlessContracts.refund_ratio_for(EndlessContracts.item("streak_stage"), 16) - 0.35) < 0.0001)
+	assert(absf(EndlessContracts.refund_ratio_for(EndlessContracts.item("streak_stage"), 58) - 0.434) < 0.0001)
+	var late_streak := EndlessContracts.available_for_day(58)[0]
+	assert(int(late_streak["refund"]) == roundi(876 * 0.434))
+	GameState.endless = GameState._new_endless_state()
 
 	assert(EndlessContracts.sign_contract("streak_stage", 16, false))
 	assert(GameState.coins == 880)

@@ -24,6 +24,11 @@ var _feedback: Label
 var _safe_offset := Vector2.ZERO
 var _mode := "featured"
 var _dark_candidate: Dictionary = {}
+# 批量策展的落盘防抖（P11-F4）：面板内改动 0.6s 合并一次写盘，关闭时冲掉。
+var _catalog_dirty := false
+var _catalog_save_generation := 0
+# 策展操作的焦点保持（P3-F8）：记录被操作卡在网格中的索引，刷新后回到同卡。
+var _focus_card_index := -1
 
 
 func _ready() -> void:
@@ -138,6 +143,7 @@ func show_dark_candidate(candidate: Dictionary) -> void:
 
 func hide_panel() -> void:
 	visible = false
+	persist_catalog_now()
 	closed.emit()
 
 
@@ -159,20 +165,31 @@ func _refresh() -> void:
 		_refresh_dark()
 	else:
 		_refresh_featured()
-	_restore_focus()
+	# 批量策展（P3-F8）：优先回到被操作的那张卡，其次才是关闭按钮兜底。
+	if not _restore_card_focus():
+		_restore_focus()
 
 
 func _refresh_featured() -> void:
 	var featured := MenuCatalog.featured_items()
 	var tomorrow := DailyEvents.next_event(GameState.day)
 	var tomorrow_id := String(tomorrow.get("id", "calm"))
+	# 槽位分母走路线感知入口（P7-F1）：rush 只有 2 个主推槽，写死 3 会把
+	# 「2/3 槽」「三个槽已满」变成假情报。
+	var slot_limit := MenuCatalog.featured_limit()
 	_title_label.text = GameLocale.text("MENU_BOARD_TITLE")
 	_progress_label.text = GameLocale.text("MENU_BOARD_PROGRESS", [
-		featured.size(), MenuCatalog.FEATURED_LIMIT, MenuCatalog.hot_featured_count()])
-	_subtitle_label.text = GameLocale.text("MENU_BOARD_SUBTITLE")
+		featured.size(), slot_limit, MenuCatalog.hot_featured_count()])
+	_subtitle_label.text = GameLocale.text("MENU_BOARD_SUBTITLE_SLOTS", [slot_limit]) \
+		if slot_limit != MenuCatalog.FEATURED_LIMIT else GameLocale.text("MENU_BOARD_SUBTITLE")
+	# 客流百分比带符号（P5-5）：溢价减速为负值时不得渲染成 "+-9%"。
+	var traffic_delta := roundi((1.0 - MenuCatalog.traffic_multiplier()) * 100.0)
 	_impact_label.text = GameLocale.text("MENU_BOARD_FORECAST", [
 		String(tomorrow.get("name", "")), MenuCatalog.event_match_count(tomorrow_id),
-		roundi((1.0 - MenuCatalog.traffic_multiplier()) * 100.0)])
+		("+" if traffic_delta >= 0 else "") + str(traffic_delta)])
+	# 快手风向的定价咬合提示（P5-4）：让 ≤13 币匹配规则在菜单板上可发现。
+	if tomorrow_id == "lunch_rush":
+		_impact_label.text += " " + GameLocale.text("LUNCH_RUSH_PRICE_HINT", [13])
 	for item_data in MenuCatalog.items():
 		_cards.add_child(_menu_card(item_data))
 
@@ -282,7 +299,9 @@ func _menu_card(item_data: Dictionary) -> PanelContainer:
 	event_fit.text = GameLocale.text("MENU_BOARD_EVENT_MATCH", [match_bonus]) if match_bonus > 0 \
 		else GameLocale.text("MENU_BOARD_EVENT_NEUTRAL")
 	event_fit.add_theme_font_size_override("font_size", 13)
-	event_fit.add_theme_color_override("font_color", GOLD if match_bonus > 0 else Color(COCOA.r, COCOA.g, COCOA.b, 0.52))
+	# 13px 小字不用 GOLD/半透明（对卡底 2.35:1，P12-F5）：契合与否由文案本身
+	# （+N / 常规）表达，颜色保持全对比可可。
+	event_fit.add_theme_color_override("font_color", COCOA)
 	box.add_child(event_fit)
 	var formula := Label.new()
 	formula.text = MenuCatalog.formula_text(item_data)
@@ -405,11 +424,13 @@ func _empty_dark_card(slot: int) -> PanelContainer:
 
 
 func _replace_dark(slot: int) -> void:
-	if MenuCatalog.install_dark_candidate(_dark_candidate, slot):
+	_remember_focused_card()
+	if MenuCatalog.install_dark_candidate(_dark_candidate, slot, false):
 		_dark_candidate = {}
 		_feedback.text = GameLocale.text("DARK_BOARD_REPLACED")
 		_feedback.add_theme_color_override("font_color", MINT)
 		menu_changed.emit()
+		_schedule_catalog_save()
 	else:
 		_feedback.text = GameLocale.text("MENU_BOARD_INVALID")
 		_feedback.add_theme_color_override("font_color", CORAL)
@@ -417,22 +438,26 @@ func _replace_dark(slot: int) -> void:
 
 
 func _remove_dark(slot: int) -> void:
-	if MenuCatalog.remove_dark_slot(slot):
+	_remember_focused_card()
+	if MenuCatalog.remove_dark_slot(slot, false):
 		_feedback.text = GameLocale.text("DARK_BOARD_REMOVED")
 		_feedback.add_theme_color_override("font_color", MINT)
 		menu_changed.emit()
+		_schedule_catalog_save()
 	call_deferred("_refresh")
 
 
 func _toggle_item(item_id: String, active: bool) -> void:
-	var result := MenuCatalog.set_featured(item_id, active)
+	_remember_focused_card()
+	var result := MenuCatalog.set_featured(item_id, active, false)
 	match result:
 		"ok":
 			_feedback.text = GameLocale.text("MENU_BOARD_UPDATED")
 			_feedback.add_theme_color_override("font_color", MINT)
 			menu_changed.emit()
+			_schedule_catalog_save()
 		"full":
-			_feedback.text = GameLocale.text("MENU_BOARD_FULL")
+			_feedback.text = _slots_full_text()
 			_feedback.add_theme_color_override("font_color", CORAL)
 		"minimum":
 			_feedback.text = GameLocale.text("MENU_BOARD_MINIMUM")
@@ -444,13 +469,85 @@ func _toggle_item(item_id: String, active: bool) -> void:
 
 
 func _on_price_pressed(item_id: String, price: int) -> void:
-	if MenuCatalog.set_item_price(item_id, price):
+	_remember_focused_card()
+	if MenuCatalog.set_item_price(item_id, price, false):
 		_feedback.text = GameLocale.text("MENU_BOARD_PRICE_SET", [price])
 		_feedback.add_theme_color_override("font_color", MINT)
+		_schedule_catalog_save()
 	else:
 		_feedback.text = GameLocale.text("MENU_BOARD_INVALID")
 		_feedback.add_theme_color_override("font_color", CORAL)
 	call_deferred("_refresh")
+
+
+## 「已满」文案按实际槽位数（P7-F1）：rush 是 2 槽，不能说「三个槽已满」。
+func _slots_full_text() -> String:
+	var slot_limit := MenuCatalog.featured_limit()
+	return GameLocale.text("MENU_BOARD_FULL_SLOTS", [slot_limit]) \
+		if slot_limit != MenuCatalog.FEATURED_LIMIT else GameLocale.text("MENU_BOARD_FULL")
+
+
+## 记录持焦控件所在的卡片索引，供刷新后回焦（P3-F8）。
+func _remember_focused_card() -> void:
+	_focus_card_index = -1
+	var focus := get_viewport().gui_get_focus_owner() as Control
+	if focus == null:
+		return
+	for i in _cards.get_child_count():
+		if _cards.get_child(i).is_ancestor_of(focus):
+			_focus_card_index = i
+			return
+
+
+func _restore_card_focus() -> bool:
+	if _focus_card_index < 0 or _focus_card_index >= _cards.get_child_count():
+		_focus_card_index = -1
+		return false
+	var card: Control = _cards.get_child(_focus_card_index)
+	_focus_card_index = -1
+	if not visible or not is_inside_tree():
+		return false
+	return _grab_first_action_button(card)
+
+
+func _grab_first_action_button(root: Node) -> bool:
+	for child in root.get_children():
+		if child is Button and not child.disabled and child.focus_mode != Control.FOCUS_NONE:
+			(child as Button).grab_focus()
+			return true
+		if _grab_first_action_button(child):
+			return true
+	return false
+
+
+## 批量策展的写盘防抖（P11-F4）：目录写方法 persist=false，面板内 0.6s 合并
+## 一次完整落盘；关闭面板/离开夜间时立即冲掉（参考暂停面板的 generation 防抖）。
+func _schedule_catalog_save() -> void:
+	_catalog_dirty = true
+	_catalog_save_generation += 1
+	var generation := _catalog_save_generation
+	await get_tree().create_timer(0.6).timeout
+	if _catalog_save_generation == generation:
+		persist_catalog_now()
+
+
+func persist_catalog_now() -> void:
+	_catalog_save_generation += 1
+	if not _catalog_dirty:
+		return
+	_catalog_dirty = false
+	GameState.save_game()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _catalog_dirty:
+		GameState.save_game()
+		_catalog_dirty = false
+
+
+## 焦点圈禁入口（P3-F1）：把焦点拉回面板内的关闭按钮。
+func confine_focus() -> void:
+	_close_button.grab_focus()
 
 
 func visible_card_count() -> int:

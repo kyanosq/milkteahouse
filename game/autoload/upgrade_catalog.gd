@@ -133,8 +133,22 @@ func positioning_unlocked() -> bool:
 	return GameState.day >= int(POSITIONINGS[0]["unlock_day"])
 
 
+## [S1-D2 死档守卫 2026-08-17] 「风味」与智能糖台一级在 auto_sugar_after_milk()
+## 完全同源（全仓唯一消费点），已购糖台后再买风味 = 600 币买 0。买键前置拦截。
+func positioning_redundant(positioning_id: String) -> bool:
+	return positioning_id == "positioning_flavor" and level("smart_sugar") >= 1
+
+
+## 反向冗余：已持「风味」时糖台一级无新增效果（但它是糖台二级的必经前置，
+## 不禁购，只给面板警告钩子——upgrade_panel 据 UPGRADE_SMART_SUGAR_REDUNDANT 标注）。
+func smart_sugar_redundant() -> bool:
+	return positioning() == "positioning_flavor" and level("smart_sugar") == 0
+
+
 func buy_positioning(positioning_id: String, persist := true) -> bool:
 	if not positioning_unlocked() or not positioning().is_empty():
+		return false
+	if positioning_redundant(positioning_id):
 		return false
 	for source in POSITIONINGS:
 		if String(source["id"]) == positioning_id and GameState.coins >= int(source["cost"]):
@@ -176,10 +190,14 @@ func perfect_bonus() -> int:
 	return 1 if positioning() == "positioning_craft" else 0
 
 
+## [P2-F2 2026-08-17] 定位按等价等级（各 1 级）计入评级分母/分子：14→16。
+## 未购定位时分子不变、分母变大，评级对「买不买定位」保持中性而不是惩罚买方。
 func total_levels() -> int:
 	var total := 0
 	for data in ITEMS:
 		total += level(data["id"])
+	if not positioning().is_empty():
+		total += 1
 	return total
 
 
@@ -187,7 +205,7 @@ func total_max_levels() -> int:
 	var total := 0
 	for data in ITEMS:
 		total += int(data["max_level"])
-	return total
+	return total + POSITIONINGS.size()
 
 
 func total_tree_cost() -> int:

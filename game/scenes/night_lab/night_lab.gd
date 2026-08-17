@@ -125,6 +125,11 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.echo:
 		return
+	# 模态面板焦点圈禁（P3-F1）：面板可见而焦点逃逸到货架瓦片等被遮挡控件时，
+	# D-pad/A 会真实改配方、作废待上架分数——拦下导航/确认并把焦点拉回面板。
+	var modal := _visible_modal_panel()
+	if modal != null and _clamp_focus_inside(event, modal):
+		return
 	if event.is_action_pressed("game_pause"):
 		if menu_board_panel != null and menu_board_panel.visible:
 			menu_board_panel.hide_panel()
@@ -141,6 +146,30 @@ func _input(event: InputEvent) -> void:
 		else:
 			_toggle_settings()
 		get_viewport().set_input_as_handled()
+
+
+## 当前打开的模态面板（五张夜间面板 + 设置）；无则返回 null。
+func _visible_modal_panel() -> Control:
+	for panel in [menu_board_panel, recipe_book_panel, contract_panel, upgrade_panel,
+			staff_panel, settings_panel]:
+		if panel != null and panel.visible:
+			return panel
+	return null
+
+
+## 焦点属主不在面板子树内时，拦截 ui 导航/确认事件并拉回焦点。返回 True = 已消费。
+func _clamp_focus_inside(event: InputEvent, panel: Control) -> bool:
+	var focus := get_viewport().gui_get_focus_owner() as Control
+	if focus != null and panel.is_ancestor_of(focus):
+		return false
+	if not (event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_up")
+			or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left")
+			or event.is_action_pressed("ui_right")):
+		return false
+	get_viewport().set_input_as_handled()
+	if panel.has_method("confine_focus"):
+		panel.call("confine_focus")
+	return true
 
 
 # ---------------------------------------------------------------- UI
@@ -386,6 +415,13 @@ func _build_ui() -> void:
 	name_row.add_child(shelf_btn)
 	note_box.add_child(name_row)
 	name_row.visible = false
+	# 手柄没有键盘、触屏没有物理键盘：聚焦时弹出系统虚拟键盘（P3-F2/P10）。
+	name_edit.focus_entered.connect(func():
+		if OS.has_feature("mobile"):
+			DisplayServer.virtual_keyboard_show(name_edit.text))
+	name_edit.focus_exited.connect(func():
+		if OS.has_feature("mobile"):
+			DisplayServer.virtual_keyboard_hide())
 
 	# 金币成长入口与夜间研发并列：玩家能在下一天营业前明确投资效率。
 	var upgrade_btn := Button.new()
@@ -559,6 +595,9 @@ func _close_settings() -> void:
 
 func _return_to_menu() -> void:
 	get_tree().paused = false
+	# 离开夜间前把菜单板的防抖落盘冲掉（P11-F4：面板内改动 0.6s 合并写盘）。
+	if menu_board_panel != null:
+		menu_board_panel.persist_catalog_now()
 	if GameState.has_save():
 		GameState.load_save()
 	else:
@@ -681,7 +720,9 @@ func _shelf_group(shelf: HBoxContainer, title: String, items: Array, kind: Strin
 
 
 func _on_input_scheme_changed(gamepad: bool) -> void:
-	if gamepad and is_instance_valid(_first_tile):
+	# 任一模态面板可见时不把焦点抢回货架首瓦片（P3-F5）：瓦片在面板遮罩之下，
+	# 族切换后 A 键会隔着面板改配方。
+	if gamepad and is_instance_valid(_first_tile) and _visible_modal_panel() == null:
 		_first_tile.call_deferred("grab_focus")
 
 
@@ -780,7 +821,7 @@ func _refresh() -> void:
 		GameState.tests.size()])
 	book_label.tooltip_text = GameLocale.text("RECIPE_BOOK_TITLE")
 	menu_button.text = GameLocale.text("NIGHT_MENU_PILL", [
-		MenuCatalog.featured_items().size(), MenuCatalog.FEATURED_LIMIT,
+		MenuCatalog.featured_items().size(), MenuCatalog.featured_limit(),
 		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), DARK_MENU_CAP])
 	menu_button.tooltip_text = GameLocale.text("MENU_BOARD_TITLE")
 	var target_name := RecipeJournal.target_display_name()
@@ -926,8 +967,22 @@ func _show_note(title: String, chip_text: String, chip_color: Color, body: Strin
 		b.add_theme_font_size_override("font_size", 15)
 		note_box.add_child(b)
 	name_row.visible = with_naming
+	if with_naming and (InputPrompts.gamepad_mode or OS.has_feature("mobile")):
+		# 命名行出现即聚焦：手柄/触屏玩家不需要先猜到左上角的小输入框（P3-F2）。
+		name_edit.grab_focus()
+		_show_virtual_keyboard()
 	note_box.move_child(name_row, note_box.get_child_count() - 1)
 	note_card.visible = true
+
+
+func _show_virtual_keyboard() -> void:
+	if OS.has_feature("mobile"):
+		DisplayServer.virtual_keyboard_show(name_edit.text)
+
+
+func _hide_virtual_keyboard() -> void:
+	if OS.has_feature("mobile"):
+		DisplayServer.virtual_keyboard_hide()
 
 
 # ---------------------------------------------------------------- 试做（判定逻辑不变）
@@ -1101,6 +1156,13 @@ func _on_shelf() -> void:
 		return
 	var recipe_name := name_edit.text.strip_edges()
 	if recipe_name.is_empty():
+		# 空名静默提交是手柄/触屏断路（P3-F2）：反馈必须可见，且把焦点/虚拟键盘
+		# 拉回输入框，让玩家知道缺的是名字。
+		_set_result("NIGHT_NAME_REQUIRED")
+		name_edit.grab_focus()
+		_show_virtual_keyboard()
+		Sfx.play("bad", 0.72)
+		Haptics.play("warning")
 		return
 	var topping_ids: Array[String] = []
 	for topping in cup_tops:
@@ -1114,6 +1176,7 @@ func _on_shelf() -> void:
 	Sfx.play("coin")
 	Haptics.play("confirm")
 	name_edit.text = ""
+	_hide_virtual_keyboard()
 	note_card.visible = false
 	_note_state.clear()
 	_set_result("NIGHT_MARKET_TEST_STARTED", [recipe_name])

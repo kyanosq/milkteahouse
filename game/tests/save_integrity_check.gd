@@ -99,6 +99,11 @@ func _ready() -> void:
 		"the legal worst-case settlement must survive load without dropping cards")
 	assert(String(GameState.market_settlement["results"][5]["name"]).length() == 40,
 		"a writer-length name must round-trip unchanged")
+	# [P5-1 2026-08-17] 配方字段白名单同步：结算卡配方行重进夜间不丢。
+	assert(String(GameState.market_settlement["results"][5].get("base", "")) == "black_tea")
+	assert(String(GameState.market_settlement["results"][5].get("milk", "")) == "fresh_milk")
+	assert(GameState.market_settlement["results"][5].get("toppings", []) == [])
+	assert(int(GameState.market_settlement["results"][5].get("sugar", -1)) == 50)
 	GameState.market_settlement = {}
 
 	# 日中存档包含已入账收入；恢复未结算的白天必须回滚到开店快照，堵住重玩重复收入。

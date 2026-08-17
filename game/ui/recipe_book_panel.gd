@@ -250,7 +250,9 @@ func _matrix_header(copy: String, accent: Color) -> PanelContainer:
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.tooltip_text = copy
 	label.add_theme_font_size_override("font_size", 15)
-	label.add_theme_color_override("font_color", accent)
+	# 15px 表头小字不用 CORAL/MINT/GOLD（2.3–2.9:1，P12-F5）；色相语义
+	# 保留在格子描边与底色上。
+	label.add_theme_color_override("font_color", COCOA)
 	panel.add_child(label)
 	return panel
 
@@ -281,7 +283,9 @@ func _pairing_cell(base: Dictionary, milk: Dictionary) -> PanelContainer:
 	rank_label.text = ResearchProgress.rank_name(rank) if seen else "?"
 	rank_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	rank_label.add_theme_font_size_override("font_size", 16)
-	rank_label.add_theme_color_override("font_color", accent)
+	# 等级名 16px 不用档位 accent（对浅格 2.35–2.85:1，P12-F5）；档位色
+	# 由格子描边表达。
+	rank_label.add_theme_color_override("font_color", COCOA)
 	box.add_child(rank_label)
 	var detail := Label.new()
 	detail.text = GameLocale.text("RESEARCH_PAIR_SCORE", [_signed_score(int(result.get("score", 0)))]) \
@@ -317,7 +321,7 @@ func _mastery_cell(ingredient: Dictionary) -> PanelContainer:
 	title.text = GameLocale.text("RESEARCH_MASTERY_LEVEL", [
 		GameLocale.ingredient_short_name(ingredient), int(progress["level"])])
 	title.add_theme_font_size_override("font_size", 15)
-	title.add_theme_color_override("font_color", accent)
+	title.add_theme_color_override("font_color", COCOA)
 	box.add_child(title)
 	var bar := ProgressBar.new()
 	bar.max_value = int(progress["max"])
@@ -435,6 +439,11 @@ func _clear_target() -> void:
 
 func visible_card_count() -> int:
 	return _cards.get_child_count()
+
+
+## 焦点圈禁入口（P3-F1）：把焦点拉回面板内的关闭按钮。
+func confine_focus() -> void:
+	_close_button.grab_focus()
 
 
 func show_dark_tab_for_test() -> void:

@@ -74,6 +74,17 @@ func _ready() -> void:
 		"rebinding onto the fixed prep keys must be rejected")
 	assert(InputPrompts.key_for("game_pause") == KEY_ESCAPE,
 		"a rejected rebind must leave the binding untouched")
+	# 保留键扩展（P11-F2）：数字 1–9 是情境选择捷径，Enter/Tab 是 UI 确认与
+	# 焦点遍历——改键占用会让对应功能静默失效。
+	assert(InputPrompts.conflict_for("game_shake", KEY_1) != "",
+		"the number shortcuts must be reserved")
+	assert(InputPrompts.conflict_for("game_shake", KEY_9) != "")
+	assert(InputPrompts.conflict_for("staff_interact", KEY_ENTER) != "",
+		"Enter must stay reserved for UI confirm")
+	assert(not InputPrompts.rebind_keyboard("game_shake", KEY_1),
+		"rebinding onto a number shortcut must be rejected")
+	assert(InputPrompts.key_for("game_shake") == KEY_R,
+		"a rejected number-key rebind must leave the binding untouched (still R from above)")
 	var cancel := InputEventKey.new()
 	cancel.keycode = KEY_ESCAPE
 	cancel.pressed = true

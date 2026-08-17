@@ -391,9 +391,216 @@ func _ready() -> void:
 	shop.tutorial_overlay._finish()
 	InputPrompts.set_test_controller_family("xbox")
 
-	print("[INPUT] passed actions=5 families=4 prep_shoulders=true device_glyphs=true focus_ring=4px safe=320x/40y+cutout mouse_gesture=true sensor_gate=true gamepad_shake=true haptics=true")
+	# ---- 教学 _next 焦点不被同帧延迟 grab 偷走（P3-F4）----
+	shop._reset_cup()
+	shop._show_tutorial(true)
+	for focus_frame in 5:
+		await get_tree().process_frame
+	var tutorial_focus := get_viewport().gui_get_focus_owner() as Control
+	assert(tutorial_focus != null and shop.tutorial_overlay.is_ancestor_of(tutorial_focus),
+		"tutorial focus must stay on the overlay while deferred context grabs drain")
+	# 聚光灯真开洞（P12-F2）：聚焦区中心不被任何暗幕覆盖（透出原始场景对比度），
+	# 洞外仍被暗层盖住；进度文字不再用 2.3:1 的 MINT。
+	var hole_center: Vector2 = shop.tutorial_overlay._focus.position \
+		+ shop.tutorial_overlay._focus.size * 0.5
+	assert(not shop.tutorial_overlay.hole_covers_point(hole_center),
+		"the spotlight must punch a real hole through the dim layer")
+	assert(shop.tutorial_overlay.hole_covers_point(Vector2(8, 700)),
+		"the dim layer must still cover regions outside the spotlight")
+	assert(shop.tutorial_overlay._progress.get_theme_color("font_color") == AppTheme.COCOA,
+		"tutorial progress copy needs full-contrast cocoa, not 2.3:1 mint")
+	shop.tutorial_overlay._finish()
+
+	# ---- 耐心秒数三档色对比（P12-F1）：16px 常规字需 ≥4.5:1 ----
+	for band_color in shop.PATIENCE_BAND_COLORS:
+		assert(_contrast_ratio(band_color, Color(1.0, 0.973, 0.929)) >= 4.5,
+			"patience band color must reach 4.5:1 on the order card background: %s" % band_color.to_html())
+
+	# ---- 触屏文案与触控目标（P10-4 / P10-1）----
+	InputPrompts.set_test_gamepad_mode(false)
+	assert(shop._context_button_label(1, "Assam") == "1  Assam")
+	assert(shop._context_button_label(1, "Assam", true) == "Assam",
+		"touch context buttons must not leak the keyboard number prefix")
+	assert(shop.tutorial_overlay._device_hint(2, "x", true) == GameLocale.text("TUTORIAL_3_HINT_TOUCH"))
+	assert(shop.tutorial_overlay._device_hint(3, "x", true) == GameLocale.text("TUTORIAL_SHAKE_HINT_TOUCH"))
+	shop.pause_panel._update_controls_copy(true)
+	assert(shop.pause_panel._controls.text == GameLocale.text("SETTINGS_CONTROLS_DAY_TOUCH"),
+		"touch devices must not see Q/E/Space/F/Esc keyboard copy in the pause panel")
+	assert(shop._context_button_height(true) * 0.542 >= 44.0,
+		"mobile primary buttons must keep >=44pt at the worst-phone SafeFrame scale")
+	assert(shop._context_button_height(false) == 54.0, "desktop context buttons stay unchanged")
+	InputPrompts.set_test_gamepad_mode(true)
+
+	# ---- 离场自动晋升的新队首先核对再交付（P11-F1）----
+	while shop.customers.size() < 2:
+		shop._spawn_customer()
+	var leaving_head: Dictionary = shop.active_customer
+	var promoted_head: Dictionary = shop.customers[1] if shop.customers[0] == leaving_head else shop.customers[0]
+	shop.cup_base = promoted_head["order"]["base"]
+	shop.cup_milk = promoted_head["order"]["milk"]
+	shop.cup_tops = promoted_head["order"]["tops"].duplicate()
+	shop.cup_sugar = promoted_head["order"]["sugar"]
+	shop.sugar_confirmed = true
+	shop.cup_sealed = true
+	shop._remove_customer(leaving_head, true)
+	assert(shop.active_customer == promoted_head)
+	assert(shop._promoted_needs_review == promoted_head,
+		"an auto-promoted head must be flagged for review while a cup is sealed")
+	var served_before_promotion: int = shop.served
+	shop._on_order_card_pressed(promoted_head)
+	assert(shop.served == served_before_promotion,
+		"the first press on an auto-promoted head must review, not deliver")
+	shop._on_order_card_pressed(promoted_head)
+	assert(shop.served == served_before_promotion + 1,
+		"the second press must deliver the reviewed cup")
+
+	# ---- 减弱动态开启后存量动画停（P12-F3）：舞台演员重建为静态 ----
+	var stale_actors: Array = []
+	for c in shop.customers:
+		stale_actors.append(c["node"])
+	GameState.settings["reduced_motion"] = true
+	shop._on_reduced_motion_toggled(true)
+	assert(shop.customers.size() == stale_actors.size())
+	for i in shop.customers.size():
+		assert(shop.customers[i]["node"] != stale_actors[i],
+			"enabling reduced motion must rebuild live actors so idle loops stop")
+		assert(float(shop.customers[i]["node"].get_node("BobRoot").position.y) == 0.0,
+			"rebuilt actors must be placed statically with no bob loop")
+
+	# ---- 日间暂停面板圈禁（P3-F6）：逃逸后的 D-pad 不落遮罩下控件 ----
+	shop._toggle_pause()
+	assert(get_tree().paused and shop.pause_panel.visible)
+	shop._context_shortcuts[0].grab_focus()
+	await get_tree().process_frame
+	var pause_nav := InputEventAction.new()
+	pause_nav.action = "ui_down"
+	pause_nav.pressed = true
+	Input.parse_input_event(pause_nav)
+	await get_tree().process_frame
+	var clamped_focus := get_viewport().gui_get_focus_owner() as Control
+	assert(clamped_focus != null and shop.pause_panel.is_ancestor_of(clamped_focus),
+		"ui_down with escaped focus must clamp back into the pause panel")
+	shop._resume_from_pause()
+	assert(not get_tree().paused)
+	# 恢复后的焦点落点（P3-F10）：未封杯时回到制杯主线的情境按钮，
+	# 而不是右上角的暂停按钮。
+	await get_tree().process_frame
+	assert(not shop.cup_sealed)
+	assert(get_viewport().gui_get_focus_owner() == shop._context_shortcuts[0],
+		"resuming with an unsealed cup must refocus the prep mainline, not the pause button")
 	Sfx.stop_all()
 	shop.queue_free()
 	await get_tree().process_frame
 	await get_tree().process_frame
+
+	# ---- 夜间模态面板：圈禁（P3-F1/F5）与购买/签约后焦点恢复（P3-F3）----
+	# （日间店铺先释放：真实游戏里两场景不共存，店铺的合法延迟 grab
+	# 不应与本节的焦点断言互相干扰。）
+	var prev_day_for_night := GameState.day
+	GameState.day = 16
+	GameState.coins = 900
+	GameState.endless = {"stamps": 0, "best_streak": 0, "completed": 0, "failed": 0}
+	var night_lab: Control = load("res://scenes/night_lab/night_lab.tscn").instantiate()
+	add_child(night_lab)
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+	var focus_inside_panel := func(panel: Control) -> bool:
+		var owner_ctrl := get_viewport().gui_get_focus_owner() as Control
+		return owner_ctrl != null and panel.is_ancestor_of(owner_ctrl)
+
+	night_lab._open_upgrades()
+	await get_tree().process_frame
+	assert(night_lab.upgrade_panel.visible and focus_inside_panel.call(night_lab.upgrade_panel))
+	var buy_button := _first_enabled_button(night_lab.upgrade_panel._cards)
+	assert(buy_button != null, "day-16 upgrade panel must expose an affordable buy button")
+	buy_button.grab_focus()
+	var coins_before_buy := GameState.coins
+	buy_button.pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert(GameState.coins < coins_before_buy, "the buy press must perform a real purchase")
+	assert(focus_inside_panel.call(night_lab.upgrade_panel),
+		"focus must return inside the upgrade panel after the purchase rebuilds cards")
+	night_lab.upgrade_panel.hide_panel()
+
+	night_lab._open_contracts()
+	await get_tree().process_frame
+	assert(night_lab.contract_panel.visible)
+	var sign_button := _first_enabled_button(night_lab.contract_panel._cards)
+	if sign_button != null:
+		sign_button.grab_focus()
+		sign_button.pressed.emit()
+		await get_tree().process_frame
+		await get_tree().process_frame
+		assert(focus_inside_panel.call(night_lab.contract_panel),
+			"focus must return inside the contract panel after signing rebuilds cards")
+	night_lab.contract_panel.hide_panel()
+	GameState.endless = {"stamps": 0, "best_streak": 0, "completed": 0, "failed": 0}
+
+	# 圈禁：焦点被偷到面板外的货架瓦片后，D-pad/A 不得改配方（P3-F1）。
+	night_lab._open_upgrades()
+	await get_tree().process_frame
+	var sugar_before_escape: Variant = night_lab.cup_sugar
+	night_lab._first_tile.grab_focus()
+	await get_tree().process_frame
+	var escaped_nav := InputEventAction.new()
+	escaped_nav.action = "ui_down"
+	escaped_nav.pressed = true
+	Input.parse_input_event(escaped_nav)
+	await get_tree().process_frame
+	assert(focus_inside_panel.call(night_lab.upgrade_panel),
+		"ui_down with escaped focus must clamp back into the modal panel")
+	var escaped_accept := InputEventAction.new()
+	escaped_accept.action = "ui_accept"
+	escaped_accept.pressed = true
+	Input.parse_input_event(escaped_accept)
+	await get_tree().process_frame
+	assert(night_lab.cup_sugar == sugar_before_escape,
+		"A on an escaped-to shelf tile must not change the recipe while a panel is open")
+	night_lab.upgrade_panel.hide_panel()
+	await get_tree().process_frame
+
+	# 族切换时面板打开的焦点偷逃（P3-F5）：切族后焦点仍在面板内。
+	GameState.day = 9
+	night_lab._open_staff()
+	await get_tree().process_frame
+	assert(night_lab.staff_panel.visible and focus_inside_panel.call(night_lab.staff_panel))
+	InputPrompts.set_test_controller_family("playstation")
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert(focus_inside_panel.call(night_lab.staff_panel),
+		"a controller-family switch while a panel is open must not steal focus to the shelf")
+	night_lab.staff_panel.hide_panel()
+	GameState.day = prev_day_for_night
+	night_lab.queue_free()
+	await get_tree().process_frame
+	InputPrompts.set_test_controller_family("xbox")
+
+	print("[INPUT] passed actions=5 families=4 prep_shoulders=true device_glyphs=true focus_ring=4px safe=320x/40y+cutout mouse_gesture=true sensor_gate=true gamepad_shake=true haptics=true tutorial_focus=true spotlight_hole=true patience_contrast=true panel_confinement=true buy_refocus=true promotion_review=true reduced_motion_refresh=true")
 	get_tree().quit()
+
+
+## WCAG 2.x 相对亮度（P12-F1 断言用）。
+func _relative_luminance(c: Color) -> float:
+	var lin := func(channel: float) -> float:
+		return channel / 12.92 if channel <= 0.04045 else pow((channel + 0.055) / 1.055, 2.4)
+	return 0.2126 * lin.call(c.r) + 0.7152 * lin.call(c.g) + 0.0722 * lin.call(c.b)
+
+
+func _contrast_ratio(a: Color, b: Color) -> float:
+	var la := _relative_luminance(a)
+	var lb := _relative_luminance(b)
+	var lighter := maxf(la, lb)
+	var darker := minf(la, lb)
+	return (lighter + 0.05) / (darker + 0.05)
+
+
+func _first_enabled_button(root: Node) -> Button:
+	for child in root.get_children():
+		if child is Button and not child.disabled and child.focus_mode != Control.FOCUS_NONE:
+			return child
+		var nested := _first_enabled_button(child)
+		if nested != null:
+			return nested
+	return null
