@@ -399,8 +399,8 @@ func _build_ui() -> void:
 
 	# 当前杯状态：贴着底部动作条上方（区域五），不再压住 3D 工作台。
 	var status_panel := PanelContainer.new()
-	status_panel.position = Vector2(388, 604)
-	status_panel.custom_minimum_size = Vector2(505, 46)
+	status_panel.position = Vector2(388, 600)
+	status_panel.custom_minimum_size = Vector2(505, 44)
 	status_panel.add_theme_stylebox_override("panel",
 		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 12, 6, 4))
 	ui_frame.add_child(status_panel)
@@ -446,16 +446,17 @@ func _build_ui() -> void:
 	_build_prep_panel()
 
 	# 底部唯一主提示 + 可恢复的重置操作（区域五：底部动作条）。
+	# 参考图的“下一步”是画面里最大的按钮：加宽加高，读单后视线自然落点。
 	next_action_panel = PanelContainer.new()
 	next_action_panel.add_theme_stylebox_override("panel",
 		AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 12, 12, 16, 8, 4))
-	next_action_panel.position = Vector2(430, 656)
-	next_action_panel.custom_minimum_size = Vector2(420, 56)
+	next_action_panel.position = Vector2(380, 650)
+	next_action_panel.custom_minimum_size = Vector2(520, 62)
 	ui_frame.add_child(next_action_panel)
 	next_action_label = Label.new()
 	next_action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_action_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	next_action_label.add_theme_font_size_override("font_size", 20)
+	next_action_label.add_theme_font_size_override("font_size", 21)
 	next_action_panel.add_child(next_action_label)
 	reset_button = Button.new()
 	reset_button.position = Vector2(16, 650)

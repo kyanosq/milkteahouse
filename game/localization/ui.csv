@@ -912,3 +912,9 @@ CONTRACT_RANK_DEFEND_COUNT,Defending · %d cleared / %d failed,守擂中 · 完�
 POSITIONING_REDUNDANT,Smart Sugar already owned — Flavor adds nothing,已拥有智能糖控台——风味无额外效果
 UPGRADE_SMART_SUGAR_REDUNDANT,Flavor positioning already automates sugar — this level adds nothing (tier II still applies),「风味」定位已自动匹配糖度——一级无额外效果（二级仍有效）
 LUNCH_RUSH_PRICE_HINT,Today's quick-serve trend: value-priced drinks (≤%d coins) get ordered more often.,今日快手风向：让利价点（≤%d 金币）的饮品更常被点。
+STATION_TEA,Tea,茶汤
+STATION_MILK,Milk,鲜奶
+STATION_TOPPING,Toppings,小料
+STATION_SUGAR,Sugar,糖度
+STATION_SHAKE,Shake,摇匀
+STATION_PICKUP,Pickup,取餐
