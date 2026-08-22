@@ -6,6 +6,63 @@ const CORAL := Color("FF6259")
 const MINT := Color("27B9A7")
 const CREAM := Color("FFF8ED")
 const COCOA := Color("30201D")
+const BUTTON_PRIMARY_SKIN := "res://assets/ui/full_set_v3/skins/ui-button-primary-frame.png"
+const BUTTON_SECONDARY_SKIN := "res://assets/ui/full_set_v3/skins/ui-button-secondary-frame.png"
+const PANEL_SKIN := "res://assets/ui/full_set_v3/skins/ui-panel-cream-frame.png"
+const HUD_SKIN := "res://assets/ui/full_set_v3/skins/ui-hud-chip-frame.png"
+const ORDER_IDLE_SKIN := "res://assets/ui/full_set_v3/skins/ui-order-card-idle-frame.png"
+const ORDER_SELECTED_SKIN := "res://assets/ui/full_set_v3/skins/ui-order-card-selected-frame.png"
+
+
+## 皮肤源图是 512px 级高清手绘；控件只有 40–140px 高。先整体缩小再九宫格，
+## 否则纹理边距比控件还高，圆角/花纹会被拉伸涂抹。缓存避免重复缩放。
+static var _scaled_textures: Dictionary = {}
+
+
+static func scaled_texture(path: String, divider: int) -> Texture2D:
+	var key := "%s#%d" % [path, divider]
+	if _scaled_textures.has(key):
+		return _scaled_textures[key]
+	var source := load(path) as Texture2D
+	var img := source.get_image()
+	img.resize(maxi(1, img.get_width() / divider), maxi(1, img.get_height() / divider),
+		Image.INTERPOLATE_LANCZOS)
+	var tex := ImageTexture.create_from_image(img)
+	_scaled_textures[key] = tex
+	return tex
+
+
+static func texture_box(path: String, patch_x: float, patch_y: float,
+		content_x := 12.0, content_y := 8.0, divider := 1) -> StyleBoxTexture:
+	var box := StyleBoxTexture.new()
+	box.texture = scaled_texture(path, divider)
+	box.set_texture_margin(SIDE_LEFT, patch_x)
+	box.set_texture_margin(SIDE_RIGHT, patch_x)
+	box.set_texture_margin(SIDE_TOP, patch_y)
+	box.set_texture_margin(SIDE_BOTTOM, patch_y)
+	box.content_margin_left = content_x
+	box.content_margin_right = content_x
+	box.content_margin_top = content_y
+	box.content_margin_bottom = content_y
+	# 纸面底色均匀，TILE_FIT 让边带在极端宽高比下重复花纹而不是涂抹。
+	box.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
+	box.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
+	return box
+
+
+static func apply_day_skin(t: Theme) -> void:
+	# 按钮实际高度 34–58px；÷4 缩放后圆角 ~10px，边距必须小于控件高度。
+	var normal := texture_box(BUTTON_PRIMARY_SKIN, 12, 12, 14, 8, 4)
+	var hover: StyleBoxTexture = normal.duplicate()
+	hover.modulate_color = Color(1.05, 1.02, 1.02, 1.0)
+	var pressed: StyleBoxTexture = normal.duplicate()
+	pressed.modulate_color = Color(0.88, 0.88, 0.88, 1.0)
+	var disabled: StyleBoxTexture = normal.duplicate()
+	disabled.modulate_color = Color(0.64, 0.61, 0.58, 0.62)
+	t.set_stylebox("normal", "Button", normal)
+	t.set_stylebox("hover", "Button", hover)
+	t.set_stylebox("pressed", "Button", pressed)
+	t.set_stylebox("disabled", "Button", disabled)
 
 
 static func build() -> Theme:

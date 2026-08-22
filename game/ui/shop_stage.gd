@@ -32,8 +32,9 @@ const ROUTE_SIGN_MODELS: Dictionary = {
 
 const COUNTER_TOP_Y := 0.985
 const CUP_SPOT := Vector3(0.14, 0.985, 1.02)
-# 柜台前横向错位排队：避开左侧订单卡和底部操作栏，三人都保留完整轮廓。
-const QUEUE_SLOTS := [Vector3(-1.05, 0, 0.94), Vector3(-0.64, 0, 1.02), Vector3(-0.23, 0, 1.10)]
+# 柜台前横向错位排队：侧前方镜头下顾客站在台前走廊左段，越靠前越近，
+# 与左侧订单卡列对齐但保留间距；三人都保留完整轮廓。
+const QUEUE_SLOTS := [Vector3(-1.30, 0, 1.22), Vector3(-0.82, 0, 1.32), Vector3(-0.34, 0, 1.42)]
 const PROP_SCALE := 1.25
 const STAFF_SPOT := Vector3(1.62, 0.80, 0.10)
 const CORAL := Color("FF6259")
@@ -77,11 +78,15 @@ func _ready() -> void:
 	_build_route_sign()
 
 	# 方案 3：更俯视、更宽的空间站点构图，顾客在左、制杯垫居中、原料沿后方展开。
+	# Coral Mint V3：机位压低到侧前方（full-set-v3/01-day-shop.png）——
+	# 柜台立面、后区原料带与顾客全身都进入画面，地板只留底部窄条。
 	_cam = Camera3D.new()
 	_vp.add_child(_cam)
-	_cam.position = Vector3(0.05, 2.82, 2.62)
-	_cam.look_at(Vector3(0.02, 0.78, 0.48))
-	_cam.fov = 57
+	# 侧前方机位（full-set-v3/01-day-shop.png）：俯角 ~32°，后区原料带贴着
+	# HUD 下方展开，工作台杯子落在画面竖直中段，顾客全身收进底部走廊。
+	_cam.position = Vector3(0.06, 2.75, 3.85)
+	_cam.look_at(Vector3(0.02, 0.70, 0.55))
+	_cam.fov = 45
 
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50, -20, 0)
@@ -209,12 +214,13 @@ func _build_dressing() -> void:
 		_vp.add_child(node)
 	if shaker_level > 0:
 		_add_upgrade_visual("shaker", "auto_shaker.glb", shaker_level,
-			Vector3(0.95, 0.982, 1.05), 0.78)
+			Vector3(1.92, 0.982, 0.55), 0.72)
 	else:
 		var manual_shaker := _load_prop("shaker.glb")
 		manual_shaker.name = "ManualShaker"
-		manual_shaker.position = Vector3(0.95, 0.982, 1.05)
-		manual_shaker.scale = Vector3.ONE * 1.35
+		# 摇匀站在糖泵右侧、同一条原料带上（参考图最右站点），不再占用操作台。
+		manual_shaker.position = Vector3(1.78, 0.982, 0.22)
+		manual_shaker.scale = Vector3.ONE * 1.1
 		_vp.add_child(manual_shaker)
 	var comfort_level := UpgradeCatalog.level("comfort")
 	if comfort_level > 0:

@@ -146,8 +146,8 @@ var _promoted_needs_review: Variant = null
 var _context_shortcuts: Array[Button] = []
 var ui_frame: SafeFrame
 var _order_progress_styles: Dictionary = {}
-var _card_panel_active: StyleBoxFlat
-var _card_panel_idle: StyleBoxFlat
+var _card_panel_active: StyleBoxTexture
+var _card_panel_idle: StyleBoxTexture
 var _card_fill_healthy: StyleBoxFlat
 var _card_fill_warn: StyleBoxFlat
 var _card_fill_low: StyleBoxFlat
@@ -329,6 +329,7 @@ func _input(event: InputEvent) -> void:
 
 func _build_ui() -> void:
 	theme = AppTheme.build()
+	AppTheme.apply_day_skin(theme)
 	stage = ShopStageScene.new()
 	add_child(stage)
 	stage.ingredient_clicked.connect(_on_ingredient)
@@ -337,7 +338,7 @@ func _build_ui() -> void:
 	ui_frame = SafeFrameScene.new()
 	add_child(ui_frame)
 
-	# 药丸 HUD
+	# 药丸 HUD：顶部一条珊瑚薄荷芯片带（参考图区域一），事件/合约压缩到第二行。
 	hud_primary = HBoxContainer.new()
 	hud_primary.position = Vector2(14, 10)
 	hud_primary.size = Vector2(850, 54)
@@ -350,6 +351,8 @@ func _build_ui() -> void:
 	hud_perfect = _pill(hud_primary, HudPerfectIcon)
 	hud_streak = _pill(hud_primary, HudStreakIcon)
 	var upgrade_pill := PanelContainer.new()
+	upgrade_pill.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
 	hud_primary.add_child(upgrade_pill)
 	hud_upgrade = Label.new()
 	hud_upgrade.add_theme_font_size_override("font_size", 17)
@@ -388,16 +391,18 @@ func _build_ui() -> void:
 	contract_pill.visible = false
 	pause_button = Button.new()
 	pause_button.text = "DAY_PAUSE"
-	pause_button.position = Vector2(1170, 10)
-	pause_button.custom_minimum_size = Vector2(96, 52)
+	pause_button.position = Vector2(1198, 10)
+	pause_button.custom_minimum_size = Vector2(68, 54)
 	_style_utility_button(pause_button, AppTheme.CORAL)
 	pause_button.pressed.connect(_toggle_pause)
 	ui_frame.add_child(pause_button)
 
-	# 当前杯状态：贴着制杯区底边，避免盖住可点击的 3D 原料。
+	# 当前杯状态：贴着底部动作条上方（区域五），不再压住 3D 工作台。
 	var status_panel := PanelContainer.new()
-	status_panel.position = Vector2(388, 612)
+	status_panel.position = Vector2(388, 604)
 	status_panel.custom_minimum_size = Vector2(505, 46)
+	status_panel.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 12, 6, 4))
 	ui_frame.add_child(status_panel)
 	status_label = Label.new()
 	status_label.add_theme_font_size_override("font_size", 17)
@@ -409,9 +414,12 @@ func _build_ui() -> void:
 	status_label.custom_minimum_size = Vector2(0, 24)
 	status_panel.add_child(status_label)
 
-	# 情境原料选择：只显示当前步骤，世界道具和大触控按钮都可以操作。
+	# 情境原料选择：像参考图的“选择小料”气泡，悬浮在原料带上方（区域三），
+	# 宽度随选项数收缩；摇匀步骤单独落到底部，把中景永远留给杯子和顾客。
 	context_panel = PanelContainer.new()
-	context_panel.position = Vector2(438, 72)
+	context_panel.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.PANEL_SKIN, 26, 26, 14, 10, 4))
+	context_panel.position = Vector2(240, 196)
 	context_panel.custom_minimum_size = Vector2(800, 118)
 	ui_frame.add_child(context_panel)
 	var context_box := VBoxContainer.new()
@@ -428,27 +436,30 @@ func _build_ui() -> void:
 	context_box.add_child(context_choices)
 	if OS.has_feature("mobile"):
 		# 触屏把情境按钮加高到 82px（P10-1）：小屏 SafeFrame 缩放 ~0.542 下
-		# 54px 只剩 ~29pt；82px ≈ 44.4pt。收紧面板内边距让加高后的网格
-		# 仍收在备料面板（y=198）上方。
-		var slim_panel := (get_theme_stylebox("panel", "PanelContainer") as StyleBox).duplicate()
+		# 54px 只剩 ~29pt；82px ≈ 44.4pt。收紧面板内边距让加高后的气泡
+		# 不再下探到顾客走廊。
+		var slim_panel := (context_panel.get_theme_stylebox("panel") as StyleBox).duplicate()
 		slim_panel.content_margin_top = 5
 		slim_panel.content_margin_bottom = 5
 		context_panel.add_theme_stylebox_override("panel", slim_panel)
 		context_panel.custom_minimum_size = Vector2(800, 124)
 	_build_prep_panel()
 
-	# 底部唯一主提示 + 可恢复的重置操作。
+	# 底部唯一主提示 + 可恢复的重置操作（区域五：底部动作条）。
 	next_action_panel = PanelContainer.new()
-	next_action_panel.position = Vector2(462, 664)
-	next_action_panel.custom_minimum_size = Vector2(356, 48)
+	next_action_panel.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 12, 12, 16, 8, 4))
+	next_action_panel.position = Vector2(430, 656)
+	next_action_panel.custom_minimum_size = Vector2(420, 56)
 	ui_frame.add_child(next_action_panel)
 	next_action_label = Label.new()
 	next_action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	next_action_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	next_action_label.add_theme_font_size_override("font_size", 20)
 	next_action_panel.add_child(next_action_label)
 	reset_button = Button.new()
-	reset_button.position = Vector2(28, 650)
-	reset_button.custom_minimum_size = Vector2(196, 54)
+	reset_button.position = Vector2(16, 650)
+	reset_button.custom_minimum_size = Vector2(200, 56)
 	reset_button.text = GameLocale.text("DAY_RESET_CUP")
 	_style_utility_button(reset_button, Color("C83E49"), true)
 	reset_button.pressed.connect(_on_reset_cup_pressed)
@@ -463,9 +474,9 @@ func _build_ui() -> void:
 	ui_frame.add_child(shake_bar)
 
 	feedback_label = Label.new()
-	feedback_label.position = Vector2(438, 290)
-	# 奖励明细最多拼 9 段；限定宽度+两行换行，避免从 438px 起跑的长句被视口截断。
-	feedback_label.custom_minimum_size = Vector2(760, 0)
+	feedback_label.position = Vector2(240, 380)
+	# 奖励明细最多拼 9 段；限定宽度+两行换行，居中显示在工作台上方。
+	feedback_label.custom_minimum_size = Vector2(800, 0)
 	feedback_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback_label.max_lines_visible = 2
 	feedback_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -497,17 +508,12 @@ func _build_ui() -> void:
 
 func _build_prep_panel() -> void:
 	prep_panel = PanelContainer.new()
-	prep_panel.position = Vector2(438, 198)
-	prep_panel.custom_minimum_size = Vector2(800, 84)
-	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.095, 0.075, 0.072, 0.92)
-	panel_style.set_corner_radius_all(13)
-	panel_style.set_border_width_all(2)
-	panel_style.border_color = Color("D99A43")
-	panel_style.content_margin_left = 9
-	panel_style.content_margin_right = 9
-	panel_style.content_margin_top = 7
-	panel_style.content_margin_bottom = 7
+	# 备料双站贴住 HUD 第二行，构成“后区控制栈”，中景留给工作台。
+	prep_panel.position = Vector2(240, 112)
+	prep_panel.custom_minimum_size = Vector2(800, 82)
+	var panel_style := AppTheme.texture_box(AppTheme.PANEL_SKIN, 26, 26, 10, 7, 4)
+	# 暖砂色调与奶油内卡拉开层次，备料区读作“后台”而不是又一张白卡。
+	panel_style.modulate_color = Color("F0DDBE")
 	prep_panel.add_theme_stylebox_override("panel", panel_style)
 	ui_frame.add_child(prep_panel)
 	var row := HBoxContainer.new()
@@ -576,16 +582,8 @@ func _build_staff_card() -> void:
 	# 右下安全区不遮挡顶部情境原料按钮，也避开中央杯状态与主操作按钮。
 	staff_card.position = Vector2(984, 500)
 	staff_card.custom_minimum_size = Vector2(272, 146)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 0.975, 0.92, 0.96)
-	style.set_corner_radius_all(14)
-	style.set_border_width_all(2)
-	style.border_color = Color("27B9A7")
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 9
-	style.content_margin_bottom = 9
-	staff_card.add_theme_stylebox_override("panel", style)
+	staff_card.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.PANEL_SKIN, 26, 26, 12, 9, 4))
 	ui_frame.add_child(staff_card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 3)
@@ -827,6 +825,8 @@ func _on_reduced_motion_toggled(enabled: bool) -> void:
 
 func _pill(hud: HBoxContainer, icon_texture: Texture2D) -> Label:
 	var p := PanelContainer.new()
+	p.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
 	hud.add_child(p)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 5)
@@ -847,6 +847,8 @@ func _pill(hud: HBoxContainer, icon_texture: Texture2D) -> Label:
 func _cash_pill(hud: HBoxContainer) -> Label:
 	var p := PanelContainer.new()
 	p.custom_minimum_size = Vector2(152, 0)
+	p.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
 	hud.add_child(p)
 	coin_pill = p
 	var row := HBoxContainer.new()
@@ -877,6 +879,8 @@ func _cash_pill(hud: HBoxContainer) -> Label:
 func _day_goal_pill(hud: HBoxContainer) -> Label:
 	var p := PanelContainer.new()
 	p.custom_minimum_size = Vector2(250, 0)
+	p.add_theme_stylebox_override("panel",
+		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
 	hud.add_child(p)
 	var stack := VBoxContainer.new()
 	stack.add_theme_constant_override("separation", 1)
@@ -1363,7 +1367,10 @@ func _refresh_context_controls() -> void:
 	if context_choices == null:
 		return
 	_context_shortcuts.clear()
+	# 先摘再删：queue_free 的节点当帧仍留在树里抬高最小尺寸，
+	# 面板会被一步步撑大且永不回缩（Control 尺寸只涨不缩）。
 	for child in context_choices.get_children():
+		context_choices.remove_child(child)
 		child.queue_free()
 
 	if cup_sealed:
@@ -1426,14 +1433,23 @@ func _refresh_context_controls() -> void:
 	stage.set_active_prop_kind("")
 	context_title.text = GameLocale.text("DAY_CONTEXT_SHAKE")
 	next_action_label.text = _shake_next_action_text()
+	# 摇匀阶段视线钉在杯子上：气泡缩成一颗按钮落到状态条上方，
+	# 中景与顾客走廊完全敞开——对应参考图“摇匀直接在场景里发生”。
+	var shake_wide := 460.0
+	var shake_tall := 124.0 if OS.has_feature("mobile") else 112.0
+	context_panel.custom_minimum_size = Vector2(shake_wide, shake_tall)
+	context_panel.position = Vector2((1280.0 - shake_wide) * 0.5, 470.0)
+	# 控件尺寸只涨不缩：显式重置，避免上一步的宽气泡残留。
+	context_panel.size = Vector2(shake_wide, shake_tall)
 	context_choices.columns = 3
 	var left_space := Control.new()
 	left_space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	context_choices.add_child(left_space)
 	var shake := Button.new()
+	shake.name = "ShakeButton"
 	shake.text = _shake_button_text()
 	shake.tooltip_text = GameLocale.text("DAY_SHAKE_GESTURE_HINT")
-	shake.custom_minimum_size = Vector2(300, 58.0 if not OS.has_feature("mobile") else _context_button_height())
+	shake.custom_minimum_size = Vector2(300, _context_button_height())
 	shake.pressed.connect(_on_shake)
 	context_choices.add_child(shake)
 	var right_space := Control.new()
@@ -1441,7 +1457,9 @@ func _refresh_context_controls() -> void:
 	context_choices.add_child(right_space)
 	_context_shortcuts.append(shake)
 	if InputPrompts.gamepad_mode and not tutorial_overlay.visible:
-		shake.call_deferred("grab_focus")
+		(func():
+			if is_instance_valid(shake) and shake.is_inside_tree():
+				shake.grab_focus()).call_deferred()
 
 
 func _shake_count_display() -> int:
@@ -1505,17 +1523,13 @@ func _add_context_button(item: Dictionary, handler: Callable, selected := false,
 		btn.add_theme_constant_override("icon_max_width", 30)
 	# Ingredient tiles are choices, not six simultaneous primary actions. Coral is
 	# reserved for the selected state while the default stays calm and scannable.
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color("FFE4DC") if selected else AppTheme.CREAM
-	normal.set_corner_radius_all(10)
-	normal.set_border_width_all(3 if selected else 2)
-	normal.border_color = AppTheme.CORAL if selected else Color(AppTheme.COCOA.r, AppTheme.COCOA.g, AppTheme.COCOA.b, 0.20)
-	var hover: StyleBoxFlat = normal.duplicate()
-	hover.bg_color = Color("FFF0E8")
-	hover.border_color = AppTheme.CORAL
-	var pressed: StyleBoxFlat = normal.duplicate()
-	pressed.bg_color = Color("FFD3C9")
-	pressed.border_color = AppTheme.CORAL
+	var normal := AppTheme.texture_box(
+		AppTheme.BUTTON_PRIMARY_SKIN if selected else AppTheme.BUTTON_SECONDARY_SKIN,
+		12, 12, 8, 6, 4)
+	var hover: StyleBoxTexture = normal.duplicate()
+	hover.modulate_color = Color(1.05, 1.02, 1.02, 1.0) if selected else Color("FFF0EC")
+	var pressed: StyleBoxTexture = normal.duplicate()
+	pressed.modulate_color = Color(0.88, 0.88, 0.88, 1.0) if selected else Color("F4DCD5")
 	var focus := StyleBoxFlat.new()
 	focus.draw_center = false
 	focus.set_corner_radius_all(10)
@@ -1536,9 +1550,12 @@ func _add_context_button(item: Dictionary, handler: Callable, selected := false,
 	context_choices.add_child(btn)
 	_context_shortcuts.append(btn)
 	# 延迟 grab 不得落在教学遮罩之下：_next 的同帧焦点会被后入队的延迟
-	# 调用偷走（P3-F4）。教程结束时会补一次重建接管。
+	# 调用偷走（P3-F4）。教程结束时会补一次重建接管。按钮可能已被下一轮
+	# 重建摘出树（先摘再删），抢焦点前必须确认仍在树上。
 	if InputPrompts.gamepad_mode and _context_shortcuts.size() == 1 and not tutorial_overlay.visible:
-		btn.call_deferred("grab_focus")
+		(func():
+			if is_instance_valid(btn) and btn.is_inside_tree():
+				btn.grab_focus()).call_deferred()
 
 
 ## 情境按钮文案：键盘用「1  名字」效率捷径；手柄/触屏没有数字键——
@@ -1558,19 +1575,16 @@ func _context_button_height(mobile_override: Variant = null) -> float:
 
 
 func _style_utility_button(button: Button, accent: Color, danger_copy := false) -> void:
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(AppTheme.CREAM.r, AppTheme.CREAM.g, AppTheme.CREAM.b, 0.96)
-	normal.set_corner_radius_all(12)
-	normal.set_border_width_all(2)
-	normal.border_color = Color(accent.r, accent.g, accent.b, 0.76)
-	var hover: StyleBoxFlat = normal.duplicate()
-	hover.bg_color = Color(accent.r, accent.g, accent.b, 0.12)
-	var pressed: StyleBoxFlat = normal.duplicate()
-	pressed.bg_color = Color(accent.r, accent.g, accent.b, 0.22)
-	var disabled: StyleBoxFlat = normal.duplicate()
-	disabled.bg_color = Color(0.55, 0.51, 0.48, 0.46)
-	disabled.border_color = Color(AppTheme.COCOA.r, AppTheme.COCOA.g, AppTheme.COCOA.b, 0.22)
-	var focus: StyleBoxFlat = normal.duplicate()
+	var normal := AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 12, 12, 12, 8, 4)
+	var hover: StyleBoxTexture = normal.duplicate()
+	hover.modulate_color = Color("FFF0EC")
+	var pressed: StyleBoxTexture = normal.duplicate()
+	pressed.modulate_color = Color("F4DCD5")
+	var disabled: StyleBoxTexture = normal.duplicate()
+	disabled.modulate_color = Color(0.64, 0.61, 0.58, 0.58)
+	var focus := StyleBoxFlat.new()
+	focus.draw_center = false
+	focus.set_corner_radius_all(12)
 	focus.set_border_width_all(4)
 	focus.border_color = AppTheme.COCOA
 	button.add_theme_stylebox_override("normal", normal)
@@ -1590,6 +1604,12 @@ func _context_button_width(count: int) -> float:
 
 func _set_context_columns(count: int) -> void:
 	context_choices.columns = 5 if count == 5 else mini(maxi(count, 1), 4)
+	# 气泡宽度随选项数收缩（≤3 选项时像参考图的小弹层），居中悬在原料带上方。
+	var wide := 800.0 if count >= 4 else (600.0 if count == 3 else 480.0)
+	var tall := 124.0 if OS.has_feature("mobile") else 118.0
+	context_panel.custom_minimum_size = Vector2(wide, tall)
+	context_panel.position = Vector2((1280.0 - wide) * 0.5, 196.0)
+	context_panel.size = Vector2(wide, tall)
 
 
 func _confirm_suffix() -> String:
@@ -1840,8 +1860,9 @@ func _spawn_customer() -> void:
 	Sfx.play("customer_arrive", randf_range(0.96, 1.06))
 
 	# 固定订单卡：位置不再追随 3D 头像，信息更稳、触控目标更大；压窄给顾客让出站位。
+	# 左列即参考图区域二：顾客队列沿左缘纵向排列。
 	var bubble := PanelContainer.new()
-	bubble.position = Vector2(14, 112 + slot * 158)
+	bubble.position = Vector2(16, 116 + slot * 158)
 	bubble.custom_minimum_size = Vector2(248 if special or featured_order or dark_order else 212, 138)
 	var card_box := VBoxContainer.new()
 	card_box.add_theme_constant_override("separation", 5)
@@ -2243,24 +2264,8 @@ func _style_order_card(c: Dictionary, active: bool) -> void:
 		return
 	# 四种组合的样式在建卡后不再变化；共享缓存实例，避免逐帧分配与主题失效。
 	if _card_panel_active == null:
-		_card_panel_active = StyleBoxFlat.new()
-		_card_panel_active.bg_color = Color(1.0, 0.973, 0.929, 0.97)
-		_card_panel_active.set_corner_radius_all(14)
-		_card_panel_active.set_border_width_all(4)
-		_card_panel_active.border_color = Color("FF6259")
-		_card_panel_active.content_margin_left = 10
-		_card_panel_active.content_margin_right = 10
-		_card_panel_active.content_margin_top = 8
-		_card_panel_active.content_margin_bottom = 8
-		_card_panel_idle = StyleBoxFlat.new()
-		_card_panel_idle.bg_color = Color(1.0, 0.973, 0.929, 0.97)
-		_card_panel_idle.set_corner_radius_all(14)
-		_card_panel_idle.set_border_width_all(2)
-		_card_panel_idle.border_color = Color(0.19, 0.13, 0.11, 0.34)
-		_card_panel_idle.content_margin_left = 10
-		_card_panel_idle.content_margin_right = 10
-		_card_panel_idle.content_margin_top = 8
-		_card_panel_idle.content_margin_bottom = 8
+		_card_panel_active = AppTheme.texture_box(AppTheme.ORDER_SELECTED_SKIN, 27, 24, 10, 8, 2)
+		_card_panel_idle = AppTheme.texture_box(AppTheme.ORDER_IDLE_SKIN, 27, 27, 10, 8, 2)
 		_card_fill_healthy = StyleBoxFlat.new()
 		_card_fill_healthy.bg_color = Color("27B9A7")
 		_card_fill_healthy.set_corner_radius_all(6)
