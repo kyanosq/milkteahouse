@@ -253,7 +253,7 @@ func _continue_game() -> void:
 
 
 func _can_continue() -> bool:
-	return has_existing_save and not GameState.save_write_blocked
+	return has_existing_save and not GameState.save_load_failed and not GameState.save_write_blocked
 
 
 func _continue_target() -> String:
@@ -327,6 +327,9 @@ func _refresh_summary_copy() -> void:
 	if not has_existing_save:
 		summary_text.text = GameLocale.text("MENU_WELCOME_BODY")
 		return
+	if GameState.save_load_failed:
+		summary_text.text = GameLocale.text("MENU_SAVE_CORRUPT")
+		return
 	if GameState.save_write_blocked:
 		summary_text.text = GameLocale.text("MENU_SAVE_UNSUPPORTED")
 		return
@@ -355,6 +358,9 @@ func _refresh_summary_copy() -> void:
 
 func _refresh_continue_copy() -> void:
 	if continue_button == null:
+		return
+	if GameState.save_load_failed:
+		continue_button.text = GameLocale.text("MENU_SAVE_CORRUPT_ACTION")
 		return
 	if GameState.save_write_blocked:
 		continue_button.text = GameLocale.text("MENU_SAVE_UNSUPPORTED_ACTION")

@@ -17,7 +17,7 @@ var _music: HSlider
 var _sfx_label: Label
 var _sfx: HSlider
 var _settings_dirty := false
-var _settings_save_generation := 0
+var _settings_save_timer: Timer
 # 兼容旧自动化接口；从本轮起“总音量”明确等同于音效音量。
 var _volume_label: Label
 var _volume: HSlider
@@ -52,6 +52,11 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
+	_settings_save_timer = Timer.new()
+	_settings_save_timer.one_shot = true
+	_settings_save_timer.wait_time = 0.6
+	_settings_save_timer.timeout.connect(_persist_settings_now)
+	add_child(_settings_save_timer)
 	InputPrompts.scheme_changed.connect(_on_input_scheme_changed)
 	InputPrompts.bindings_changed.connect(_on_bindings_changed)
 	GameLocale.locale_changed.connect(_on_locale_changed)
@@ -340,15 +345,11 @@ func hide_panel() -> void:
 ## 一次完整落盘会在移动端造成卡顿。内存立即生效，磁盘写入防抖合并。
 func _schedule_settings_save() -> void:
 	_settings_dirty = true
-	_settings_save_generation += 1
-	var generation := _settings_save_generation
-	await get_tree().create_timer(0.6).timeout
-	if _settings_save_generation == generation:
-		_persist_settings_now()
+	_settings_save_timer.start()
 
 
 func _persist_settings_now() -> void:
-	_settings_save_generation += 1
+	_settings_save_timer.stop()
 	if not _settings_dirty:
 		return
 	_settings_dirty = false
@@ -357,6 +358,7 @@ func _persist_settings_now() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _settings_dirty:
+		_settings_save_timer.stop()
 		GameState.save_game()
 		_settings_dirty = false
 

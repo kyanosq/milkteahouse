@@ -40,13 +40,7 @@
     "name": "社牛",
     "emoji": "📢",
     "rarity": "common",
-    "wage_mult": 1.1,
-    "stat_mods": { "speed": -2, "care": 0, "charm": 3 },
-    "hooks": [
-      { "type": "attract_customer", "per_hour": 1, "note": "每小时自动拉 1 位顾客" },
-      { "type": "patience_bonus", "mult": 1.2, "note": "全场顾客耐心 +20%" },
-      { "type": "forget_order", "chance": 0.05, "note": "聊嗨了忘记出单" }
-    ],
+    "effects": { "patience_mult": 1.2, "spawn_mult": 0.88 },
     "hint_line": "哥！这条街上没有我聊不下来的客人！",
     "event_lines": [
       "美女你这个发色绝了，配我们家黑糖珠撞奶正好！",
@@ -58,13 +52,7 @@
     "name": "强迫症",
     "emoji": "🔍",
     "rarity": "common",
-    "wage_mult": 1.2,
-    "stat_mods": { "speed": 0, "care": 5, "charm": 0 },
-    "hooks": [
-      { "type": "zero_mistake", "note": "出错率归零" },
-      { "type": "quality_bonus", "value": 5, "note": "出杯品质分 +5" },
-      { "type": "slow_craft", "mult": 1.2, "note": "单杯耗时 +20%" }
-    ],
+    "effects": { "extra_shakes": 1, "quality_coin_bonus": 2, "wrong_cup_guard": true },
     "hint_line": "吸管必须对准杯子 logo，这是原则问题。",
     "event_lines": [
       "等等，这颗珍珠的位置不对。",
@@ -112,12 +100,7 @@
     "name": "摸鱼大师",
     "emoji": "🐟",
     "rarity": "common",
-    "wage_mult": 0.5,
-    "stat_mods": { "speed": 0, "care": 0, "charm": 0 },
-    "hooks": [
-      { "type": "random_idle", "chance": 0.15, "wake_by_tap": true,
-        "note": "随机发呆，需玩家点击拍醒" }
-    ],
+    "effects": { "waiting_drain_mult": 0.7 },
     "hint_line": "我的优点是性价比，缺点是……嗯？你说什么？",
     "event_lines": [
       "（盯着封口机出神）它转得好圆啊……",

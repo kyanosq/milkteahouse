@@ -1,4 +1,4 @@
-## 员工候选、招聘成本与有限特质钩子。静态文案/数值由 data/*.json 驱动。
+## 员工候选、招聘成本与有限特质钩子。特质效果数值由 traits.json 驱动。
 extends Node
 
 const UNLOCK_DAY := 8
@@ -101,24 +101,39 @@ func wage() -> int:
 	return maxi(0, int(GameState.staff.get("wage", 0)))
 
 
+func trait_effect(key: String, fallback: Variant) -> Variant:
+	var effects: Dictionary = trait_data(trait_id()).get("effects", {})
+	return effects.get(key, fallback)
+
+
+func _active_effect(key: String, fallback: Variant) -> Variant:
+	if not is_on_duty():
+		return fallback
+	return trait_effect(key, fallback)
+
+
 func patience_multiplier() -> float:
-	return 1.20 if is_on_duty() and trait_id() == "social_king" else 1.0
+	return float(_active_effect("patience_mult", 1.0))
 
 
 func spawn_multiplier() -> float:
-	return 0.88 if is_on_duty() and trait_id() == "social_king" else 1.0
+	return float(_active_effect("spawn_mult", 1.0))
 
 
 func waiting_drain_multiplier(working := true) -> float:
-	return 0.70 if is_on_duty() and trait_id() == "slacker" and working else 1.0
+	return float(_active_effect("waiting_drain_mult", 1.0)) if working else 1.0
 
 
 func extra_shakes() -> int:
-	return 1 if is_on_duty() and trait_id() == "perfectionist" else 0
+	return int(_active_effect("extra_shakes", 0))
 
 
 func quality_coin_bonus() -> int:
-	return 2 if is_on_duty() and trait_id() == "perfectionist" else 0
+	return int(_active_effect("quality_coin_bonus", 0))
+
+
+func has_wrong_cup_guard() -> bool:
+	return bool(_active_effect("wrong_cup_guard", false))
 
 
 func effect_summary(revealed := true) -> String:
@@ -126,11 +141,17 @@ func effect_summary(revealed := true) -> String:
 		return GameLocale.text("STAFF_TRAIT_HIDDEN_SUMMARY")
 	match trait_id():
 		"slacker":
-			return GameLocale.text("TRAIT_SLACKER_EFFECT")
+			return GameLocale.text("TRAIT_SLACKER_EFFECT", [
+				roundi((1.0 - float(trait_effect("waiting_drain_mult", 1.0))) * 100.0)])
 		"social_king":
-			return GameLocale.text("TRAIT_SOCIAL_KING_EFFECT")
+			return GameLocale.text("TRAIT_SOCIAL_KING_EFFECT", [
+				roundi((float(trait_effect("patience_mult", 1.0)) - 1.0) * 100.0),
+				roundi((1.0 - float(trait_effect("spawn_mult", 1.0))) * 100.0)])
 		"perfectionist":
-			return GameLocale.text("TRAIT_PERFECTIONIST_EFFECT")
+			return GameLocale.text("TRAIT_PERFECTIONIST_EFFECT", [
+				int(trait_effect("quality_coin_bonus", 0)),
+				1 if bool(trait_effect("wrong_cup_guard", false)) else 0,
+				int(trait_effect("extra_shakes", 0))])
 	return GameLocale.text("STAFF_TRAIT_UNKNOWN_EFFECT")
 
 

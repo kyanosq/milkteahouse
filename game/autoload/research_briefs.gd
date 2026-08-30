@@ -6,7 +6,6 @@ const MASTERY_TRIALS := 2
 ## 成熟期（相性/熟练度池枯竭后）的品质挑战阶梯（DP#4）：完成当前档位后晋升，
 ## 让"每晚顺手一杯"随进度变成真实的配方功课题，而不是永远 75 分的白给。
 const QUALITY_LADDER := [75, 82, 88]
-const QUALITY_TARGET := 75 # 兼容旧存档/文档的最低档
 
 
 func quality_target() -> int:
@@ -36,7 +35,7 @@ func record_trial(base_id: String, milk_id: String, used_ids: Array, quality: in
 			if String(brief.get("ingredient", "")) in used_ids:
 				brief["progress"] = mini(int(brief.get("target", MASTERY_TRIALS)), int(brief.get("progress", 0)) + 1)
 		"balanced":
-			if quality >= int(brief.get("quality", QUALITY_TARGET)):
+			if quality >= int(brief.get("quality", QUALITY_LADDER[0])):
 				brief["progress"] = 1
 	var completed_now := int(brief.get("progress", 0)) >= int(brief.get("target", 1))
 	if completed_now:
@@ -84,7 +83,7 @@ func objective_text(brief: Dictionary = GameState.research_brief) -> String:
 				GameLocale.ingredient_short_name(RecipeJournal.ingredient(String(brief.get("ingredient", "")))),
 			])
 		"balanced":
-			return GameLocale.text("LAB_BRIEF_BALANCED", [int(brief.get("quality", QUALITY_TARGET))])
+			return GameLocale.text("LAB_BRIEF_BALANCED", [int(brief.get("quality", QUALITY_LADDER[0]))])
 	return GameLocale.text("LAB_BRIEF_NONE")
 
 

@@ -13,20 +13,27 @@ func _ready() -> void:
 	assert(StaffCatalog.hire("xiaoman", false))
 	assert(GameState.coins == 255)
 	assert(StaffCatalog.wage() == 6)
+	assert(StaffCatalog.trait_data("slacker")["effects"]["waiting_drain_mult"] == 0.7)
 	assert(is_equal_approx(StaffCatalog.waiting_drain_multiplier(true), 0.70))
 	assert(is_equal_approx(StaffCatalog.waiting_drain_multiplier(false), 1.0))
+	assert(StaffCatalog.effect_summary().contains("30%"))
 	StaffCatalog.reveal_trait(false)
 	assert(StaffCatalog.trait_revealed())
 	assert(StaffCatalog.dismiss(false))
 	assert(GameState.coins == 235)
 
 	assert(StaffCatalog.hire("taozi", false))
+	assert(StaffCatalog.trait_data("social_king")["effects"]["patience_mult"] == 1.2)
 	assert(is_equal_approx(StaffCatalog.patience_multiplier(), 1.20))
 	assert(is_equal_approx(StaffCatalog.spawn_multiplier(), 0.88))
+	assert(StaffCatalog.effect_summary().contains("20%") and StaffCatalog.effect_summary().contains("12%"))
 	GameState.staff = {}
 	assert(StaffCatalog.hire("acheng", false))
+	assert(StaffCatalog.trait_data("perfectionist")["effects"]["wrong_cup_guard"])
 	assert(StaffCatalog.extra_shakes() == 1)
 	assert(StaffCatalog.quality_coin_bonus() == 2)
+	assert(StaffCatalog.has_wrong_cup_guard())
+	assert(StaffCatalog.effect_summary() == GameLocale.text("TRAIT_PERFECTIONIST_EFFECT", [2, 1, 1]))
 	GameState.staff = {}
 
 	# 摸鱼事件必须真实进入可点击状态并能被拍醒。

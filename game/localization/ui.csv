@@ -142,6 +142,8 @@ MENU_SAVE_SUMMARY,Day %d · %s\n%d coins · %d Inspiration · Shop %d/%d · Menu
 MENU_SIGN_SUMMARY,\nSign: %s · Stamps: %d,\n店招：%s  ·  印章 %d
 MENU_ROUTE_SUMMARY,\nNew Shop+ Route: %s,\n新店+路线：%s
 MENU_SAVE_RECOVERED,\nRecovered last safe autosave,\n已从最近一次安全自动存档恢复
+MENU_SAVE_CORRUPT,Detected save data could not be read from either the primary or backup. Existing files were left untouched. Restart only if you want to replace them.,检测到的存档文件均无法读取，现有文件已保留。仅在确认要替换时重新开店。
+MENU_SAVE_CORRUPT_ACTION,Continue unavailable · Save unreadable,无法继续 · 存档损坏
 MENU_SAVE_UNSUPPORTED,This save was created by a newer build and was left untouched. Restart the shop to replace it.,该存档由更新版本创建，已保持原样且未被覆盖。如需替换，请重新开店。
 MENU_SAVE_UNSUPPORTED_ACTION,Continue unavailable · Newer save,无法继续 · 存档版本较新
 ACTION_VIEW_REPORT,View Report,查看评级
@@ -234,9 +236,9 @@ DAY_STAFF_RETURNS,Returns Day %d,第 %d 天复工
 DAY_STAFF_TRAIT,Trait · %s,特质 · %s
 DAY_STAFF_TRAIT_HIDDEN,Trait · Hidden,特质 · 尚未揭晓
 DAY_STAFF_SLACKER_IDLE,Slacking · Back Queue Support Paused,正在摸鱼 · 后排照看暂停
-DAY_STAFF_SLACKER_WORKING,Watching Back Queue · Patience Drain -30%,照看后排 · 耐心消耗 -30%
-DAY_STAFF_SOCIAL,Warming Up the Queue · Patience +20% / Traffic +12%,热场中 · 耐心 +20% / 客流 +12%
-DAY_STAFF_PERFECTIONIST,Correct Cup +2 coins · Mistake Guard: %s · +1 Shake,正确杯 +2 金币 · 错杯保护：%s · 多摇 1 下
+DAY_STAFF_SLACKER_WORKING,Watching Back Queue · Patience Drain -%d%%,照看后排 · 耐心消耗 -%d%%
+DAY_STAFF_SOCIAL,Warming Up the Queue · Patience +%d%% / Arrival Interval -%d%%,热场中 · 耐心 +%d%% / 到店间隔 -%d%%
+DAY_STAFF_PERFECTIONIST,Correct Cup +%d coins · Mistake Guard: %s · +%d Shake,正确杯 +%d 金币 · 错杯保护：%s · 多摇 %d 下
 DAY_STAFF_ADAPTING,Settling into the Role,适应岗位中
 DAY_STAFF_WAKE,Wake %s · %s,拍醒 %s · %s
 DAY_STAFF_INTERACT,Interact with 3D Staff,点击 3D 店员互动
@@ -412,9 +414,9 @@ TRAIT_SLACKER_NAME,Slacker,摸鱼大师
 TRAIT_SOCIAL_KING_NAME,Social Butterfly,社牛
 TRAIT_PERFECTIONIST_NAME,Perfectionist,强迫症
 STAFF_TRAIT_HIDDEN_SUMMARY,Trait hidden · Their introduction contains a clue,特质尚未揭晓 · 自我介绍里藏着线索
-TRAIT_SLACKER_EFFECT,Back-queue patience drain -30% · May slack off and needs a wake-up tap,后排耐心消耗 -30% · 会突然摸鱼，需点击拍醒
-TRAIT_SOCIAL_KING_EFFECT,All patience +20% · Arrivals 12% faster for more traffic and pressure,全场耐心 +20% · 到店间隔 -12%，客流与压力同增
-TRAIT_PERFECTIONIST_EFFECT,Correct cup +2 coins · Blocks 1 wrong cup daily · +1 shake per cup,正确出杯 +2 金币、每天拦下 1 杯错单 · 每杯多摇 1 下
+TRAIT_SLACKER_EFFECT,Back-queue patience drain -%d%% · May slack off and needs a wake-up tap,后排耐心消耗 -%d%% · 会突然摸鱼，需点击拍醒
+TRAIT_SOCIAL_KING_EFFECT,All patience +%d%% · Arrival interval -%d%% for more traffic and pressure,全场耐心 +%d%% · 到店间隔 -%d%%，客流与压力同增
+TRAIT_PERFECTIONIST_EFFECT,Correct cup +%d coins · Blocks %d wrong cup daily · +%d shake per cup,正确出杯 +%d 金币、每天拦下 %d 杯错单 · 每杯多摇 %d 下
 STAFF_TRAIT_UNKNOWN_EFFECT,No staff effect recorded,尚未记录员工效果
 ENDLESS_SIGN_RANK,Sign · %s · Stamps: %d · %s,店招 · %s · 印章 %d · %s
 ENDLESS_TARGET_DAY,Day %d · %s,第 %d 天 · %s

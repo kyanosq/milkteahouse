@@ -20,6 +20,13 @@ func _ready() -> void:
 	assert(menu.continue_button.text.contains("继续研发"))
 	assert(menu.continue_button.text.contains("第 7 天"))
 	menu.has_existing_save = true
+	GameState.save_load_failed = true
+	menu._refresh_continue_state()
+	assert(not menu._can_continue())
+	assert(menu.summary_text.text == GameLocale.text("MENU_SAVE_CORRUPT"))
+	assert(menu.continue_button.text == GameLocale.text("MENU_SAVE_CORRUPT_ACTION"))
+	GameState.save_load_failed = false
+	menu._refresh_continue_state()
 	GameState.save_write_blocked = true
 	menu._refresh_continue_state()
 	assert(menu.continue_button.disabled and menu.continue_button.text.contains("存档版本较新"))

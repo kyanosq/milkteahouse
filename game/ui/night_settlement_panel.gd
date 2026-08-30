@@ -185,13 +185,21 @@ func _outcome_text(result: Dictionary) -> String:
 	var average := roundi(float(result.get("average", 0.0)))
 	match outcome:
 		"hit":
-			return GameLocale.text("MARKET_SETTLEMENT_HIT", [average, int(result.get("price", 18))])
+			var price := int(result.get("price", 0))
+			return GameLocale.text("MARKET_SETTLEMENT_HIT", [average,
+				price if price > 0 else int(MenuCatalog.PRICE_STANDARD["爆款"])])
 		"signature":
-			return GameLocale.text("MARKET_SETTLEMENT_SIGNATURE", [average, int(result.get("price", 15))])
+			var price := int(result.get("price", 0))
+			return GameLocale.text("MARKET_SETTLEMENT_SIGNATURE", [average,
+				price if price > 0 else int(MenuCatalog.PRICE_STANDARD["招牌"])])
 		"regular":
-			return GameLocale.text("MARKET_SETTLEMENT_REGULAR", [average, int(result.get("price", 12))])
+			var price := int(result.get("price", 0))
+			return GameLocale.text("MARKET_SETTLEMENT_REGULAR", [average,
+				price if price > 0 else int(MenuCatalog.PRICE_STANDARD["普通"])])
 		"failed":
-			return GameLocale.text("MARKET_SETTLEMENT_FAILED", [average, int(result.get("refund", 3))])
+			var refund := int(result.get("refund", 0))
+			return GameLocale.text("MARKET_SETTLEMENT_FAILED", [average,
+				refund if refund > 0 else MarketTests.FAILURE_REFUND])
 	return GameLocale.text("MARKET_SETTLEMENT_TESTING", [average, _trend_text(int(result.get("trend", 0)))])
 
 

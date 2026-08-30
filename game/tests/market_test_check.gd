@@ -104,6 +104,10 @@ func _ready() -> void:
 
 	var panel: NightSettlementPanel = load("res://ui/night_settlement_panel.gd").new()
 	add_child(panel)
+	assert(panel._outcome_text({"outcome": "hit", "average": 90, "price": 0}) ==
+		GameLocale.text("MARKET_SETTLEMENT_HIT", [90, MenuCatalog.PRICE_STANDARD["爆款"]]))
+	assert(panel._outcome_text({"outcome": "failed", "average": 50, "refund": 0}) ==
+		GameLocale.text("MARKET_SETTLEMENT_FAILED", [50, MarketTests.FAILURE_REFUND]))
 	panel.show_results(9, first)
 	assert(panel.result_card_count() == 1)
 	assert(_panel_contains_prefix(panel, GameLocale.text("MARKET_SETTLEMENT_FORMULA", ["\uFFFF"]).split("\uFFFF")[0]),

@@ -26,7 +26,7 @@ var _mode := "featured"
 var _dark_candidate: Dictionary = {}
 # 批量策展的落盘防抖（P11-F4）：面板内改动 0.6s 合并一次写盘，关闭时冲掉。
 var _catalog_dirty := false
-var _catalog_save_generation := 0
+var _catalog_save_timer: Timer
 # 策展操作的焦点保持（P3-F8）：记录被操作卡在网格中的索引，刷新后回到同卡。
 var _focus_card_index := -1
 
@@ -36,6 +36,11 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build()
+	_catalog_save_timer = Timer.new()
+	_catalog_save_timer.one_shot = true
+	_catalog_save_timer.wait_time = 0.6
+	_catalog_save_timer.timeout.connect(persist_catalog_now)
+	add_child(_catalog_save_timer)
 	GameLocale.locale_changed.connect(_on_locale_changed)
 	get_viewport().size_changed.connect(_layout_overscan)
 	_layout_overscan()
@@ -521,18 +526,14 @@ func _grab_first_action_button(root: Node) -> bool:
 
 
 ## 批量策展的写盘防抖（P11-F4）：目录写方法 persist=false，面板内 0.6s 合并
-## 一次完整落盘；关闭面板/离开夜间时立即冲掉（参考暂停面板的 generation 防抖）。
+## 一次完整落盘；关闭面板/离开夜间时立即冲掉。
 func _schedule_catalog_save() -> void:
 	_catalog_dirty = true
-	_catalog_save_generation += 1
-	var generation := _catalog_save_generation
-	await get_tree().create_timer(0.6).timeout
-	if _catalog_save_generation == generation:
-		persist_catalog_now()
+	_catalog_save_timer.start()
 
 
 func persist_catalog_now() -> void:
-	_catalog_save_generation += 1
+	_catalog_save_timer.stop()
 	if not _catalog_dirty:
 		return
 	_catalog_dirty = false
@@ -541,6 +542,7 @@ func persist_catalog_now() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_PREDELETE and _catalog_dirty:
+		_catalog_save_timer.stop()
 		GameState.save_game()
 		_catalog_dirty = false
 

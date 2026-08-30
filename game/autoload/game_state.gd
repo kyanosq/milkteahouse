@@ -73,6 +73,7 @@ var settings: Dictionary = {
 }
 var test_mode := false           # 自动截图/仿真不得覆盖真实玩家存档
 var save_recovered := false      # 本次启动是否从 last-known-good 自动恢复
+var save_load_failed := false    # 检测到存档文件，但主备均不可读；阻止无确认覆盖
 var save_write_blocked := false  # 新版本存档不可被旧版本静默降级覆盖
 var last_save_error := ""
 
@@ -200,11 +201,16 @@ func _write_save_data(data: Dictionary, target_path: String, backup_path: String
 
 
 func _load_save_data_with_backup(target_path: String, backup_path: String, restore_primary := true) -> Variant:
+	var files_exist := FileAccess.file_exists(target_path) or FileAccess.file_exists(backup_path)
 	var primary: Variant = _read_save_data(target_path)
 	if primary != null:
 		return primary
 	var backup: Variant = _read_save_data(backup_path)
 	if backup == null:
+		save_load_failed = files_exist
+		if save_load_failed:
+			last_save_error = "unreadable_save_and_backup"
+			push_warning("检测到的存档文件均无法读取，已保留现有文件并阻止无确认覆盖")
 		return null
 	save_recovered = true
 	if restore_primary:
@@ -214,7 +220,7 @@ func _load_save_data_with_backup(target_path: String, backup_path: String, resto
 
 
 func has_save() -> bool:
-	return _read_save_data(SAVE_PATH) != null or _read_save_data(SAVE_BACKUP_PATH) != null
+	return FileAccess.file_exists(SAVE_PATH) or FileAccess.file_exists(SAVE_BACKUP_PATH)
 
 
 ## 白天收入实时入账，而设置/语言切换会在日中写完整存档；记录开店时的经济
@@ -266,6 +272,7 @@ func reset_progress() -> void:
 	tutorial_completed = false
 	day_open = {}
 	settings = kept_settings
+	save_load_failed = false
 	save_write_blocked = false
 	mark_day_open()
 	save_game()
@@ -273,6 +280,7 @@ func reset_progress() -> void:
 
 func load_save() -> void:
 	save_recovered = false
+	save_load_failed = false
 	save_write_blocked = false
 	var data: Variant = _load_save_data_with_backup(SAVE_PATH, SAVE_BACKUP_PATH)
 	if data == null:

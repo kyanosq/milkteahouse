@@ -2342,11 +2342,18 @@ func _refresh_staff_ui() -> void:
 	staff_trait_label.text = GameLocale.text("DAY_STAFF_TRAIT", [StaffCatalog.trait_name()]) if StaffCatalog.trait_revealed() else GameLocale.text("DAY_STAFF_TRAIT_HIDDEN")
 	match StaffCatalog.trait_id():
 		"slacker":
-			staff_status_label.text = GameLocale.text("DAY_STAFF_SLACKER_IDLE" if staff_state == "idle" else "DAY_STAFF_SLACKER_WORKING")
+			staff_status_label.text = GameLocale.text("DAY_STAFF_SLACKER_IDLE") if staff_state == "idle" \
+				else GameLocale.text("DAY_STAFF_SLACKER_WORKING", [
+					roundi((1.0 - StaffCatalog.waiting_drain_multiplier()) * 100.0)])
 		"social_king":
-			staff_status_label.text = GameLocale.text("DAY_STAFF_SOCIAL")
+			staff_status_label.text = GameLocale.text("DAY_STAFF_SOCIAL", [
+				roundi((StaffCatalog.patience_multiplier() - 1.0) * 100.0),
+				roundi((1.0 - StaffCatalog.spawn_multiplier()) * 100.0)])
 		"perfectionist":
-			staff_status_label.text = GameLocale.text("DAY_STAFF_PERFECTIONIST", [GameLocale.text("STATE_USED" if staff_guard_used else "STATE_READY")])
+			staff_status_label.text = GameLocale.text("DAY_STAFF_PERFECTIONIST", [
+				StaffCatalog.quality_coin_bonus(),
+				GameLocale.text("STATE_USED" if staff_guard_used else "STATE_READY"),
+				StaffCatalog.extra_shakes()])
 		_:
 			staff_status_label.text = GameLocale.text("DAY_STAFF_ADAPTING")
 	staff_action_button.disabled = staff_state != "idle"
@@ -3160,7 +3167,7 @@ func _on_deliver(c: Dictionary) -> void:
 	else:
 		stock_cost += consumed_cost
 		waste_cost += consumed_cost
-		if StaffCatalog.is_on_duty() and StaffCatalog.trait_id() == "perfectionist" and not staff_guard_used:
+		if StaffCatalog.has_wrong_cup_guard() and not staff_guard_used:
 			Haptics.play("warning")
 			staff_guard_used = true
 			staff_rescues += 1

@@ -190,8 +190,18 @@ func _ready() -> void:
 	assert(recovered is Dictionary and recovered["day"] == 3)
 	assert(GameState.save_recovered)
 	assert(GameState._read_save_data(durability_path)["day"] == 3)
+	# 主存档与备份都损坏时必须保留“有档但不可读”状态，不能伪装成无存档。
+	for path in [durability_path, durability_backup]:
+		var corrupt := FileAccess.open(path, FileAccess.WRITE)
+		assert(corrupt != null)
+		corrupt.store_string("{ corrupt")
+		corrupt.close()
+	GameState.save_load_failed = false
+	assert(GameState._load_save_data_with_backup(durability_path, durability_backup, false) == null)
+	assert(GameState.save_load_failed)
+	assert(GameState.last_save_error == "unreadable_save_and_backup")
 	for path in [durability_path, durability_path + ".tmp", durability_backup, durability_backup + ".tmp"]:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
-	print("[SAVE_INTEGRITY] passed version=v%d corrupt_guard=true staff_forgery=true dark_menu=true endless_clamps=true affinity=true research_brief=true brief_ladder=true market_settlement=true campaign_stats=true day_open_rollback=true atomic_backup=true truncated_recovery=true" % GameState.SAVE_VERSION)
+	print("[SAVE_INTEGRITY] passed version=v%d corrupt_guard=true staff_forgery=true dark_menu=true endless_clamps=true affinity=true research_brief=true brief_ladder=true market_settlement=true campaign_stats=true day_open_rollback=true atomic_backup=true truncated_recovery=true dual_corrupt_blocked=true" % GameState.SAVE_VERSION)
 	get_tree().quit()
