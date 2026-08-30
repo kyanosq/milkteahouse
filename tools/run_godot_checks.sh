@@ -67,6 +67,19 @@ campaign_passed=0
 printf '[GODOT_CHECKS] godot=%s scenes=%d logs=%s\n' \
   "$GODOT_EXECUTABLE" "${#CHECK_SCENES[@]}" "$LOG_DIR"
 
+printf '[GODOT_CHECKS] IMPORT project resources\n'
+"$GODOT_EXECUTABLE" \
+  --headless \
+  --editor \
+  --path "$PROJECT_DIR" \
+  --log-file "$LOG_DIR/import.log" \
+  --quit
+if [[ "$?" -ne 0 ]]; then
+  printf '[GODOT_CHECKS] FAIL project import (log=%s)\n' "$LOG_DIR/import.log" >&2
+  tail -n 80 "$LOG_DIR/import.log" >&2 || true
+  exit 1
+fi
+
 for scene in "${CHECK_SCENES[@]}"; do
   scene_path="$PROJECT_DIR/$scene"
   scene_name="${scene##*/}"
