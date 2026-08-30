@@ -2663,18 +2663,16 @@ func _render_order_card(c: Dictionary) -> void:
 			dark_entry = entry
 			break
 	var order: Dictionary = c["order"]
-	var topping_ids: Array[String] = []
-	for topping in order["tops"]:
-		topping_ids.append(String(topping["id"]))
-	if "taro" in topping_ids:
-		c["drink_art"].texture = DrinkTaro
-	elif "pudding" in topping_ids:
-		c["drink_art"].texture = DrinkBrownSugar
-	elif "coconut_jelly" in topping_ids:
-		c["drink_art"].texture = DrinkCoconut
-	else:
-		c["drink_art"].texture = DrinkClassic
 	var title_ingredient: Dictionary = order["tops"][0] if not order["tops"].is_empty() else order["milk"]
+	match String(title_ingredient["id"]):
+		"taro":
+			c["drink_art"].texture = DrinkTaro
+		"pudding":
+			c["drink_art"].texture = DrinkBrownSugar
+		"coconut_jelly", "coconut_milk":
+			c["drink_art"].texture = DrinkCoconut
+		_:
+			c["drink_art"].texture = DrinkClassic
 	c["drink_name"].text = GameLocale.text("DAY_ORDER_DRINK_CARD", [
 		GameLocale.ingredient_short_name(title_ingredient)])
 	if c == active_customer:

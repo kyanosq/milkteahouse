@@ -341,6 +341,14 @@ func _ready() -> void:
 		"tops": [GameData.toppings[0]], "sugar": GameData.sugar_levels[2],
 	}
 	shop._render_order_card(progress_customer)
+	var pudding: Dictionary = GameData.toppings.filter(
+		func(item): return String(item["id"]) == "pudding")[0]
+	progress_customer["order"]["tops"] = [GameData.toppings[0], pudding]
+	shop._render_order_card(progress_customer)
+	assert(progress_customer["drink_art"].texture == shop.DrinkClassic,
+		"the order-card art must describe the same primary ingredient as its title")
+	progress_customer["order"]["tops"] = [GameData.toppings[0]]
+	shop._render_order_card(progress_customer)
 	shop._reset_cup()
 	Haptics.reset_test_state()
 	assert(shop.order_progress_states(progress_customer) == ["pending", "pending", "pending", "pending"])
