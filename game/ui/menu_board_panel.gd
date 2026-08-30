@@ -181,7 +181,7 @@ func _refresh_featured() -> void:
 	_progress_label.text = GameLocale.text("MENU_BOARD_PROGRESS", [
 		featured.size(), slot_limit, MenuCatalog.hot_featured_count()])
 	_subtitle_label.text = GameLocale.text("MENU_BOARD_SUBTITLE_SLOTS", [slot_limit]) \
-		if slot_limit != MenuCatalog.FEATURED_LIMIT else GameLocale.text("MENU_BOARD_SUBTITLE")
+		if slot_limit != GameState.FEATURED_MENU_LIMIT else GameLocale.text("MENU_BOARD_SUBTITLE")
 	# 客流百分比带符号（P5-5）：溢价减速为负值时不得渲染成 "+-9%"。
 	var traffic_delta := roundi((1.0 - MenuCatalog.traffic_multiplier()) * 100.0)
 	_impact_label.text = GameLocale.text("MENU_BOARD_FORECAST", [
@@ -198,7 +198,7 @@ func _refresh_dark() -> void:
 	var dark_items := MenuCatalog.dark_items()
 	var available := MenuCatalog.dark_order_items().size()
 	_title_label.text = GameLocale.text("DARK_BOARD_TITLE")
-	_progress_label.text = GameLocale.text("DARK_BOARD_PROGRESS", [dark_items.size(), MenuCatalog.DARK_LIMIT, available])
+	_progress_label.text = GameLocale.text("DARK_BOARD_PROGRESS", [dark_items.size(), GameState.DARK_MENU_LIMIT, available])
 	_subtitle_label.text = GameLocale.text("DARK_BOARD_SUBTITLE")
 	if _dark_candidate.is_empty():
 		_impact_label.text = GameLocale.text("DARK_BOARD_IMPACT", [
@@ -206,7 +206,7 @@ func _refresh_dark() -> void:
 	else:
 		_impact_label.text = GameLocale.text("DARK_BOARD_CANDIDATE", [
 			MenuCatalog.dark_display_name(_dark_candidate), MenuCatalog.dark_formula_text(_dark_candidate)])
-	for slot in MenuCatalog.DARK_LIMIT:
+	for slot in GameState.DARK_MENU_LIMIT:
 		if slot < dark_items.size():
 			_cards.add_child(_dark_card(slot, dark_items[slot]))
 		else:
@@ -484,7 +484,7 @@ func _on_price_pressed(item_id: String, price: int) -> void:
 func _slots_full_text() -> String:
 	var slot_limit := MenuCatalog.featured_limit()
 	return GameLocale.text("MENU_BOARD_FULL_SLOTS", [slot_limit]) \
-		if slot_limit != MenuCatalog.FEATURED_LIMIT else GameLocale.text("MENU_BOARD_FULL")
+		if slot_limit != GameState.FEATURED_MENU_LIMIT else GameLocale.text("MENU_BOARD_FULL")
 
 
 ## 记录持焦控件所在的卡片索引，供刷新后回焦（P3-F8）。

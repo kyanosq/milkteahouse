@@ -5,6 +5,7 @@ set -uo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 PROJECT_DIR="$REPO_DIR/game"
+source "$SCRIPT_DIR/find_godot.sh"
 
 CHECK_SCENES=(
   "tests/audio_check.tscn"
@@ -41,15 +42,7 @@ if [[ "${#CHECK_SCENES[@]}" -ne "$EXPECTED_CHECK_COUNT" ]]; then
   exit 2
 fi
 
-if [[ -n "${GODOT_BIN:-}" ]]; then
-  GODOT_EXECUTABLE="$GODOT_BIN"
-elif [[ -x "/Applications/Godot.app/Contents/MacOS/Godot" ]]; then
-  GODOT_EXECUTABLE="/Applications/Godot.app/Contents/MacOS/Godot"
-elif command -v godot4 >/dev/null 2>&1; then
-  GODOT_EXECUTABLE="$(command -v godot4)"
-elif command -v godot >/dev/null 2>&1; then
-  GODOT_EXECUTABLE="$(command -v godot)"
-else
+if ! GODOT_EXECUTABLE="$(find_godot)"; then
   printf '[GODOT_CHECKS] Godot not found; set GODOT_BIN to the executable path\n' >&2
   exit 2
 fi
@@ -74,7 +67,10 @@ printf '[GODOT_CHECKS] IMPORT project resources\n'
   --path "$PROJECT_DIR" \
   --log-file "$LOG_DIR/import.log" \
   --quit
-if [[ "$?" -ne 0 ]]; then
+import_result=$?
+import_errors="$(grep -E '^(SCRIPT ERROR:|ERROR:)' "$LOG_DIR/import.log" \
+  | grep -Fv 'ERROR: Condition "ret != noErr" is true. Returning: ""' || true)"
+if [[ "$import_result" -ne 0 || -n "$import_errors" ]]; then
   printf '[GODOT_CHECKS] FAIL project import (log=%s)\n' "$LOG_DIR/import.log" >&2
   tail -n 80 "$LOG_DIR/import.log" >&2 || true
   exit 1

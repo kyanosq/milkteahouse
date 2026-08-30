@@ -142,6 +142,8 @@ MENU_SAVE_SUMMARY,Day %d · %s\n%d coins · %d Inspiration · Shop %d/%d · Menu
 MENU_SIGN_SUMMARY,\nSign: %s · Stamps: %d,\n店招：%s  ·  印章 %d
 MENU_ROUTE_SUMMARY,\nNew Shop+ Route: %s,\n新店+路线：%s
 MENU_SAVE_RECOVERED,\nRecovered last safe autosave,\n已从最近一次安全自动存档恢复
+MENU_SAVE_UNSUPPORTED,This save was created by a newer build and was left untouched. Restart the shop to replace it.,该存档由更新版本创建，已保持原样且未被覆盖。如需替换，请重新开店。
+MENU_SAVE_UNSUPPORTED_ACTION,Continue unavailable · Newer save,无法继续 · 存档版本较新
 ACTION_VIEW_REPORT,View Report,查看评级
 ACTION_CONTINUE_RESEARCH,Continue Research,继续研发
 ACTION_CONTINUE_SHIFT,Continue Shift,继续营业
@@ -302,7 +304,7 @@ DAY_LEDGER_NET,Net,净经营
 DAY_LEDGER_NEXT_RENT,Next rent · Day %d · base %d,下次周租 · 第 %d 天 · 基准 %d
 DAY_LEDGER_WASTE, · waste %d, · 损耗 %d
 DAY_LEDGER_RELIEF, · startup relief +%d, · 新店扶持 +%d
-DAY_RESULT_THREE_STAR,Three-Star Bonus: +3 Inspiration,三星奖励：额外 +3 灵感
+DAY_RESULT_THREE_STAR,Three-Star Bonus: +%d Inspiration,三星奖励：额外 +%d 灵感
 DAY_RESULT_DARK_MENU,Dark Menu: %d Sales · Buzz +%d,黑暗菜单：成交 %d 单，话题度 +%d
 DAY_RESULT_EVENT_COINS,%s: Bonus +%d coins,%s：额外 +%d 金币
 DAY_RESULT_BUZZ,Buzz +%d,话题度 +%d
@@ -486,7 +488,7 @@ DAY_ROUTE_PROGRESS_RUSH,Sign +%d · Cycle %d/3,店招 +%d · 周转 %d/3
 DAY_ROUTE_PROGRESS_PRECISION,Sign +%d · Fast %d,店招 +%d · 快交 %d
 DAY_ROUTE_PROGRESS_TREND,Sign +%d · Match %d,店招 +%d · 契合 %d
 DAY_SECONDS_ROUTE_READY,%ds · +1,%d秒 · +1
-DAY_ROUTE_PATIENCE_TOOLTIP,The purple tick marks the 70% reputation-bonus threshold.,紫色刻度表示 70% 口碑奖励门槛。
+DAY_ROUTE_PATIENCE_TOOLTIP,The purple tick marks the %d%% reputation-bonus threshold.,紫色刻度表示 %d%% 口碑奖励门槛。
 DAY_ROUTE_ACTIVE,New Shop+ · %s — %s,新店+ · %s —— %s
 DAY_REWARD_ROUTE, · Sign +%d (%s), · 店招 +%d（%s）
 DAY_RESULT_ROUTE_BONUS,%s · Sign-route bonus +%d coins,%s · 店招路线额外 +%d 金币
@@ -822,7 +824,7 @@ DAY_COMPONENT_TOPPING,topping,小料
 CONTRACT_RANK_CITY_PLUS,City Legend,全城名店
 CONTRACT_RANK_LEGEND,Milk-Tea Legend,奶茶传奇
 NIGHT_SHELF_VOIDED,Formula changed — the shelving score was voided. Re-trial to re-qualify.,配方已修改——原试做分数失效，需重新试做后才能上架。
-DAY_HUD_GOAL_TIP,"Today's revenue goal. Reach it for 2 stars, 1.4x for 3 stars.",今日营收目标：达成得 2 星，1.4 倍得 3 星。
+DAY_HUD_GOAL_TIP,"Today's revenue goal. Reach it for 2 stars, %.1fx for 3 stars.",今日营收目标：达成得 2 星，%.1f 倍得 3 星。
 DAY_HUD_SHOP_TIP,Shop upgrade levels bought in the night lab (max 10).,夜间研发室购买的店铺升级等级（满级 10）。
 DAY_HUD_PERFECT_TIP,Flawless serves today (no rework). Every 3 in a row pays a combo bonus.,今日无返工的完美出杯数；每连续 3 次触发连击奖励。
 DAY_HUD_STREAK_TIP,Current perfect-serve streak. Wrong drinks and walk-outs reset it.,当前完美连击数；送错杯或顾客离场会清零。
@@ -830,7 +832,7 @@ DAY_HUD_INSP_TIP,Inspiration: spent at night on trials and research.,灵感：�
 DAY_HUD_COSTS_TIP,Today's restock cost so far and the upcoming rent day.,今日已计的补货成本与下一个租金日。
 CAMPAIGN_DIM_DEFICIT,+%d to max,距满分 +%d
 TUTORIAL_6_TITLE,"Goals, Stars & the Clock",目标、星级与打烊
-TUTORIAL_6_BODY,"Each shift lasts 120 seconds. Reaching 70% of the goal gives 1 star, the goal itself 2 stars, and 1.4x the goal 3 stars with +3 inspiration. Below 70% the day scores no stars — stars decide your final report.",每班营业 120 秒：达到目标七成得 1 星，达到目标得 2 星，1.4 倍得 3 星并奖励 3 灵感；不足七成则没有星。星级决定收官报告的评级。
+TUTORIAL_6_BODY,"Each shift lasts %d seconds. Reaching %d%% of the goal gives 1 star, the goal itself 2 stars, and %.1fx the goal 3 stars with +%d inspiration. Below %d%% the day scores no stars — stars decide your final report.",每班营业 %d 秒：达到目标 %d%% 得 1 星，达到目标得 2 星，%.1f 倍得 3 星并奖励 %d 灵感；不足 %d%% 则没有星。星级决定收官报告的评级。
 TUTORIAL_6_HINT,"The goal bar keeps filling past 100% — the tick marks the goal, the end of the bar is the 3-star line.",目标条超过 100% 仍会继续涨：刻度是目标线，条尾就是三星线。
 MARKET_SETTLEMENT_TIERS,Tiers: ≥%d hit · ≥%d signature · ≥%d regular.,分档线：≥%d 爆款 · ≥%d 招牌 · ≥%d 普通。
 MARKET_SETTLEMENT_FORMULA,Formula: %s,配方：%s

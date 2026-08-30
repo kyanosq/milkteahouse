@@ -41,6 +41,11 @@ func _ready() -> void:
 	assert(panel.visible_card_count() == 3)
 	var candidate := MenuCatalog.dark_candidate_for_trial(
 		"black_tea", "fresh_milk", ["boba"], 50, 18)
+	assert(int(candidate["price"]) == MenuCatalog.dark_price_for_toppings(1))
+	var price_less := candidate.duplicate(true)
+	price_less.erase("price")
+	assert(MenuCatalog.dark_sale_price(price_less) == MenuCatalog.dark_price_for_toppings(1),
+		"price-less mystery entries must use the same topping formula as new candidates")
 	panel.show_dark_candidate(candidate)
 	panel._replace_dark(1)
 	assert(MenuCatalog.dark_item_id(GameState.dark_menu[1]).begins_with("mystery:"))

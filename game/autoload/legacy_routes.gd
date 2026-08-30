@@ -1,7 +1,6 @@
 ## 新店+店招路线：用明确的风险/回报改变真实白天循环，并记录三路线通关。
 extends Node
 
-const IDS := ["rush", "precision", "trend"]
 const GOAL_MULTIPLIER := 1.08
 
 const ROUTES := [
@@ -12,7 +11,7 @@ const ROUTES := [
 
 
 func is_valid(route_id: String) -> bool:
-	return route_id in IDS
+	return route_id in GameState.VALID_NEW_SHOP_ROUTES
 
 
 func active_id() -> String:
@@ -42,7 +41,7 @@ func route(route_id := "") -> Dictionary:
 
 func routes() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	for route_id in IDS:
+	for route_id in GameState.VALID_NEW_SHOP_ROUTES:
 		result.append(route(route_id))
 	return result
 
@@ -99,7 +98,7 @@ func progress_text(streak: int, trigger_count: int, earned_coins: int) -> String
 func completed_count() -> int:
 	var cleared: Array = GameState.legacy.get("routes_cleared", [])
 	var count := 0
-	for route_id in IDS:
+	for route_id in GameState.VALID_NEW_SHOP_ROUTES:
 		if route_id in cleared:
 			count += 1
 	return count

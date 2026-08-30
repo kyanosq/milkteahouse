@@ -19,6 +19,14 @@ func _ready() -> void:
 	assert(Sfx.current_music == "menu")
 	assert(menu.continue_button.text.contains("继续研发"))
 	assert(menu.continue_button.text.contains("第 7 天"))
+	menu.has_existing_save = true
+	GameState.save_write_blocked = true
+	menu._refresh_continue_state()
+	assert(menu.continue_button.disabled and menu.continue_button.text.contains("存档版本较新"))
+	assert(menu.summary_text.text.contains("未被覆盖"),
+		"a future save must surface its write protection instead of failing silently")
+	GameState.save_write_blocked = false
+	menu._refresh_continue_state()
 
 	menu._open_settings()
 	assert(menu.settings_panel.visible)
@@ -27,9 +35,15 @@ func _ready() -> void:
 	assert(not menu.settings_panel.visible)
 
 	# The confirmation behavior must not depend on a developer machine having a save.
-	menu.has_existing_save = true
 	menu._request_new_game()
 	assert(menu.confirm_overlay.visible)
+	menu.new_game_button.grab_focus()
+	var escaped_nav := InputEventAction.new()
+	escaped_nav.action = "ui_down"
+	escaped_nav.pressed = true
+	menu._input(escaped_nav)
+	assert(menu.confirm_button.has_focus(),
+		"restart confirmation must clamp escaped keyboard/gamepad focus")
 	menu._close_confirmation()
 	assert(not menu.confirm_overlay.visible)
 	GameState.phase = "campaign"

@@ -4,17 +4,11 @@ extends Node
 signal scheme_changed(gamepad: bool)
 signal bindings_changed
 
-const DEFAULT_KEYS := {
-	"game_pause": KEY_ESCAPE,
-	"game_shake": KEY_SPACE,
-	"staff_interact": KEY_F,
-}
 const JOY_BUTTONS := {
 	"game_pause": JOY_BUTTON_START,
 	"game_shake": JOY_BUTTON_X,
 	"staff_interact": JOY_BUTTON_Y,
 }
-const FIXED_KEYS := {"prep_tea": KEY_Q, "prep_pearl": KEY_E}
 ## 保留键（P11-F2）：数字 1–9 是情境选择的效率捷径，Enter 是 UI 确认，
 ## Tab 是焦点遍历——改键占用会让对应功能静默失效。
 const RESERVED_KEYS := [
@@ -55,10 +49,10 @@ func _input(event: InputEvent) -> void:
 
 
 func apply_bindings() -> void:
-	for action_name in DEFAULT_KEYS:
+	for action_name in GameState.DEFAULT_KEY_BINDINGS:
 		_configure_action(action_name, key_for(action_name), JOY_BUTTONS[action_name])
-	for action_name in FIXED_KEYS:
-		_configure_action(action_name, FIXED_KEYS[action_name], FIXED_JOY_BUTTONS[action_name])
+	for action_name in GameState.FIXED_KEY_BINDINGS:
+		_configure_action(action_name, GameState.FIXED_KEY_BINDINGS[action_name], FIXED_JOY_BUTTONS[action_name])
 
 
 func _configure_action(action_name: StringName, keycode: Key, joy_button: JoyButton) -> void:
@@ -76,17 +70,17 @@ func _configure_action(action_name: StringName, keycode: Key, joy_button: JoyBut
 
 
 func key_for(action_name: String) -> Key:
-	return GameState.key_binding(action_name, DEFAULT_KEYS.get(action_name, KEY_NONE))
+	return GameState.key_binding(action_name, GameState.DEFAULT_KEY_BINDINGS.get(action_name, KEY_NONE))
 
 
 func conflict_for(action_name: String, keycode: Key) -> String:
-	for other_action in DEFAULT_KEYS:
+	for other_action in GameState.DEFAULT_KEY_BINDINGS:
 		if other_action != action_name and key_for(other_action) == keycode:
 			return other_action
 	# Q/E 是不可改绑的备料固定键；改绑到它们会让 _input 的先到先得消费
 	# 静默废掉其中一个动作（评审 R8）。
-	for fixed_action in FIXED_KEYS:
-		if FIXED_KEYS[fixed_action] == keycode:
+	for fixed_action in GameState.FIXED_KEY_BINDINGS:
+		if GameState.FIXED_KEY_BINDINGS[fixed_action] == keycode:
 			return fixed_action
 	if keycode in RESERVED_KEYS:
 		return "_reserved"
@@ -94,7 +88,7 @@ func conflict_for(action_name: String, keycode: Key) -> String:
 
 
 func rebind_keyboard(action_name: String, keycode: Key) -> bool:
-	if not DEFAULT_KEYS.has(action_name) or keycode == KEY_NONE:
+	if not GameState.DEFAULT_KEY_BINDINGS.has(action_name) or keycode == KEY_NONE:
 		return false
 	if conflict_for(action_name, keycode) != "":
 		return false
@@ -108,10 +102,7 @@ func rebind_keyboard(action_name: String, keycode: Key) -> bool:
 
 
 func reset_keyboard_bindings() -> void:
-	var bindings := {}
-	for action_name in DEFAULT_KEYS:
-		bindings[action_name] = int(DEFAULT_KEYS[action_name])
-	GameState.settings["key_bindings"] = bindings
+	GameState.settings["key_bindings"] = GameState.DEFAULT_KEY_BINDINGS.duplicate()
 	apply_bindings()
 	GameState.save_game()
 	bindings_changed.emit()
@@ -244,8 +235,8 @@ func staff_hint() -> String:
 
 
 func prep_tea_hint() -> String:
-	return controller_label("tea") if gamepad_mode else OS.get_keycode_string(FIXED_KEYS["prep_tea"])
+	return controller_label("tea") if gamepad_mode else OS.get_keycode_string(GameState.FIXED_KEY_BINDINGS["prep_tea"])
 
 
 func prep_pearl_hint() -> String:
-	return controller_label("pearl") if gamepad_mode else OS.get_keycode_string(FIXED_KEYS["prep_pearl"])
+	return controller_label("pearl") if gamepad_mode else OS.get_keycode_string(GameState.FIXED_KEY_BINDINGS["prep_pearl"])

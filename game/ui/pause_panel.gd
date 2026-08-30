@@ -227,7 +227,7 @@ func _build_display_panel() -> void:
 	display_grid.add_child(resolution_label)
 	_resolution = OptionButton.new()
 	_resolution.custom_minimum_size = Vector2(410, 42)
-	for value in DisplayPrefs.RESOLUTIONS:
+	for value in GameState.VALID_RESOLUTIONS:
 		_resolution.add_item(value.replace("x", " × "))
 	_resolution.item_selected.connect(_on_resolution_selected)
 	display_grid.add_child(_resolution)
@@ -395,9 +395,9 @@ func _close_display_settings() -> void:
 
 
 func _refresh_display_settings() -> void:
-	var mode_index := DisplayPrefs.MODES.find(GameState.window_mode())
+	var mode_index := GameState.VALID_WINDOW_MODES.find(GameState.window_mode())
 	_window_mode.select(maxi(mode_index, 0))
-	var resolution_index := DisplayPrefs.RESOLUTIONS.find(GameState.resolution())
+	var resolution_index := GameState.VALID_RESOLUTIONS.find(GameState.resolution())
 	_resolution.select(maxi(resolution_index, 0))
 	_resolution.disabled = GameState.window_mode() != "windowed"
 	_refresh_binding_buttons()
@@ -408,9 +408,9 @@ func _rebuild_mode_options() -> void:
 		return
 	var selected_mode := GameState.window_mode()
 	_window_mode.clear()
-	for mode in DisplayPrefs.MODES:
+	for mode in GameState.VALID_WINDOW_MODES:
 		_window_mode.add_item(GameLocale.text("DISPLAY_MODE_%s" % mode.to_upper()))
-	_window_mode.select(maxi(DisplayPrefs.MODES.find(selected_mode), 0))
+	_window_mode.select(maxi(GameState.VALID_WINDOW_MODES.find(selected_mode), 0))
 
 
 func _refit_display_panel() -> void:
@@ -426,17 +426,17 @@ func _refresh_binding_buttons() -> void:
 
 
 func _on_window_mode_selected(index: int) -> void:
-	if index < 0 or index >= DisplayPrefs.MODES.size():
+	if index < 0 or index >= GameState.VALID_WINDOW_MODES.size():
 		return
-	DisplayPrefs.set_window_mode(DisplayPrefs.MODES[index])
+	DisplayPrefs.set_window_mode(GameState.VALID_WINDOW_MODES[index])
 	_resolution.disabled = GameState.window_mode() != "windowed"
 	_rebind_feedback.text = GameLocale.text("SETTINGS_MODE_CHANGED", [GameLocale.text("DISPLAY_MODE_%s" % GameState.window_mode().to_upper())])
 
 
 func _on_resolution_selected(index: int) -> void:
-	if index < 0 or index >= DisplayPrefs.RESOLUTIONS.size():
+	if index < 0 or index >= GameState.VALID_RESOLUTIONS.size():
 		return
-	DisplayPrefs.set_resolution(DisplayPrefs.RESOLUTIONS[index])
+	DisplayPrefs.set_resolution(GameState.VALID_RESOLUTIONS[index])
 	_rebind_feedback.text = GameLocale.text("SETTINGS_RESOLUTION_CHANGED", [GameState.resolution().replace("x", " × ")])
 
 
@@ -676,6 +676,8 @@ func confine_focus() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.echo:
+		return
 	if visible and event.is_action_pressed("ui_cancel"):
 		if not _rebind_action.is_empty():
 			_rebind_action = ""

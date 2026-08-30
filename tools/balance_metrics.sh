@@ -6,10 +6,24 @@ set -uo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 PROJECT_DIR="$REPO_DIR/game"
+source "$SCRIPT_DIR/find_godot.sh"
 OUT_DIR="${1:-$REPO_DIR/design/qa}"
-GODOT="/Applications/Godot.app/Contents/MacOS/Godot"
 CSV="$OUT_DIR/balance_table.csv"
 SAMPLES="${SAMPLES:-5}"
+
+if [[ ! "$SAMPLES" =~ ^[1-9][0-9]*$ ]]; then
+  printf '[BALANCE] SAMPLES must be a positive integer, got: %s\n' "$SAMPLES" >&2
+  exit 2
+fi
+
+if ! GODOT="$(find_godot)"; then
+  printf '[BALANCE] Godot not found; set GODOT_BIN to the executable path\n' >&2
+  exit 2
+fi
+if [[ ! -x "$GODOT" ]]; then
+  printf '[BALANCE] Godot is not executable: %s\n' "$GODOT" >&2
+  exit 2
+fi
 
 mkdir -p "$OUT_DIR"
 echo "profile,day,sample,earned,goal,stars,tau,dd,serve_rate,angry" > "$CSV"
@@ -47,6 +61,14 @@ run_one() {
     BOT_UPGRADES="$(upgrades_for "$profile" "$day")" \
     "$GODOT" --headless --path "$PROJECT_DIR" --log-file "$log" \
     "res://tests/autoplay.tscn" >/dev/null 2>&1
+  local result=$?
+  local unexpected_errors
+  unexpected_errors="$(grep -E '^(SCRIPT ERROR:|ERROR:)' "$log" \
+    | grep -Fv 'ERROR: Condition "ret != noErr" is true. Returning: ""' || true)"
+  if [[ "$result" -ne 0 || -n "$unexpected_errors" ]]; then
+    failures+=("godot-error:$profile:d$day:s$sample:exit-$result")
+    return
+  fi
   local line
   line="$(grep '\[RESULT\]' "$log" | head -1)"
   if [[ -z "$line" ]]; then
@@ -61,6 +83,11 @@ run_one() {
   dd="$(grep -o 'dd=[0-9]*' <<<"$line" | head -1 | cut -d= -f2)"
   serve="$(grep -o 'serve_rate=[0-9]*' <<<"$line" | head -1 | cut -d= -f2)"
   angry="$(grep -o 'angry=[0-9]*' <<<"$line" | head -1 | cut -d= -f2)"
+  if [[ -z "$earned" || -z "$goal" || -z "$stars" || -z "$tau" \
+      || -z "$dd" || -z "$serve" || -z "$angry" ]]; then
+    failures+=("malformed-result:$profile:d$day:s$sample")
+    return
+  fi
   echo "$profile,$day,$sample,$earned,$goal,$stars,$tau,$dd,$serve,$angry" >> "$CSV"
 }
 
@@ -74,9 +101,10 @@ for profile in newbie regular skilled; do
 done
 echo "[BALANCE] wrote $CSV ($(($(wc -l < "$CSV") - 1)) runs)"
 
-python3 - "$CSV" <<'PY'
+python3 - "$CSV" "$SAMPLES" <<'PY'
 import csv, sys, statistics as st
 rows = list(csv.DictReader(open(sys.argv[1])))
+sample_count = int(sys.argv[2])
 fails = []
 def med(v): return st.median(v)
 def check(cond, msg):
@@ -95,6 +123,11 @@ for (profile, day), rs in sorted(summary.items(), key=lambda kv: (kv[0][0], kv[0
     tau = med([float(r["tau"]) for r in rs])
     dd = med([float(r["dd"]) for r in rs])
     print(f"{profile:8} {day:3d} {earned:10.0f} {stars:9.0f} {tau:7.2f} {dd:6.0f}")
+
+# ponytail: <3 seeds cover parser/runtime smoke only; use SAMPLES>=3 for statistical claims.
+if sample_count < 3:
+    print(f"[BALANCE] SMOKE PASSED samples={sample_count}; statistical gates require SAMPLES>=3")
+    sys.exit(0)
 
 # 口径注记（2026-08-15，对照设计文档 §2/§6）：
 # - 无聊带门禁只针对 mid（regular）画像：skilled 的高 τ 是 42/42★ 精通回报的
@@ -127,6 +160,9 @@ PY
 metrics_rc=$?
 
 if [[ ${#failures[@]} -ne 0 || $metrics_rc -ne 0 ]]; then
-  printf '[BALANCE] FAILED runs-missing=%d\n' "${#failures[@]}"
+  printf '[BALANCE] FAILED runs-missing=%d\n' "${#failures[@]}" >&2
+  if [[ ${#failures[@]} -ne 0 ]]; then
+    printf '  %s\n' "${failures[@]}" >&2
+  fi
   exit 1
 fi

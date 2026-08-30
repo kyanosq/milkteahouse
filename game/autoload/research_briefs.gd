@@ -46,7 +46,8 @@ func record_trial(base_id: String, milk_id: String, used_ids: Array, quality: in
 		if String(brief.get("type", "")) == "balanced":
 			GameState.brief_quality_step = mini(GameState.brief_quality_step + 1, QUALITY_LADDER.size() - 1)
 	GameState.research_brief = brief
-	return {"completed": completed_now, "reward": REWARD if completed_now else 0, "brief": brief}
+	return {"completed": completed_now,
+		"reward": int(brief.get("reward", REWARD)) if completed_now else 0, "brief": brief}
 
 
 func is_complete() -> bool:
@@ -57,7 +58,8 @@ func title() -> String:
 	var brief := ensure_for_day()
 	if brief.is_empty():
 		return GameLocale.text("LAB_BRIEF_TITLE")
-	return GameLocale.text("LAB_BRIEF_TITLE_COMPLETE" if bool(brief.get("completed", false)) else "LAB_BRIEF_TITLE_ACTIVE", [REWARD])
+	return GameLocale.text("LAB_BRIEF_TITLE_COMPLETE" if bool(brief.get("completed", false)) else "LAB_BRIEF_TITLE_ACTIVE",
+		[int(brief.get("reward", REWARD))])
 
 
 func description() -> String:
@@ -136,7 +138,7 @@ func _practice_candidates(day_number: int) -> Array[String]:
 		+ GameData.unlocked(GameData.toppings, day_number)
 	for ingredient in unlocked:
 		var ingredient_id := String(ingredient.get("id", ""))
-		if ingredient_id != "none" and ResearchProgress.level(ingredient_id) < 3:
+		if ingredient_id != "none" and ResearchProgress.level(ingredient_id) < ResearchProgress.MASTERY_LEVEL:
 			result.append(ingredient_id)
 	result.sort_custom(func(a: String, b: String) -> bool:
 		var xp_a := ResearchProgress.xp_value(a)

@@ -2,8 +2,7 @@
 extends Node
 
 const UNLOCK_NIGHT := 15
-const FIRST_TARGET_DAY := 16
-const MAX_COST_STEP := 6
+const FIRST_TARGET_DAY := UNLOCK_NIGHT + 1
 ## [P8-F1 可赢包络 2026-08-17] 连击/零差评的“杯数”目标封顶：满配 14/14 + skilled
 ## 的实测极限 38-42 完美杯（V2 bot 矩阵 /tmp/v2_p8_bots.log）打 0.9 折。stamps 缩放
 ## 后仍不得越界——高印章难度由费用与更紧的日程承担，而不是物理不可达的目标。
@@ -13,44 +12,42 @@ const WINNABLE_TARGET_CAP := 36
 ## 印章缩放后的目标再钳到「历史最佳营收 ×1.10」，棘轮上限=自己打出的最佳成绩。
 const SPRINT_GOAL_FACTOR := 1.15
 const SPRINT_BEST_HEADROOM := 1.10
+const PERFORMANCE_HISTORY_DAYS := 5
+const RANKS := [
+	{"stamps": 0, "key": "CONTRACT_RANK_BLOCK"},
+	{"stamps": 3, "key": "CONTRACT_RANK_DISTRICT"},
+	{"stamps": 7, "key": "CONTRACT_RANK_CITY"},
+	{"stamps": 12, "key": "CONTRACT_RANK_GOLD"},
+	{"stamps": 15, "key": "CONTRACT_RANK_CITY_PLUS"},
+	{"stamps": 20, "key": "CONTRACT_RANK_LEGEND"},
+	{"stamps": 30, "key": "CONTRACT_RANK_IMMORTAL"},
+]
 
 const ITEMS := [
 	{
 		"id": "streak_stage",
-		"name": "黄金连击擂台",
-		"short_name": "连击擂台",
 		"color": "FF6259",
 		"base_cost": 120,
 		"refund_ratio": 0.35,
 		"inspiration": 2,
-		"description": "商圈直播全程盯场。客流与耐心都会收紧，靠稳定连击拿下店招印章。",
-		"challenge": "最高连击达到指定次数",
 		"spawn_mult": 0.92,
 		"patience_mult": 0.94,
 	},
 	{
 		"id": "precision_shift",
-		"name": "零差评品鉴场",
-		"short_name": "零差评",
 		"color": "27B9A7",
 		"base_cost": 150,
 		"refund_ratio": 0.34,
 		"inspiration": 2,
-		"description": "社区评审集中到店。必须保持零气走并完成足够多的完美出杯。",
-		"challenge": "零气走并完成指定完美杯数",
 		"spawn_mult": 0.96,
 		"patience_mult": 0.88,
 	},
 	{
 		"id": "revenue_sprint",
-		"name": "商圈营收冲刺",
-		"short_name": "营收冲刺",
 		"color": "D99A43",
 		"base_cost": 190,
 		"refund_ratio": 0.36,
 		"inspiration": 3,
-		"description": "联名推广带来密集客流。订单更多，但只有达到签约营收才算履约。",
-		"challenge": "营业营收达到签约目标",
 		"spawn_mult": 0.82,
 		"patience_mult": 1.04,
 	},
@@ -156,7 +153,7 @@ func adaptive_goal_for_day(day_number: int) -> int:
 func record_day_performance(earned: int, goal_used: int) -> void:
 	var history: Array = (GameState.endless.get("revenue_history", []) as Array).duplicate()
 	history.append(maxi(0, earned))
-	GameState.endless["revenue_history"] = history.slice(maxi(0, history.size() - 5))
+	GameState.endless["revenue_history"] = history.slice(maxi(0, history.size() - PERFORMANCE_HISTORY_DAYS))
 	GameState.endless["goal_state"] = maxi(0, goal_used)
 
 
@@ -266,28 +263,24 @@ func resolve(day_number: int, stats: Dictionary, persist := false) -> Dictionary
 
 
 func rank_name(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
-	if stamps >= 30:
-		return GameLocale.text("CONTRACT_RANK_IMMORTAL")
-	if stamps >= 20:
-		return GameLocale.text("CONTRACT_RANK_LEGEND")
-	if stamps >= 15:
-		return GameLocale.text("CONTRACT_RANK_CITY_PLUS")
-	if stamps >= 12:
-		return GameLocale.text("CONTRACT_RANK_GOLD")
-	if stamps >= 7:
-		return GameLocale.text("CONTRACT_RANK_CITY")
-	if stamps >= 3:
-		return GameLocale.text("CONTRACT_RANK_DISTRICT")
-	return GameLocale.text("CONTRACT_RANK_BLOCK")
+	var key := String(RANKS[0]["key"])
+	for rank in RANKS:
+		if stamps < int(rank["stamps"]):
+			break
+		key = String(rank["key"])
+	return GameLocale.text(key)
 
 
 func next_rank_text(stamps: int = int(GameState.endless.get("stamps", 0))) -> String:
 	# [P8-F3/P8-F5 2026-08-17] 20-29 段正确显示距不朽档（30）枚数——旧三元最内层
 	# 封死 20 会渲染出 -2/-5 负数；30+ 接入 CONTRACT_RANK_MAX 死键并带守擂计数。
-	if stamps >= 30:
+	if stamps >= int(RANKS[-1]["stamps"]):
 		return "%s · %s" % [GameLocale.text("CONTRACT_RANK_MAX"), _defend_count_text()]
-	var next := 3 if stamps < 3 else (7 if stamps < 7 else (12 if stamps < 12 else (15 if stamps < 15 else (20 if stamps < 20 else 30))))
-	return GameLocale.text("CONTRACT_RANK_NEXT", [next - stamps])
+	for rank in RANKS:
+		var threshold := int(rank["stamps"])
+		if stamps < threshold:
+			return GameLocale.text("CONTRACT_RANK_NEXT", [threshold - stamps])
+	return ""
 
 
 ## 守擂计数文案：CONTRACT_RANK_DEFEND_COUNT 键未进入本地化表前退回

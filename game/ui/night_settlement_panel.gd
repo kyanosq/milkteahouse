@@ -257,6 +257,10 @@ func result_card_count() -> int:
 	return count
 
 
+func confine_focus() -> void:
+	_continue.grab_focus()
+
+
 func _layout_center() -> void:
 	var viewport_size := get_viewport_rect().size
 	position = ((viewport_size - custom_minimum_size) * 0.5).floor()

@@ -19,7 +19,6 @@ const SafeFrameScene := preload("res://ui/safe_frame.gd")
 const ATTEMPT_COST := 2
 const INSP_BASE := 8
 const ACTIVE_BUDGET_CAP := 16
-const DARK_MENU_CAP := 3
 const CORAL := Color("FF6259")
 const MINT := Color("27B9A7")
 const CREAM := Color("FFF8ED")
@@ -142,18 +141,23 @@ func _input(event: InputEvent) -> void:
 		elif staff_panel != null and staff_panel.visible:
 			staff_panel.hide_panel()
 		elif overlay != null and overlay.visible:
+			get_viewport().set_input_as_handled()
 			return
 		else:
 			_toggle_settings()
 		get_viewport().set_input_as_handled()
 
 
-## 当前打开的模态面板（五张夜间面板 + 设置）；无则返回 null。
+## 当前打开的模态面板（夜间结算 + 五张夜间面板 + 设置）；无则返回 null。
 func _visible_modal_panel() -> Control:
-	for panel in [menu_board_panel, recipe_book_panel, contract_panel, upgrade_panel,
-			staff_panel, settings_panel]:
+	if overlay != null and overlay.visible:
+		return overlay.get_child(overlay.get_child_count() - 1) as Control \
+			if overlay.get_child_count() > 0 else overlay
+	for panel in _decision_panels():
 		if panel != null and panel.visible:
 			return panel
+	if settings_panel != null and settings_panel.visible:
+		return settings_panel
 	return null
 
 
@@ -480,67 +484,42 @@ func _build_ui() -> void:
 
 
 func _open_upgrades() -> void:
-	if menu_board_panel.visible:
-		menu_board_panel.hide_panel()
-	if recipe_book_panel.visible:
-		recipe_book_panel.hide_panel()
-	if staff_panel.visible:
-		staff_panel.hide_panel()
-	if contract_panel.visible:
-		contract_panel.hide_panel()
+	_hide_decision_panels()
 	upgrade_panel.show_panel()
 
 
 func _open_staff() -> void:
 	if GameState.day < StaffCatalog.UNLOCK_DAY:
 		return
-	if upgrade_panel.visible:
-		upgrade_panel.hide_panel()
-	if menu_board_panel.visible:
-		menu_board_panel.hide_panel()
-	if recipe_book_panel.visible:
-		recipe_book_panel.hide_panel()
-	if contract_panel.visible:
-		contract_panel.hide_panel()
+	_hide_decision_panels()
 	staff_panel.show_panel()
 
 
 func _open_contracts() -> void:
 	if not EndlessContracts.is_unlocked(GameState.day):
 		return
-	if upgrade_panel.visible:
-		upgrade_panel.hide_panel()
-	if staff_panel.visible:
-		staff_panel.hide_panel()
-	if menu_board_panel.visible:
-		menu_board_panel.hide_panel()
-	if recipe_book_panel.visible:
-		recipe_book_panel.hide_panel()
+	_hide_decision_panels()
 	contract_panel.show_panel()
 
 
 func _open_recipe_book() -> void:
-	if menu_board_panel.visible:
-		menu_board_panel.hide_panel()
-	if upgrade_panel.visible:
-		upgrade_panel.hide_panel()
-	if staff_panel.visible:
-		staff_panel.hide_panel()
-	if contract_panel.visible:
-		contract_panel.hide_panel()
+	_hide_decision_panels()
 	recipe_book_panel.show_panel()
 
 
 func _open_menu_board() -> void:
-	if recipe_book_panel.visible:
-		recipe_book_panel.hide_panel()
-	if upgrade_panel.visible:
-		upgrade_panel.hide_panel()
-	if staff_panel.visible:
-		staff_panel.hide_panel()
-	if contract_panel.visible:
-		contract_panel.hide_panel()
+	_hide_decision_panels()
 	menu_board_panel.show_panel()
+
+
+func _decision_panels() -> Array[Control]:
+	return [menu_board_panel, recipe_book_panel, contract_panel, upgrade_panel, staff_panel]
+
+
+func _hide_decision_panels() -> void:
+	for panel in _decision_panels():
+		if panel.visible:
+			panel.hide_panel()
 
 
 func _on_featured_menu_changed() -> void:
@@ -584,6 +563,7 @@ func _toggle_settings() -> void:
 	if settings_panel.visible:
 		_close_settings()
 	else:
+		_hide_decision_panels()
 		settings_panel.show_panel(false, "night")
 		get_tree().paused = true
 
@@ -822,7 +802,7 @@ func _refresh() -> void:
 	book_label.tooltip_text = GameLocale.text("RECIPE_BOOK_TITLE")
 	menu_button.text = GameLocale.text("NIGHT_MENU_PILL", [
 		MenuCatalog.featured_items().size(), MenuCatalog.featured_limit(),
-		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), DARK_MENU_CAP])
+		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), GameState.DARK_MENU_LIMIT])
 	menu_button.tooltip_text = GameLocale.text("MENU_BOARD_TITLE")
 	var target_name := RecipeJournal.target_display_name()
 	selection_title_label.text = GameLocale.text("NIGHT_CURRENT_RECIPE") if target_name.is_empty() \
@@ -1061,7 +1041,7 @@ func _on_try() -> void:
 			if MenuCatalog.install_dark_candidate(dark_candidate, -1, false):
 				_append_result("NIGHT_DARK_ADDED")
 			else:
-				_append_result("NIGHT_DARK_FULL", [DARK_MENU_CAP])
+				_append_result("NIGHT_DARK_FULL", [GameState.DARK_MENU_LIMIT])
 				_offer_dark_candidate(dark_candidate)
 			_show_note_state({"kind": "dark", "recipe_id": String(r["id"])})
 		if RecipeJournal.complete_if_target(String(r["id"]), false):
@@ -1080,7 +1060,7 @@ func _on_try() -> void:
 			_append_result("NIGHT_CLUE_SUGAR")
 		elif m["near"] != "":
 			_append_result("NIGHT_CLUE_SLOT", [_localized_arg("slot", String(m["near"]))])
-		if 75 <= score and score < RecipeLab.SHELF_SCORE:
+		if RecipeLab.SHELF_SCORE - 5 <= score and score < RecipeLab.SHELF_SCORE:
 			_append_result("NIGHT_CLUE_CLOSE")
 		if dm["near"] != "":
 			_append_result("NIGHT_DARK_HINT")

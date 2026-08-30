@@ -6,6 +6,7 @@ signal pair_discovered(pair_key: String)
 const NIGHT_MASTERY_BONUS := 2
 const XP_PER_LEVEL := 8
 const MAX_LEVEL := 5
+const MASTERY_LEVEL := 3
 
 
 func pair_key(base_id: String, milk_id: String) -> String:
@@ -70,7 +71,7 @@ func pairing(base_id: String, milk_id: String) -> Dictionary:
 	var clash := 0
 	var notes: Array[String] = []
 	for rule in GameData.affinities:
-		if _rule_hits(rule, items):
+		if rule_hits(rule, items):
 			var score := int(rule.get("score", 0))
 			if score > 0:
 				synergy += score
@@ -126,7 +127,7 @@ func xp_value(ingredient_id: String) -> int:
 
 
 func level(ingredient_id: String) -> int:
-	return GameState.level_of(ingredient_id)
+	return mini(MAX_LEVEL, xp_value(ingredient_id) / XP_PER_LEVEL + 1)
 
 
 func level_progress(ingredient_id: String) -> Dictionary:
@@ -143,20 +144,20 @@ func level_progress(ingredient_id: String) -> Dictionary:
 
 func level_effect(ingredient_id: String) -> String:
 	var current_level := level(ingredient_id)
-	if current_level >= 3:
+	if current_level >= MASTERY_LEVEL:
 		return GameLocale.text("RESEARCH_MASTERY_EFFECT_ACTIVE")
-	return GameLocale.text("RESEARCH_MASTERY_EFFECT_LOCKED", [3])
+	return GameLocale.text("RESEARCH_MASTERY_EFFECT_LOCKED", [MASTERY_LEVEL])
 
 
 func mastered_ingredients() -> int:
 	var count := 0
 	for item in ingredients():
-		if level(String(item["id"])) >= 3:
+		if level(String(item["id"])) >= MASTERY_LEVEL:
 			count += 1
 	return count
 
 
-func _rule_hits(rule: Dictionary, items: Array) -> bool:
+func rule_hits(rule: Dictionary, items: Array) -> bool:
 	var tags: Array = rule.get("tags", [])
 	if tags.size() < 2:
 		return false

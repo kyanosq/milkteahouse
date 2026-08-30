@@ -46,6 +46,7 @@ var _step := 0
 var _replay := false
 ## D2-B 交互门控：由 day_shop 注入 (step) -> bool；步骤 3/4 需真实选料/封杯。
 var progress_provider: Callable
+var final_step_values: Array = []
 var _gate_fails := 0
 var _gate_bypassed := false
 # 聚光灯“开洞”：四块暗幕围出聚焦区，洞内透出原始场景（对比度不被压暗）。
@@ -174,7 +175,8 @@ func _render_step() -> void:
 	var data: Dictionary = STEPS[_step]
 	_progress.text = GameLocale.text("TUTORIAL_PROGRESS", [_step + 1, STEPS.size()])
 	_title.text = GameLocale.text("TUTORIAL_%d_TITLE" % (_step + 1))
-	_body.text = GameLocale.text("TUTORIAL_%d_BODY" % (_step + 1))
+	_body.text = GameLocale.text("TUTORIAL_%d_BODY" % (_step + 1),
+		final_step_values if _step == STEPS.size() - 1 else [])
 	_hint.text = _device_hint(_step, GameLocale.text("TUTORIAL_%d_HINT" % (_step + 1)))
 	_skip.text = GameLocale.text("TUTORIAL_SKIP")
 	if _gate_bypassed:

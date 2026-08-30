@@ -309,7 +309,7 @@ func _optimize_featured(target_day: int) -> String:
 		return ""
 	var event_id := String(DailyEvents.event_for_day(target_day).get("id", "calm"))
 	var chosen: Array[String] = []
-	while chosen.size() < mini(MenuCatalog.FEATURED_LIMIT, available.size()):
+	while chosen.size() < mini(GameState.FEATURED_MENU_LIMIT, available.size()):
 		var best_id := ""
 		var best_value := -100000
 		for item_data in available:

@@ -4,9 +4,27 @@ extends Node
 const SAVE_PATH := "user://save.json"
 const SAVE_BACKUP_PATH := "user://save.backup.json"
 const SAVE_VERSION := 1
+const VALID_WINDOW_MODES := ["windowed", "borderless", "fullscreen"]
 const VALID_RESOLUTIONS := ["1280x720", "1440x900", "1600x900", "1920x1080", "2560x1440"]
 const VALID_LOCALES := ["zh_CN", "en"]
 const VALID_NEW_SHOP_ROUTES := ["rush", "precision", "trend"]
+const FEATURED_MENU_LIMIT := 3
+const DARK_MENU_LIMIT := 3
+const DEFAULT_KEY_BINDINGS := {
+	"game_pause": KEY_ESCAPE,
+	"game_shake": KEY_SPACE,
+	"staff_interact": KEY_F,
+}
+const FIXED_KEY_BINDINGS := {"prep_tea": KEY_Q, "prep_pearl": KEY_E}
+const CAMPAIGN_DIMENSION_MAXES := {
+	"craft": 35, "creativity": 30, "momentum": 20, "journey": 15,
+}
+const NEW_SHOP_BONUSES := {
+	"S": {"coins": 80, "inspiration": 3},
+	"A": {"coins": 60, "inspiration": 2},
+	"B": {"coins": 40, "inspiration": 1},
+	"C": {"coins": 20, "inspiration": 0},
+}
 
 var day: int = 1
 var phase := "day"               # day | night | campaign；主菜单继续时回到正确循环阶段
@@ -36,15 +54,7 @@ var research_brief: Dictionary = {} # 跨场景持久的短期研究单；每个
 var brief_quality_step := 0
 var upgrades: Dictionary = {}    # 店铺升级 { upgrade_id: level }
 var staff: Dictionary = {}       # 当前员工；候选人静态数据来自 res://data/staff.json
-var campaign_stats: Dictionary = {
-	"revenue": 0, "served": 0, "angry": 0, "stars": 0,
-	"event_bonus": 0, "buzz_earned": 0, "special_served": 0,
-	"staff_wages": 0, "staff_interactions": 0, "staff_days": 0,
-	"staff_shortfalls": 0, "staff_rest_days": 0,
-	"operating_costs": 0, "rent_paid": 0, "cost_relief": 0,
-	"route_bonus": 0,
-	"days_completed": 0, "best_streak": 0, "recorded_days": [], "tracking_start_day": 1,
-}
+var campaign_stats: Dictionary = _new_campaign_stats()
 var campaign_summary: Dictionary = {}
 var campaign_claimed := false
 var new_shop_route := ""          # 新店+选择的店招路线；首周目为空
@@ -59,14 +69,11 @@ var settings: Dictionary = {
 	"window_mode": "windowed",
 	"resolution": "1280x720",
 	"locale": "zh_CN",
-	"key_bindings": {
-		"game_pause": int(KEY_ESCAPE),
-		"game_shake": int(KEY_SPACE),
-		"staff_interact": int(KEY_F),
-	},
+	"key_bindings": DEFAULT_KEY_BINDINGS.duplicate(),
 }
 var test_mode := false           # 自动截图/仿真不得覆盖真实玩家存档
 var save_recovered := false      # 本次启动是否从 last-known-good 自动恢复
+var save_write_blocked := false  # 新版本存档不可被旧版本静默降级覆盖
 var last_save_error := ""
 
 
@@ -81,14 +88,17 @@ func gain_xp(ids: Array) -> void:
 		xp[id] = int(xp.get(id, 0)) + 1
 
 
-func level_of(id: String) -> int:
-	return mini(5, int(xp.get(id, 0)) / 8 + 1)
-
-
-func save_game() -> void:
+func save_game() -> bool:
+	if save_write_blocked:
+		last_save_error = "unsupported_save_version"
+		push_error("存档写入已阻止: " + last_save_error)
+		return false
 	if test_mode:
-		return
-	_write_save_data(_save_snapshot(), SAVE_PATH, SAVE_BACKUP_PATH)
+		return true
+	if _write_save_data(_save_snapshot(), SAVE_PATH, SAVE_BACKUP_PATH):
+		return true
+	push_error("存档写入失败: " + last_save_error)
+	return false
 
 
 func _save_snapshot() -> Dictionary:
@@ -149,6 +159,10 @@ func _write_save_data(data: Dictionary, target_path: String, backup_path: String
 	# Refresh the last-known-good copy only from a parseable primary. A corrupt
 	# current file must never overwrite the recovery copy on the next save.
 	if _read_save_data(target_path) != null:
+		if not DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(backup_path.get_base_dir())):
+			last_save_error = "backup_directory_missing"
+			DirAccess.remove_absolute(absolute_temp)
+			return false
 		var backup_temp_path := backup_path + ".tmp"
 		var absolute_backup_temp := ProjectSettings.globalize_path(backup_temp_path)
 		if FileAccess.file_exists(backup_temp_path):
@@ -165,9 +179,14 @@ func _write_save_data(data: Dictionary, target_path: String, backup_path: String
 					absolute_backup_temp, ProjectSettings.globalize_path(backup_path))
 			if rotate_error != OK:
 				last_save_error = "backup_rotate:%d" % rotate_error
+				DirAccess.remove_absolute(absolute_backup_temp)
+				DirAccess.remove_absolute(absolute_temp)
+				return false
 		else:
 			DirAccess.remove_absolute(absolute_backup_temp)
-			last_save_error = "backup_copy:%d" % copy_error
+			last_save_error = "backup_copy_or_validate:%d" % copy_error
+			DirAccess.remove_absolute(absolute_temp)
+			return false
 
 	var replace_error := DirAccess.rename_absolute(
 		absolute_temp, ProjectSettings.globalize_path(target_path))
@@ -189,7 +208,8 @@ func _load_save_data_with_backup(target_path: String, backup_path: String, resto
 		return null
 	save_recovered = true
 	if restore_primary:
-		_write_save_data(backup as Dictionary, target_path, backup_path)
+		if not _write_save_data(backup as Dictionary, target_path, backup_path):
+			push_error("存档恢复失败: " + last_save_error)
 	return backup
 
 
@@ -246,16 +266,26 @@ func reset_progress() -> void:
 	tutorial_completed = false
 	day_open = {}
 	settings = kept_settings
+	save_write_blocked = false
 	mark_day_open()
 	save_game()
 
 
 func load_save() -> void:
 	save_recovered = false
+	save_write_blocked = false
 	var data: Variant = _load_save_data_with_backup(SAVE_PATH, SAVE_BACKUP_PATH)
 	if data == null:
 		return
+	if not _save_version_supported(data):
+		save_write_blocked = true
+		push_error("存档版本高于当前程序，已阻止读取和覆盖")
+		return
 	_apply_save_data(data)
+
+
+func _save_version_supported(data: Dictionary) -> bool:
+	return int(data.get("save_version", 0)) <= SAVE_VERSION
 
 
 func _apply_save_data(data: Dictionary) -> void:
@@ -280,33 +310,44 @@ func _apply_save_data(data: Dictionary) -> void:
 		# 原样保留旧预算，又不会在收工时凭空退回一份灵感。
 		night_performance_remaining = mini(night_performance_remaining, night_budget)
 	perfect_total = int(data.get("perfect_total", 0))
-	xp = data.get("xp", {})
+	var xp_value: Variant = data.get("xp", {})
+	xp = xp_value.duplicate(true) if xp_value is Dictionary else {}
 	affinity_seen = []
-	for pair_key in data.get("affinity_seen", []):
-		var safe_pair := String(pair_key)
-		if _is_valid_affinity_pair(safe_pair) and safe_pair not in affinity_seen:
-			affinity_seen.append(safe_pair)
-	discovered = data.get("discovered", [])
-	dark_discovered = data.get("dark_discovered", [])
-	menu = data.get("menu", [])
+	var affinity_value: Variant = data.get("affinity_seen", [])
+	if affinity_value is Array:
+		for pair_key in affinity_value:
+			var safe_pair := String(pair_key)
+			if _is_valid_affinity_pair(safe_pair) and safe_pair not in affinity_seen:
+				affinity_seen.append(safe_pair)
+	var discovered_value: Variant = data.get("discovered", [])
+	discovered = discovered_value.duplicate(true) if discovered_value is Array else []
+	var dark_discovered_value: Variant = data.get("dark_discovered", [])
+	dark_discovered = dark_discovered_value.duplicate(true) if dark_discovered_value is Array else []
+	var menu_value: Variant = data.get("menu", [])
+	menu = menu_value.duplicate(true) if menu_value is Array else []
 	featured_menu = []
-	for item_id in data.get("featured_menu", []):
-		var safe_id := String(item_id)
-		if not safe_id.is_empty() and safe_id not in featured_menu and featured_menu.size() < 3:
-			featured_menu.append(safe_id)
+	var featured_value: Variant = data.get("featured_menu", [])
+	if featured_value is Array:
+		for item_id in featured_value:
+			var safe_id := String(item_id)
+			if not safe_id.is_empty() and safe_id not in featured_menu and featured_menu.size() < FEATURED_MENU_LIMIT:
+				featured_menu.append(safe_id)
 	menu_last_hype_day = maxi(0, int(data.get("menu_last_hype_day", 0)))
 	dark_menu = _normalize_dark_menu(data.get("dark_menu", []))
-	tests = data.get("tests", [])
+	var tests_value: Variant = data.get("tests", [])
+	tests = tests_value.duplicate(true) if tests_value is Array else []
 	market_settlement = _normalize_market_settlement(data.get("market_settlement", {}))
 	var loaded_target := String(data.get("research_target", ""))
 	research_target = loaded_target if _is_valid_recipe_id(loaded_target) else ""
 	research_brief = _normalize_research_brief(data.get("research_brief", {}))
 	# 缺字段时默认最低档（75），不伪造已完成的晋升。
 	brief_quality_step = clampi(int(data.get("brief_quality_step", 0)), 0, 2)
-	upgrades = data.get("upgrades", {})
+	var upgrades_value: Variant = data.get("upgrades", {})
+	upgrades = upgrades_value.duplicate(true) if upgrades_value is Dictionary else {}
 	staff = _normalize_staff(data.get("staff", {}))
 	campaign_stats = _normalize_campaign_stats(data.get("campaign_stats", {}))
-	campaign_summary = data.get("campaign_summary", {})
+	var summary_value: Variant = data.get("campaign_summary", {})
+	campaign_summary = summary_value.duplicate(true) if summary_value is Dictionary else {}
 	campaign_claimed = bool(data.get("campaign_claimed", false))
 	var loaded_route := String(data.get("new_shop_route", ""))
 	new_shop_route = loaded_route if loaded_route in VALID_NEW_SHOP_ROUTES else ""
@@ -314,10 +355,12 @@ func _apply_save_data(data: Dictionary) -> void:
 	var legacy_value: Variant = data.get("legacy", {})
 	var loaded_legacy: Dictionary = legacy_value if legacy_value is Dictionary else {}
 	var routes_cleared: Array[String] = []
-	for route_id in loaded_legacy.get("routes_cleared", []):
-		var safe_route := String(route_id)
-		if safe_route in VALID_NEW_SHOP_ROUTES and safe_route not in routes_cleared:
-			routes_cleared.append(safe_route)
+	var routes_value: Variant = loaded_legacy.get("routes_cleared", [])
+	if routes_value is Array:
+		for route_id in routes_value:
+			var safe_route := String(route_id)
+			if safe_route in VALID_NEW_SHOP_ROUTES and safe_route not in routes_cleared:
+				routes_cleared.append(safe_route)
 	legacy = {
 		"campaigns_completed": maxi(0, int(loaded_legacy.get("campaigns_completed", 0))),
 		"best_grade": String(loaded_legacy.get("best_grade", "-")),
@@ -333,7 +376,7 @@ func _apply_save_data(data: Dictionary) -> void:
 	settings["reduced_motion"] = bool(loaded_settings.get("reduced_motion", false))
 	settings["haptics"] = bool(loaded_settings.get("haptics", true))
 	var loaded_mode := String(loaded_settings.get("window_mode", "windowed"))
-	settings["window_mode"] = loaded_mode if loaded_mode in ["windowed", "borderless", "fullscreen"] else "windowed"
+	settings["window_mode"] = loaded_mode if loaded_mode in VALID_WINDOW_MODES else "windowed"
 	var loaded_resolution := String(loaded_settings.get("resolution", "1280x720"))
 	settings["resolution"] = loaded_resolution if loaded_resolution in VALID_RESOLUTIONS else "1280x720"
 	var loaded_locale := String(loaded_settings.get("locale", "zh_CN"))
@@ -375,7 +418,7 @@ func _normalize_dark_menu(value: Variant) -> Array:
 		return []
 	var result: Array = []
 	for raw_entry in value:
-		if result.size() >= 3:
+		if result.size() >= DARK_MENU_LIMIT:
 			break
 		var entry: Dictionary = {}
 		if raw_entry is Dictionary:
@@ -587,7 +630,7 @@ func haptics_enabled() -> bool:
 
 func window_mode() -> String:
 	var value := String(settings.get("window_mode", "windowed"))
-	return value if value in ["windowed", "borderless", "fullscreen"] else "windowed"
+	return value if value in VALID_WINDOW_MODES else "windowed"
 
 
 func resolution() -> String:
@@ -606,22 +649,19 @@ func key_binding(action_name: String, fallback: Key) -> Key:
 
 
 func _normalize_key_bindings(source: Dictionary) -> Dictionary:
-	var result := {
-		"game_pause": int(source.get("game_pause", KEY_ESCAPE)),
-		"game_shake": int(source.get("game_shake", KEY_SPACE)),
-		"staff_interact": int(source.get("staff_interact", KEY_F)),
-	}
+	var result := DEFAULT_KEY_BINDINGS.duplicate()
+	for action_name in result:
+		result[action_name] = int(source.get(action_name, result[action_name]))
 	var values := result.values()
 	var unique := {}
 	# 备料固定键 Q/E 与其他动作撞键同样回到默认（与冲突守卫一致，评审 R8）。
-	var fixed_gameplay_keys := [KEY_Q, KEY_E]
 	for value in values:
 		unique[value] = true
 		if int(value) <= 0 or int(value) in [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META] \
-				or int(value) in fixed_gameplay_keys:
-			return {"game_pause": int(KEY_ESCAPE), "game_shake": int(KEY_SPACE), "staff_interact": int(KEY_F)}
+				or int(value) in FIXED_KEY_BINDINGS.values():
+			return DEFAULT_KEY_BINDINGS.duplicate()
 	if unique.size() != result.size():
-		return {"game_pause": int(KEY_ESCAPE), "game_shake": int(KEY_SPACE), "staff_interact": int(KEY_F)}
+		return DEFAULT_KEY_BINDINGS.duplicate()
 	return result
 
 
@@ -747,7 +787,7 @@ func build_campaign_summary() -> Dictionary:
 	var buzz_score := clampi(roundi(float(cumulative_buzz) / 36.0 * 10.0), 0, 10)
 	var momentum_score := coin_score + buzz_score
 	var completed_days := int(campaign_stats.get("days_completed", 0))
-	var expected_days := maxi(1, 15 - int(campaign_stats.get("tracking_start_day", 1)))
+	var expected_days := campaign_expected_days(campaign_stats)
 	var star_score := 0
 	if completed_days > 0:
 		star_score = clampi(roundi(float(campaign_stats.get("stars", 0)) / float(completed_days * 3) * 12.0), 0, 12)
@@ -808,13 +848,7 @@ func continue_after_campaign() -> void:
 
 func start_new_shop_plus(route_id := "rush") -> Dictionary:
 	var grade := String(campaign_summary.get("grade", "C"))
-	var bonus_by_grade := {
-		"S": {"coins": 80, "inspiration": 3},
-		"A": {"coins": 60, "inspiration": 2},
-		"B": {"coins": 40, "inspiration": 1},
-		"C": {"coins": 20, "inspiration": 0},
-	}
-	var bonus: Dictionary = bonus_by_grade.get(grade, bonus_by_grade["C"])
+	var bonus := new_shop_bonus(grade)
 	var safe_route := route_id if route_id in VALID_NEW_SHOP_ROUTES else "rush"
 	reset_progress()
 	coins = int(bonus["coins"])
@@ -827,3 +861,11 @@ func start_new_shop_plus(route_id := "rush") -> Dictionary:
 	var result := bonus.duplicate(true)
 	result["route"] = safe_route
 	return result
+
+
+func campaign_expected_days(stats: Dictionary) -> int:
+	return maxi(1, 15 - int(stats.get("tracking_start_day", 1)))
+
+
+func new_shop_bonus(grade: String) -> Dictionary:
+	return (NEW_SHOP_BONUSES.get(grade, NEW_SHOP_BONUSES["C"]) as Dictionary).duplicate(true)

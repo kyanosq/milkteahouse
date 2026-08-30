@@ -41,7 +41,7 @@ func _ready() -> void:
 	InputPrompts.scheme_changed.connect(_on_input_scheme_changed)
 	GameLocale.locale_changed.connect(_on_locale_changed)
 	_update_input_hint()
-	if has_existing_save:
+	if _can_continue():
 		continue_button.grab_focus()
 	else:
 		new_game_button.grab_focus()
@@ -130,7 +130,7 @@ func _build_menu() -> void:
 	continue_button = Button.new()
 	_refresh_continue_copy()
 	continue_button.custom_minimum_size = Vector2(0, 62)
-	continue_button.disabled = not has_existing_save
+	continue_button.disabled = not _can_continue()
 	continue_button.pressed.connect(_continue_game)
 	root.add_child(continue_button)
 
@@ -252,6 +252,10 @@ func _continue_game() -> void:
 	get_tree().change_scene_to_file(_continue_target())
 
 
+func _can_continue() -> bool:
+	return has_existing_save and not GameState.save_write_blocked
+
+
 func _continue_target() -> String:
 	var target := "res://scenes/day_shop/day_shop.tscn"
 	if GameState.phase == "night":
@@ -288,14 +292,33 @@ func _close_settings() -> void:
 	new_game_button.grab_focus()
 
 
+func _input(event: InputEvent) -> void:
+	if not confirm_overlay.visible:
+		return
+	var focus := get_viewport().gui_get_focus_owner() as Control
+	if focus != null and confirm_overlay.is_ancestor_of(focus):
+		return
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_up") \
+			or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left") \
+			or event.is_action_pressed("ui_right"):
+		get_viewport().set_input_as_handled()
+		confirm_button.grab_focus()
+
+
 func _on_input_scheme_changed(_gamepad: bool) -> void:
 	_update_input_hint()
 
 
 func _on_locale_changed(_locale: String) -> void:
+	_refresh_continue_state()
+	_update_input_hint()
+
+
+func _refresh_continue_state() -> void:
+	if continue_button != null:
+		continue_button.disabled = not _can_continue()
 	_refresh_summary_copy()
 	_refresh_continue_copy()
-	_update_input_hint()
 
 
 func _refresh_summary_copy() -> void:
@@ -303,6 +326,9 @@ func _refresh_summary_copy() -> void:
 		return
 	if not has_existing_save:
 		summary_text.text = GameLocale.text("MENU_WELCOME_BODY")
+		return
+	if GameState.save_write_blocked:
+		summary_text.text = GameLocale.text("MENU_SAVE_UNSUPPORTED")
 		return
 	var phase_text := GameLocale.text("PHASE_CAMPAIGN") if GameState.phase == "campaign" else (GameLocale.text("PHASE_NIGHT") if GameState.phase == "night" else String(DailyEvents.event_for_day(GameState.day)["name"]))
 	var staff_text := GameLocale.staff_name(StaffCatalog.current()) if StaffCatalog.has_staff() else GameLocale.text("STAFF_SOLO")
@@ -322,13 +348,16 @@ func _refresh_summary_copy() -> void:
 		summary_text.text += GameLocale.text("MENU_LEGACY_SUMMARY", [
 			String(GameState.legacy.get("best_grade", "-")),
 			int(GameState.legacy.get("best_score", 0)),
-			LegacyRoutes.completed_count(), LegacyRoutes.IDS.size()])
+			LegacyRoutes.completed_count(), GameState.VALID_NEW_SHOP_ROUTES.size()])
 	if GameState.save_recovered:
 		summary_text.text += GameLocale.text("MENU_SAVE_RECOVERED")
 
 
 func _refresh_continue_copy() -> void:
 	if continue_button == null:
+		return
+	if GameState.save_write_blocked:
+		continue_button.text = GameLocale.text("MENU_SAVE_UNSUPPORTED_ACTION")
 		return
 	var continue_action := GameLocale.text("ACTION_VIEW_REPORT") if GameState.phase == "campaign" else (GameLocale.text("ACTION_CONTINUE_RESEARCH") if GameState.phase == "night" else GameLocale.text("ACTION_CONTINUE_SHIFT"))
 	continue_button.text = GameLocale.text("MENU_CONTINUE_DAY", [continue_action, GameState.day]) if has_existing_save else GameLocale.text("MENU_NO_SAVE")

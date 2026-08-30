@@ -51,6 +51,10 @@ const SHAKE_DECAY := 1.2
 const SHAKE_GRACE_SECONDS := 0.5
 ## 三星线 = 目标的 1.4 倍（与 _end_day 判星共用，显示与判定不会漂移）。
 const STAR_GOAL_MULT := 1.4
+const STAR_ONE_GOAL_MULT := 0.7
+const THREE_STAR_INSPIRATION := 3
+const PATIENCE_HEALTHY_THRESHOLD := 0.7
+const PATIENCE_LOW_THRESHOLD := 0.4
 ## 耐心秒数标签的色档（与条填充、小费档位共用阈值 0.7/0.4）。
 ## 加深档：秒数是 16px 常规字，原三色对订单卡底只有 2.3–3.7:1（P12 试玩），
 ## 加深后全部 ≥4.5:1 且保留红/琥珀/薄荷的档位色相；进度条填充仍用原亮色。
@@ -280,7 +284,8 @@ func _process(delta: float) -> void:
 		c["patience"] -= delta * (1.0 if i == 0 else 0.5) * (1.0 if i == 0 else rear_drain_mult)
 		var ratio: float = c["patience"] / c["max_patience"]
 		c["patience_bar"].value = ratio * 100.0
-		var band := 2 if ratio > 0.70 else (1 if ratio > 0.40 else 0)
+		var band := 2 if ratio > PATIENCE_HEALTHY_THRESHOLD else \
+			(1 if ratio > PATIENCE_LOW_THRESHOLD else 0)
 		var prev_band := int(c.get("patience_band", 2))
 		if band != prev_band:
 			c["patience_band"] = band
@@ -295,7 +300,7 @@ func _process(delta: float) -> void:
 					Haptics.play("warning")
 		# 秒数文本只在整数秒、就绪状态或色档切换时重建，避免逐帧本地化格式化。
 		var seconds_left := ceili(c["patience"])
-		var ready_flag := route_ready and ratio > 0.70
+		var ready_flag := route_ready and ratio > PATIENCE_HEALTHY_THRESHOLD
 		if seconds_left != int(c.get("label_second", -1)) or ready_flag != bool(c.get("label_route", false)) \
 				or band != prev_band:
 			c["label_second"] = seconds_left
@@ -702,6 +707,8 @@ func _build_ui() -> void:
 	add_child(overlay)
 
 	tutorial_overlay = TutorialOverlayScene.new()
+	tutorial_overlay.final_step_values = [int(DAY_LENGTH), roundi(STAR_ONE_GOAL_MULT * 100.0),
+		STAR_GOAL_MULT, THREE_STAR_INSPIRATION, roundi(STAR_ONE_GOAL_MULT * 100.0)]
 	tutorial_overlay.finished.connect(_on_tutorial_finished)
 	ui_frame.add_child(tutorial_overlay)
 	pause_panel = PausePanelScene.new()
@@ -2554,14 +2561,15 @@ func _spawn_customer() -> void:
 	patience_bar.max_value = 100.0
 	patience_bar.show_percentage = false
 	patience_bar.custom_minimum_size = Vector2(0, 4)
-	patience_bar.tooltip_text = GameLocale.text("DAY_ROUTE_PATIENCE_TOOLTIP") \
+	patience_bar.tooltip_text = GameLocale.text("DAY_ROUTE_PATIENCE_TOOLTIP",
+		[roundi(PATIENCE_HEALTHY_THRESHOLD * 100.0)]) \
 		if LegacyRoutes.active_id() == "precision" else ""
 	patience_bar.visible = false
 	card_box.add_child(patience_bar)
 	var patience_threshold := ColorRect.new()
 	patience_threshold.color = Color("8C67B5")
-	patience_threshold.anchor_left = 0.70
-	patience_threshold.anchor_right = 0.70
+	patience_threshold.anchor_left = PATIENCE_HEALTHY_THRESHOLD
+	patience_threshold.anchor_right = PATIENCE_HEALTHY_THRESHOLD
 	patience_threshold.anchor_top = 0.0
 	patience_threshold.anchor_bottom = 1.0
 	patience_threshold.offset_left = -2.0
@@ -2651,7 +2659,8 @@ func _generate_order(day: int, spawn_number: int, kind := "regular") -> Dictiona
 
 
 func _render_order_card(c: Dictionary) -> void:
-	c["patience_bar"].tooltip_text = GameLocale.text("DAY_ROUTE_PATIENCE_TOOLTIP") \
+	c["patience_bar"].tooltip_text = GameLocale.text("DAY_ROUTE_PATIENCE_TOOLTIP",
+		[roundi(PATIENCE_HEALTHY_THRESHOLD * 100.0)]) \
 		if LegacyRoutes.active_id() == "precision" else ""
 	var kind := String(c.get("kind", "regular"))
 	var menu_item_id := String(c["order"].get("menu_item_id", ""))
@@ -2976,7 +2985,8 @@ func _style_order_card(c: Dictionary, active: bool) -> void:
 	var ratio: float = c["patience"] / c["max_patience"]
 	c["bubble"].add_theme_stylebox_override("panel", _card_panel_active if active else _card_panel_idle)
 	var filled_dots := clampi(int(floor(ratio * 4.0)), 0, 4)
-	var filled_style := _card_fill_healthy if ratio > 0.70 else (_card_fill_warn if ratio > 0.40 else _card_fill_low)
+	var filled_style := _card_fill_healthy if ratio > PATIENCE_HEALTHY_THRESHOLD else \
+		(_card_fill_warn if ratio > PATIENCE_LOW_THRESHOLD else _card_fill_low)
 	var dots: Array[PanelContainer] = c["patience_dots"]
 	for i in dots.size():
 		var filled := i < filled_dots
@@ -2991,7 +3001,8 @@ func _style_order_card(c: Dictionary, active: bool) -> void:
 	# 三档色带与服务费档位一致（>0.7 满小费 / >0.4 低小费 / 以下无小费）：
 	# 掉档即可读出正在损失的钱，而不是 35% 处一次性红转。
 	c["patience_bar"].add_theme_stylebox_override("fill",
-		_card_fill_healthy if ratio > 0.70 else (_card_fill_warn if ratio > 0.40 else _card_fill_low))
+		_card_fill_healthy if ratio > PATIENCE_HEALTHY_THRESHOLD else \
+		(_card_fill_warn if ratio > PATIENCE_LOW_THRESHOLD else _card_fill_low))
 
 
 func _on_deliver(c: Dictionary) -> void:
@@ -3030,7 +3041,8 @@ func _on_deliver(c: Dictionary) -> void:
 		price = maxi(1, price - poor_batch_penalty)
 		# 小费分层：手速快慢直接拉开收入差距，后期高压下熟练度才有回报
 		var ratio: float = c["patience"] / c["max_patience"]
-		var service_tip: int = 3 if ratio > 0.7 else (1 if ratio > 0.4 else 0)
+		var service_tip: int = 3 if ratio > PATIENCE_HEALTHY_THRESHOLD else \
+			(1 if ratio > PATIENCE_LOW_THRESHOLD else 0)
 		var upgrade_tip := UpgradeCatalog.tip_bonus()
 		var tip := service_tip + upgrade_tip
 		# 连击只认可无返工的干净制作；返工杯仍能正常售出，但不再把
@@ -3370,13 +3382,13 @@ func _end_day() -> void:
 		stars = 3
 	elif earned >= goal:
 		stars = 2
-	elif earned >= int(goal * 0.7):
+	elif earned >= int(goal * STAR_ONE_GOAL_MULT):
 		stars = 1
 	# 回暖日封顶 2★（D5）：宽限换喘息不换评级，3★ 与其灵感奖励不发放。
 	if goal_relief and stars == 3:
 		stars = 2
 	if stars == 3:
-		GameState.inspiration += 3
+		GameState.inspiration += THREE_STAR_INSPIRATION
 	var wage_result := StaffCatalog.charge_daily_wage(GameState.day)
 	var staff_wage := int(wage_result["paid"])
 	var ledger := OperatingCosts.settle(GameState.day, stock_cost, waste_cost)
@@ -3506,7 +3518,7 @@ func _end_day() -> void:
 	var rewards := Label.new()
 	var reward_lines: Array[String] = []
 	if stars == 3:
-		reward_lines.append(GameLocale.text("DAY_RESULT_THREE_STAR"))
+		reward_lines.append(GameLocale.text("DAY_RESULT_THREE_STAR", [THREE_STAR_INSPIRATION]))
 	if dark_orders > 0:
 		reward_lines.append(GameLocale.text("DAY_RESULT_DARK_MENU", [dark_orders, dark_buzz_earned]))
 	if menu_sales_count > 0:
@@ -3681,10 +3693,10 @@ func _go_night() -> void:
 
 # ---------------------------------------------------------------- HUD 与反馈
 
-func _pill_tip(label_node: Label, key: String) -> void:
+func _pill_tip(label_node: Label, key: String, values: Array = []) -> void:
 	var pill := label_node.get_parent()
 	if pill is Control:
-		pill.tooltip_text = GameLocale.text(key)
+		pill.tooltip_text = GameLocale.text(key, values)
 
 
 func _update_info() -> void:
@@ -3709,7 +3721,7 @@ func _update_info() -> void:
 	hud_goal_bar.value = clampf(float(earned) / maxf(float(goal), 1.0) * 100.0, 0.0, STAR_GOAL_MULT * 100.0)
 	# 术语药丸的悬停说明：首次玩家无法从“店铺0/10 · 完美0 · x0”猜出含义（P1 试玩）。
 	# Label 不接收悬停，提示挂在药丸面板上；语言切换会清空本函数缓存从而重译。
-	_pill_tip(hud_day, "DAY_HUD_GOAL_TIP")
+	_pill_tip(hud_day, "DAY_HUD_GOAL_TIP", [STAR_GOAL_MULT])
 	_pill_tip(hud_coin, "DAY_HUD_COSTS_TIP")
 	_pill_tip(hud_insp, "DAY_HUD_INSP_TIP")
 	_pill_tip(hud_perfect, "DAY_HUD_PERFECT_TIP")

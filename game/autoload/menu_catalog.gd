@@ -3,11 +3,11 @@ extends Node
 
 signal menu_changed
 
-const FEATURED_LIMIT := 3
-const DARK_LIMIT := 3
 const FRESH_ORDER_INTERVAL := 4
 const STALE_ORDER_INTERVAL := 6
 const DARK_ORDER_INTERVAL := 5
+const DARK_BASE_PRICE := 12
+const DARK_TOPPING_PRICE := 2
 ## DP#4 市场检验定价：每分档三个作者化价点（让利/标准/溢价）。定价是真实的
 ## 频次-毛利取舍——让利每款提速 2% 到店，溢价每款放慢 3%；标准价保持原行为。
 const PRICE_OPTIONS := {
@@ -346,11 +346,12 @@ func dark_formula(entry: Dictionary) -> Dictionary:
 	if String(entry.get("kind", "")) != "mystery":
 		return {}
 	var sugar_value := int(entry.get("sugar", -1))
+	var toppings := _string_array(entry.get("toppings", []))
 	return {
 		"id": dark_item_id(entry), "name": GameState.dark_menu_name(entry),
 		"base": String(entry.get("base", "")), "milk": String(entry.get("milk", "")),
-		"toppings": _string_array(entry.get("toppings", [])),
-		"sugar": [sugar_value, sugar_value], "price": int(entry.get("price", 12)),
+		"toppings": toppings, "sugar": [sugar_value, sugar_value],
+		"price": int(entry.get("price", dark_price_for_toppings(toppings.size()))),
 		"quality": int(entry.get("quality", 0)),
 	}
 
@@ -359,12 +360,6 @@ func dark_formula_available(entry: Dictionary) -> bool:
 	var formula := dark_formula(entry)
 	if not formula_available(formula):
 		return false
-	if RecipeJournal.ingredient(String(formula.get("base", ""))).is_empty() \
-			or RecipeJournal.ingredient(String(formula.get("milk", ""))).is_empty():
-		return false
-	for topping_id in formula.get("toppings", []):
-		if RecipeJournal.ingredient(String(topping_id)).is_empty():
-			return false
 	return not _sugar_item(int(formula.get("sugar", [-1])[0])).is_empty()
 
 
@@ -381,10 +376,14 @@ func dark_formula_text(entry: Dictionary) -> String:
 func dark_sale_price(entry: Dictionary) -> int:
 	var formula := dark_formula(entry)
 	if formula.is_empty():
-		return 12
+		return DARK_BASE_PRICE
 	if formula.has("price"):
 		return maxi(1, int(formula["price"]))
-	return 12 + 2 * int(formula.get("toppings", []).size())
+	return dark_price_for_toppings(formula.get("toppings", []).size())
+
+
+func dark_price_for_toppings(topping_count: int) -> int:
+	return DARK_BASE_PRICE + DARK_TOPPING_PRICE * maxi(0, topping_count)
 
 
 func dark_should_offer(spawn_number: int, kind: String) -> bool:
@@ -434,7 +433,7 @@ func dark_candidate_for_trial(base_id: String, milk_id: String, topping_ids: Arr
 		"kind": "mystery", "serial": clampi(serial, 1, 99),
 		"base": base_id, "milk": milk_id, "toppings": _string_array(topping_ids),
 		"sugar": clampi(sugar_value, 0, 100), "quality": clampi(quality, 0, 100),
-		"price": 12 + 2 * topping_ids.size(),
+		"price": dark_price_for_toppings(topping_ids.size()),
 	}
 
 
@@ -448,7 +447,7 @@ func install_dark_candidate(candidate: Dictionary, slot := -1, persist := true) 
 	var installed := candidate.duplicate(true)
 	if slot >= 0 and slot < GameState.dark_menu.size():
 		GameState.dark_menu[slot] = installed
-	elif GameState.dark_menu.size() < DARK_LIMIT:
+	elif GameState.dark_menu.size() < GameState.DARK_MENU_LIMIT:
 		GameState.dark_menu.append(installed)
 	else:
 		return false

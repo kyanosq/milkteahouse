@@ -1,10 +1,6 @@
 ## 桌面显示偏好：窗口化、无边框、全屏与安全分辨率列表。
 extends Node
 
-const MODES := ["windowed", "borderless", "fullscreen"]
-const RESOLUTIONS := ["1280x720", "1440x900", "1600x900", "1920x1080", "2560x1440"]
-
-
 func apply_settings() -> void:
 	if GameState.test_mode or DisplayServer.get_name() == "headless":
 		return
@@ -31,24 +27,24 @@ func apply_settings() -> void:
 
 
 func set_window_mode(mode: String) -> void:
-	GameState.settings["window_mode"] = mode if mode in MODES else "windowed"
+	GameState.settings["window_mode"] = mode if mode in GameState.VALID_WINDOW_MODES else "windowed"
 	GameState.save_game()
 	apply_settings()
 
 
 func set_resolution(value: String) -> void:
-	GameState.settings["resolution"] = value if value in RESOLUTIONS else "1280x720"
+	GameState.settings["resolution"] = value if value in GameState.VALID_RESOLUTIONS else "1280x720"
 	GameState.save_game()
 	apply_settings()
 
 
 func resolution_size(value: String) -> Vector2i:
-	var safe_value := value if value in RESOLUTIONS else "1280x720"
+	var safe_value := value if value in GameState.VALID_RESOLUTIONS else "1280x720"
 	var parts := safe_value.split("x")
 	return Vector2i(int(parts[0]), int(parts[1]))
 
 
 func mode_label(mode: String) -> String:
-	var index := MODES.find(mode)
-	var safe: String = MODES[index] if index >= 0 else MODES[0]
+	var index := GameState.VALID_WINDOW_MODES.find(mode)
+	var safe: String = GameState.VALID_WINDOW_MODES[index] if index >= 0 else GameState.VALID_WINDOW_MODES[0]
 	return GameLocale.text("DISPLAY_MODE_%s" % safe.to_upper())

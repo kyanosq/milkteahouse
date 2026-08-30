@@ -25,31 +25,13 @@ func compute_flavor(cup: Dictionary) -> Dictionary:
 		for d in DIMS:
 			flavor[d] += int(it["flavor"][d])
 		# 熟练度 Lv3+ 主维度 +1（§6.1）
-		if GameState.level_of(it["id"]) >= 3:
+		if ResearchProgress.level(it["id"]) >= ResearchProgress.MASTERY_LEVEL:
 			flavor[main_dim(it)] += 1
 	flavor["sweet"] += int(cup["sugar"]["sweet_mod"])
 
 	var triggered: Array = []
 	for rule in GameData.affinities:
-		var a: String = rule["tags"][0]
-		var b: String = rule["tags"][1]
-		var hit: bool
-		if a == b:
-			var count := 0
-			for it in items:
-				if a in it["tags"]:
-					count += 1
-			hit = count >= 2
-		else:
-			var has_a := false
-			var has_b := false
-			for it in items:
-				if a in it["tags"]:
-					has_a = true
-				if b in it["tags"]:
-					has_b = true
-			hit = has_a and has_b
-		if hit:
+		if ResearchProgress.rule_hits(rule, items):
 			triggered.append(rule)
 			for d in rule.get("bonus", {}):
 				flavor[d] += int(rule["bonus"][d])

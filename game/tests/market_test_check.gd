@@ -56,7 +56,8 @@ func _ready() -> void:
 	var final_result: Dictionary = final["results"][0]
 	assert(final_result["stage"] == 3)
 	assert(final_result["outcome"] == "hit")
-	assert(final_result["price"] == 18)
+	assert(final_result["price"] == MenuCatalog.PRICE_STANDARD["爆款"],
+		"market settlement and menu pricing must share one tier-price source")
 	assert(GameState.tests.is_empty())
 	assert(GameState.menu.size() == 1)
 	assert(MenuCatalog.formula_available(GameState.menu[0]))
@@ -67,8 +68,8 @@ func _ready() -> void:
 	var inspiration_before := GameState.inspiration
 	var failed: Dictionary = MarketTests.advance(11)["results"][0]
 	assert(failed["outcome"] == "failed")
-	assert(failed["refund"] == 3)
-	assert(GameState.inspiration == inspiration_before + 3)
+	assert(failed["refund"] == MarketTests.FAILURE_REFUND)
+	assert(GameState.inspiration == inspiration_before + MarketTests.FAILURE_REFUND)
 
 	# [P5-3 2026-08-17] 失败线 62 → 76：deterministic_score 三晚偏移强相关（和 ≥ -14），
 	# 上架最低 80 分杯的可达最差均分 = 75.33 —— 搜索和 = -14 的最差样本钉「failed」可达。
@@ -99,7 +100,7 @@ func _ready() -> void:
 	assert(failed_shelf["stage"] == 3)
 	assert(failed_shelf["outcome"] == "failed",
 		"a shelfed 80-quality cup can now fail the three-night average")
-	assert(failed_shelf["refund"] == 3)
+	assert(failed_shelf["refund"] == MarketTests.FAILURE_REFUND)
 
 	var panel: NightSettlementPanel = load("res://ui/night_settlement_panel.gd").new()
 	add_child(panel)

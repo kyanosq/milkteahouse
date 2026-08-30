@@ -87,8 +87,17 @@ func _ready() -> void:
 	assert(Sfx.current_music == "campaign")
 	assert(report.grade_label.text == "S")
 	assert(report.score_label.text == "98 / 100")
+	assert(GameState.new_shop_bonus("S") == {"coins": 80, "inspiration": 3},
+		"new-shop preview and settlement must share the same grade bonus")
 	report._request_new_shop()
 	assert(report.confirm_overlay.visible)
+	report.new_shop_button.grab_focus()
+	var escaped_nav := InputEventAction.new()
+	escaped_nav.action = "ui_down"
+	escaped_nav.pressed = true
+	report._input(escaped_nav)
+	assert(report.confirm_button.has_focus(),
+		"new-shop confirmation must clamp escaped keyboard/gamepad focus")
 	report._close_confirmation()
 	assert(not report.confirm_overlay.visible)
 	report.queue_free()

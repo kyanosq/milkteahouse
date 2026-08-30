@@ -3,6 +3,7 @@ extends Node
 
 const STAGES := 3
 const VARIANCE := 8
+const FAILURE_REFUND := 3
 ## 三晚均分分档线：结算面板与判定共用，避免显示与规则漂移。
 ## [P5-3 2026-08-17] 失败线 62 → 76：deterministic_score 对同名三晚的偏移强相关
 ## （键共享长前缀，实测三晚偏移和的下界 ≈ -14 → 上架最低 80 分杯的可达最差均分
@@ -51,20 +52,20 @@ func advance(day_number: int = GameState.day) -> Dictionary:
 		if scores.size() >= STAGES:
 			if average >= TIER_HIT:
 				result["outcome"] = "hit"
-				result["price"] = 18
-				MenuCatalog.register_custom(test, "爆款", 18)
+				result["price"] = int(MenuCatalog.PRICE_STANDARD["爆款"])
+				MenuCatalog.register_custom(test, "爆款", int(result["price"]))
 			elif average >= TIER_SIGNATURE:
 				result["outcome"] = "signature"
-				result["price"] = 15
-				MenuCatalog.register_custom(test, "招牌", 15)
+				result["price"] = int(MenuCatalog.PRICE_STANDARD["招牌"])
+				MenuCatalog.register_custom(test, "招牌", int(result["price"]))
 			elif average >= TIER_REGULAR:
 				result["outcome"] = "regular"
-				result["price"] = 12
-				MenuCatalog.register_custom(test, "普通", 12)
+				result["price"] = int(MenuCatalog.PRICE_STANDARD["普通"])
+				MenuCatalog.register_custom(test, "普通", int(result["price"]))
 			else:
 				result["outcome"] = "failed"
-				result["refund"] = 3
-				GameState.inspiration += 3
+				result["refund"] = FAILURE_REFUND
+				GameState.inspiration += FAILURE_REFUND
 			done.append(test)
 		results.append(result)
 	for test in done:

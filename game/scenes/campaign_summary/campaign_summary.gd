@@ -135,15 +135,15 @@ func _build_report() -> void:
 	var dimensions := HBoxContainer.new()
 	dimensions.add_theme_constant_override("separation", 10)
 	root.add_child(dimensions)
-	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_CRAFT"), int(summary["craft"]), 35,
+	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_CRAFT"), int(summary["craft"]), int(GameState.CAMPAIGN_DIMENSION_MAXES["craft"]),
 		GameLocale.text("CAMPAIGN_DIM_CRAFT_DETAIL", [int(summary["perfect"]), int(summary["upgrade_levels"]), UpgradeCatalog.total_max_levels()]), CORAL)
-	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_CREATIVITY"), int(summary["creativity"]), 30,
+	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_CREATIVITY"), int(summary["creativity"]), int(GameState.CAMPAIGN_DIMENSION_MAXES["creativity"]),
 		GameLocale.text("CAMPAIGN_DIM_CREATIVITY_DETAIL", [int(summary["discoveries"]), int(summary["menu_count"])]), MINT)
-	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_MOMENTUM"), int(summary["momentum"]), 20,
+	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_MOMENTUM"), int(summary["momentum"]), int(GameState.CAMPAIGN_DIMENSION_MAXES["momentum"]),
 		GameLocale.text("CAMPAIGN_DIM_MOMENTUM_DETAIL", [int(summary["coins"]), int(summary["buzz"])]), GOLD)
 	var stats: Dictionary = summary.get("stats", {})
-	var expected_days := maxi(1, 15 - int(stats.get("tracking_start_day", 1)))
-	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_JOURNEY"), int(summary["journey"]), 15,
+	var expected_days := GameState.campaign_expected_days(stats)
+	_dimension_card(dimensions, GameLocale.text("CAMPAIGN_DIM_JOURNEY"), int(summary["journey"]), int(GameState.CAMPAIGN_DIMENSION_MAXES["journey"]),
 		GameLocale.text("CAMPAIGN_DIM_JOURNEY_DETAIL", [int(stats.get("days_completed", 0)), expected_days, int(stats.get("stars", 0))]), Color("6F79C9"))
 
 	var highlights := HBoxContainer.new()
@@ -160,7 +160,7 @@ func _build_report() -> void:
 	var team_text := GameLocale.text("CAMPAIGN_TEAM", [staff_name, int(stats.get("staff_days", 0))]) if not String(summary.get("staff_id", "")).is_empty() else ""
 	legacy_line.text = team_text + GameLocale.text("CAMPAIGN_LEGACY", [
 		int(GameState.legacy.get("campaigns_completed", 0)), String(GameState.legacy.get("best_grade", "-")), int(GameState.legacy.get("best_score", 0))]) \
-		+ GameLocale.text("CAMPAIGN_ROUTES_CLEARED", [LegacyRoutes.completed_count(), LegacyRoutes.IDS.size()])
+		+ GameLocale.text("CAMPAIGN_ROUTES_CLEARED", [LegacyRoutes.completed_count(), GameState.VALID_NEW_SHOP_ROUTES.size()])
 	# 回暖日脚注（D5）：用了几天宽限一目了然，评级语境透明。
 	var relief_days := int(GameState.campaign_stats.get("relief_days", 0))
 	if relief_days > 0:
@@ -340,7 +340,7 @@ func _build_confirmation() -> void:
 	title.add_theme_font_size_override("font_size", 30)
 	box.add_child(title)
 	var body := Label.new()
-	var bonus := _legacy_bonus(String(summary["grade"]))
+	var bonus := GameState.new_shop_bonus(String(summary["grade"]))
 	body.text = GameLocale.text("CAMPAIGN_CONFIRM_BODY", [String(summary["grade"]), int(bonus["coins"]), int(bonus["inspiration"])])
 	body.custom_minimum_size = Vector2(850, 76)
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -395,21 +395,12 @@ func _grade_color(grade: String) -> Color:
 	return {"S": GOLD, "A": CORAL, "B": MINT, "C": Color("80635A")}.get(grade, COCOA)
 
 
-func _legacy_bonus(grade: String) -> Dictionary:
-	return {
-		"S": {"coins": 80, "inspiration": 3},
-		"A": {"coins": 60, "inspiration": 2},
-		"B": {"coins": 40, "inspiration": 1},
-		"C": {"coins": 20, "inspiration": 0},
-	}.get(grade, {"coins": 20, "inspiration": 0})
-
-
 func _next_challenge() -> String:
 	var gaps := [
-		{"score": int(summary["craft"]) / 35.0, "text": GameLocale.text("CAMPAIGN_CHALLENGE_CRAFT")},
-		{"score": int(summary["creativity"]) / 30.0, "text": GameLocale.text("CAMPAIGN_CHALLENGE_CREATIVITY")},
-		{"score": int(summary["momentum"]) / 20.0, "text": GameLocale.text("CAMPAIGN_CHALLENGE_MOMENTUM")},
-		{"score": int(summary["journey"]) / 15.0, "text": GameLocale.text("CAMPAIGN_CHALLENGE_JOURNEY")},
+		{"score": float(summary["craft"]) / int(GameState.CAMPAIGN_DIMENSION_MAXES["craft"]), "text": GameLocale.text("CAMPAIGN_CHALLENGE_CRAFT")},
+		{"score": float(summary["creativity"]) / int(GameState.CAMPAIGN_DIMENSION_MAXES["creativity"]), "text": GameLocale.text("CAMPAIGN_CHALLENGE_CREATIVITY")},
+		{"score": float(summary["momentum"]) / int(GameState.CAMPAIGN_DIMENSION_MAXES["momentum"]), "text": GameLocale.text("CAMPAIGN_CHALLENGE_MOMENTUM")},
+		{"score": float(summary["journey"]) / int(GameState.CAMPAIGN_DIMENSION_MAXES["journey"]), "text": GameLocale.text("CAMPAIGN_CHALLENGE_JOURNEY")},
 	]
 	gaps.sort_custom(func(a: Dictionary, b: Dictionary): return float(a["score"]) < float(b["score"]))
 	return GameLocale.text("CAMPAIGN_NEXT_CHALLENGE", [String(gaps[0]["text"])])
@@ -513,6 +504,19 @@ func _return_menu() -> void:
 	GameState.phase = "campaign"
 	GameState.save_game()
 	get_tree().change_scene_to_file("res://scenes/main_menu/main_menu.tscn")
+
+
+func _input(event: InputEvent) -> void:
+	if not confirm_overlay.visible:
+		return
+	var focus := get_viewport().gui_get_focus_owner() as Control
+	if focus != null and confirm_overlay.is_ancestor_of(focus):
+		return
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_up") \
+			or event.is_action_pressed("ui_down") or event.is_action_pressed("ui_left") \
+			or event.is_action_pressed("ui_right"):
+		get_viewport().set_input_as_handled()
+		confirm_button.grab_focus()
 
 
 func _unhandled_input(event: InputEvent) -> void:

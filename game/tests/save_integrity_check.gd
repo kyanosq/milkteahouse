@@ -6,11 +6,24 @@ func _ready() -> void:
 	GameState.test_mode = true
 	GameState.day = 12
 	GameState.phase = "day"
+	assert(GameState._save_version_supported({}), "legacy saves without a version remain compatible")
+	assert(GameState._save_version_supported({"save_version": GameState.SAVE_VERSION}))
+	assert(not GameState._save_version_supported({"save_version": GameState.SAVE_VERSION + 1}),
+		"a future save must not be silently downgraded")
 
 	# 顶层能解析但嵌套结构类型错误时必须回退默认而不是在加载时崩溃。
 	GameState._apply_save_data({
-		"legacy": "corrupt", "settings": ["corrupt"], "key_bindings": "corrupt",
+		"xp": [], "affinity_seen": {}, "discovered": {}, "dark_discovered": {},
+		"menu": {}, "featured_menu": {}, "tests": {}, "upgrades": [],
+		"campaign_summary": [], "legacy": "corrupt", "settings": ["corrupt"],
 	})
+	assert(GameState.xp.is_empty() and GameState.affinity_seen.is_empty())
+	assert(GameState.discovered.is_empty() and GameState.dark_discovered.is_empty())
+	assert(GameState.menu.is_empty() and GameState.featured_menu.is_empty() and GameState.tests.is_empty())
+	assert(GameState.upgrades.is_empty() and GameState.campaign_summary.is_empty())
+	assert(GameState.campaign_stats.has_all([
+		"day_stars", "relief_days", "critic_served", "matched_served",
+	]), "campaign defaults must come from the canonical schema")
 	assert(GameState.legacy["routes_cleared"].is_empty())
 	assert(int(GameState.legacy["best_score"]) == 0)
 	assert(GameState.settings["sfx_volume"] == 0.75)
@@ -152,6 +165,20 @@ func _ready() -> void:
 	assert(GameState._write_save_data({"day": 4, "phase": "day"}, durability_path, durability_backup),
 		GameState.last_save_error)
 	assert(GameState._read_save_data(durability_backup)["day"] == 3)
+	# A backup refresh failure must not be reported as success or replace the
+	# still-valid primary with a snapshot that has no last-known-good copy.
+	var blocked_backup_parent := "/private/tmp/milkteahouse_save_backup_blocker"
+	DirAccess.remove_absolute(blocked_backup_parent)
+	var blocker := FileAccess.open(blocked_backup_parent, FileAccess.WRITE)
+	assert(blocker != null)
+	blocker.store_string("not a directory")
+	blocker.close()
+	assert(not GameState._write_save_data({"day": 5}, durability_path,
+		blocked_backup_parent + "/save.backup.json"))
+	assert(GameState.last_save_error == "backup_directory_missing")
+	assert(GameState._read_save_data(durability_path)["day"] == 4,
+		"backup failure must leave the current primary untouched")
+	DirAccess.remove_absolute(blocked_backup_parent)
 	var truncated := FileAccess.open(durability_path, FileAccess.WRITE)
 	assert(truncated != null)
 	truncated.store_string("{ truncated")

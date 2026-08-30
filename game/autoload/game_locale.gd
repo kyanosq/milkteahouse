@@ -3,21 +3,17 @@ extends Node
 
 signal locale_changed(locale: String)
 
-const SUPPORTED := ["zh_CN", "en"]
-const LABELS := {"zh_CN": "中文", "en": "English"}
-
-
 func _ready() -> void:
 	TranslationServer.set_locale(current())
 
 
 func current() -> String:
 	var value := String(GameState.settings.get("locale", "zh_CN"))
-	return value if value in SUPPORTED else "zh_CN"
+	return value if value in GameState.VALID_LOCALES else "zh_CN"
 
 
 func set_locale(locale: String, persist := true) -> void:
-	var safe := locale if locale in SUPPORTED else "zh_CN"
+	var safe := locale if locale in GameState.VALID_LOCALES else "zh_CN"
 	GameState.settings["locale"] = safe
 	TranslationServer.set_locale(safe)
 	if persist:

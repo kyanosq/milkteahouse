@@ -138,7 +138,7 @@ func _ready() -> void:
 	assert(MenuCatalog.featured_limit() == 2, "the rush route must cap featured slots at 2")
 	assert(lab.menu_button.text == GameLocale.text("NIGHT_MENU_PILL", [
 		MenuCatalog.featured_items().size(), 2,
-		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), lab.DARK_MENU_CAP]),
+		MenuCatalog.hot_featured_count(), GameState.dark_menu.size(), GameState.DARK_MENU_LIMIT]),
 		"the night featured pill must report the route-aware slot limit")
 	lab._open_menu_board()
 	assert(lab.menu_board_panel.visible)

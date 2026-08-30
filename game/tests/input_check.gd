@@ -814,6 +814,14 @@ func _ready() -> void:
 		"A on an escaped-to shelf tile must not change the recipe while a panel is open")
 	night_lab.upgrade_panel.hide_panel()
 	await get_tree().process_frame
+	# 设置按钮位于决策面板之后，点击仍然可达；打开设置必须先关闭下层决策面板，
+	# 否则 _visible_modal_panel 会把焦点圈禁到错误的遮罩。
+	night_lab._open_upgrades()
+	night_lab._toggle_settings()
+	assert(night_lab.settings_panel.visible and not night_lab.upgrade_panel.visible)
+	assert(night_lab._visible_modal_panel() == night_lab.settings_panel,
+		"night settings must remain the sole modal focus owner")
+	night_lab._close_settings()
 
 	# 族切换时面板打开的焦点偷逃（P3-F5）：切族后焦点仍在面板内。
 	GameState.day = 9
@@ -826,6 +834,20 @@ func _ready() -> void:
 	assert(focus_inside_panel.call(night_lab.staff_panel),
 		"a controller-family switch while a panel is open must not steal focus to the shelf")
 	night_lab.staff_panel.hide_panel()
+	# 夜间结算也必须进入同一模态焦点真相源：切换手柄族不能把焦点抢回货架，
+	# 焦点异常逃逸后首个导航键要把它收回“继续”。
+	night_lab._show_market_settlement({"had_tests": false, "results": []})
+	var settlement_panel: Control = night_lab.overlay.get_child(0)
+	settlement_panel.call("confine_focus")
+	night_lab._on_input_scheme_changed(true)
+	await get_tree().process_frame
+	assert(focus_inside_panel.call(settlement_panel),
+		"controller-family changes must not steal focus from the night settlement")
+	night_lab._first_tile.grab_focus()
+	Input.parse_input_event(escaped_nav)
+	await get_tree().process_frame
+	assert(focus_inside_panel.call(settlement_panel),
+		"night settlement navigation must clamp escaped focus back to Continue")
 	GameState.day = prev_day_for_night
 	night_lab.queue_free()
 	await get_tree().process_frame

@@ -3,39 +3,26 @@
 ## 外加 Day11 解锁、二选一的互斥“店铺定位”。
 extends Node
 
+const POSITIONING_UNLOCK_DAY := 11
+const POSITIONING_COST := 600
+
 const ITEMS := [
 	{
 		"id": "comfort",
-		"name": "等候区软装",
-		"max_level": 4,
 		# 首级维持新手首日可买；中后级按跨天复利后的真实现金流定价；IV 为高级档。
 		"costs": [60, 220, 520, 700],
-		"description": "舒适座椅和柔光装饰，让排队顾客更有耐心。",
-		"effects": ["耐心 +18%", "耐心 +36%", "耐心 +54%", "耐心 +66%"],
 	},
 	{
 		"id": "shaker",
-		"name": "自动摇茶机",
-		"max_level": 4,
 		"costs": [80, 260, 600, 760],
-		"description": "升级电机和封口模组，减少每杯需要的摇茶操作。",
-		"effects": ["每杯摇 4 次", "每杯摇 3 次", "每杯摇 2 次", "每杯摇 1 次"],
 	},
 	{
 		"id": "smart_sugar",
-		"name": "智能糖控台",
-		"max_level": 2,
 		"costs": [360, 820],
-		"description": "选好奶基后自动匹配当前订单糖度，少一步也少一次失误。",
-		"effects": ["选奶基后自动匹配糖度", "选茶基后即匹配糖度"],
 	},
 	{
 		"id": "tip_jar",
-		"name": "招牌小费罐",
-		"max_level": 4,
 		"costs": [70, 240, 520, 900],
-		"description": "提升服务仪式感，正确出杯会获得额外小费。",
-		"effects": ["每杯额外 +1 金币", "每杯额外 +2 金币", "每杯额外 +3 金币", "每杯额外 +4 金币"],
 	},
 ]
 
@@ -43,19 +30,9 @@ const ITEMS := [
 const POSITIONINGS := [
 	{
 		"id": "positioning_flavor",
-		"cost": 600,
-		"unlock_day": 11,
-		"name": "定位 · 风味",
-		"description": "把糖度控制并入出品动线：所有订单免手动选糖。",
-		"effect": "全单免选糖（等同智能糖台一级，且更早生效）",
 	},
 	{
 		"id": "positioning_craft",
-		"cost": 600,
-		"unlock_day": 11,
-		"name": "定位 · 手艺",
-		"description": "主打手作感：完美出杯的招牌封口多收 1 金币。",
-		"effect": "每次完美出杯额外 +1 金币",
 	},
 ]
 
@@ -76,11 +53,12 @@ func items() -> Array:
 
 func _localized_item(source: Dictionary) -> Dictionary:
 	var data := source.duplicate(true)
+	data["max_level"] = data["costs"].size()
 	var prefix := "UPGRADE_%s" % String(data["id"]).to_upper()
 	data["name"] = GameLocale.text(prefix + "_NAME")
 	data["description"] = GameLocale.text(prefix + "_DESCRIPTION")
 	var effects: Array = []
-	for index in range(data["effects"].size()):
+	for index in range(int(data["max_level"])):
 		effects.append(GameLocale.text("%s_EFFECT_%d" % [prefix, index + 1]))
 	data["effects"] = effects
 	return data
@@ -115,6 +93,8 @@ func positionings() -> Array:
 	var result: Array = []
 	for source: Dictionary in POSITIONINGS:
 		var data: Dictionary = source.duplicate(true)
+		data["cost"] = POSITIONING_COST
+		data["unlock_day"] = POSITIONING_UNLOCK_DAY
 		data["name"] = GameLocale.text("POSITIONING_%s_NAME" % String(source["id"]).to_upper())
 		data["description"] = GameLocale.text("POSITIONING_%s_DESCRIPTION" % String(source["id"]).to_upper())
 		data["effect"] = GameLocale.text("POSITIONING_%s_EFFECT" % String(source["id"]).to_upper())
@@ -130,7 +110,7 @@ func positioning() -> String:
 
 
 func positioning_unlocked() -> bool:
-	return GameState.day >= int(POSITIONINGS[0]["unlock_day"])
+	return GameState.day >= POSITIONING_UNLOCK_DAY
 
 
 ## [S1-D2 死档守卫 2026-08-17] 「风味」与智能糖台一级在 auto_sugar_after_milk()
@@ -151,8 +131,8 @@ func buy_positioning(positioning_id: String, persist := true) -> bool:
 	if positioning_redundant(positioning_id):
 		return false
 	for source in POSITIONINGS:
-		if String(source["id"]) == positioning_id and GameState.coins >= int(source["cost"]):
-			GameState.coins -= int(source["cost"])
+		if String(source["id"]) == positioning_id and GameState.coins >= POSITIONING_COST:
+			GameState.coins -= POSITIONING_COST
 			GameState.upgrades[positioning_id] = 1
 			if persist:
 				GameState.save_game()
@@ -204,7 +184,7 @@ func total_levels() -> int:
 func total_max_levels() -> int:
 	var total := 0
 	for data in ITEMS:
-		total += int(data["max_level"])
+		total += data["costs"].size()
 	return total + POSITIONINGS.size()
 
 

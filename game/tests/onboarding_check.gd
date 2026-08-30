@@ -84,8 +84,12 @@ func _ready() -> void:
 	shop.tutorial_overlay._advance()
 	assert(shop.tutorial_overlay._gate_bypassed and shop.tutorial_overlay._step == 4,
 		"two failed attempts must auto-release the gate")
-	for i in 2:
-		shop.tutorial_overlay._advance()
+	shop.tutorial_overlay._advance()
+	assert(shop.tutorial_overlay._body.text == GameLocale.text("TUTORIAL_6_BODY", [
+		int(shop.DAY_LENGTH), roundi(shop.STAR_ONE_GOAL_MULT * 100.0), shop.STAR_GOAL_MULT,
+		shop.THREE_STAR_INSPIRATION, roundi(shop.STAR_ONE_GOAL_MULT * 100.0)]),
+		"the tutorial's star rules must render from the gameplay constants")
+	shop.tutorial_overlay._advance()
 	assert(GameState.tutorial_completed)
 	assert(not shop.tutorial_overlay.visible)
 	assert(shop.running)
@@ -182,7 +186,17 @@ func _ready() -> void:
 	shop.pause_panel._request_menu()
 	assert(shop.pause_panel._confirm_panel.visible)
 	assert(not shop.pause_panel._panel.visible)
-	shop.pause_panel._cancel_menu()
+	var repeated_cancel := InputEventKey.new()
+	repeated_cancel.keycode = KEY_ESCAPE
+	repeated_cancel.pressed = true
+	repeated_cancel.echo = true
+	shop.pause_panel._unhandled_input(repeated_cancel)
+	assert(shop.pause_panel._confirm_panel.visible,
+		"a held Escape key must not skip both the nested confirmation and pause layers")
+	var cancel_confirm := InputEventAction.new()
+	cancel_confirm.action = "ui_cancel"
+	cancel_confirm.pressed = true
+	shop.pause_panel._unhandled_input(cancel_confirm)
 	assert(not shop.pause_panel._confirm_panel.visible)
 	assert(shop.pause_panel._panel.visible)
 	shop._resume_from_pause()

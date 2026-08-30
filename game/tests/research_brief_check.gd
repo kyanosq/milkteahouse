@@ -18,8 +18,11 @@ func _ready() -> void:
 	assert(int(RecipeJournal.ingredient(String(pair["base"]))["unlock_day"]) <= 1)
 	assert(int(RecipeJournal.ingredient(String(pair["milk"]))["unlock_day"]) <= 1)
 	assert(not ResearchBriefs.record_trial("missing", "missing", [], 100)["completed"])
+	# The persisted brief owns its advertised payout; display and settlement cannot drift.
+	pair["reward"] = 1
+	assert(ResearchBriefs.title().contains("+1"))
 	var pair_done := ResearchBriefs.record_trial(String(pair["base"]), String(pair["milk"]), [], 0)
-	assert(pair_done["completed"] and pair_done["reward"] == 2)
+	assert(pair_done["completed"] and pair_done["reward"] == 1)
 	assert(ResearchBriefs.ensure_for_day(1)["completed"], "same day must not issue a second brief")
 
 	GameState.day = 2
