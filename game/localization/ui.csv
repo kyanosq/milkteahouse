@@ -199,6 +199,7 @@ DAY_CUP_REWORKED, · Reworked ×%d, · 返工 ×%d
 DAY_CUP_CLEAN, · Clean Build, · 无返工
 DAY_RESET_CUP,Reset Cup,重置杯子
 DAY_RESET_CUP_WASTE,Reset · Waste %d coins,重置 · 损耗 %d 金币
+DAY_RESET_SIGN,Milk Tea|Story,奶茶|物语
 DAY_RESET_CONFIRM,Press reset again to discard · −%d coins,再按一次重置确认倒杯 · 损耗 %d 金币
 DAY_CONTEXT_SEALED,Sealed · Review the target order then confirm delivery,封口完成 · 核对目标订单后确认交付
 DAY_NEXT_DELIVER_GAMEPAD,Next: Focus an Order to Review · %s Deliver,下一步：聚焦订单核对 · %s 交付
@@ -212,9 +213,10 @@ DAY_NEXT_BASE,Next: Choose Tea Base,下一步：选择茶底
 DAY_CONTEXT_MILK,Choose Milk,选择奶基
 DAY_NEXT_MILK,Next: Choose Milk,下一步：选择奶基
 DAY_CONTEXT_TOPPING,Choose Toppings (%d/%d),选择小料（%d/%d）
-DAY_NEXT_TOPPING,Next: Choose Toppings,下一步：选择小料
+DAY_CONTEXT_TOPPING_READY,Choose Toppings,选择小料
+DAY_NEXT_TOPPING,Next: Toppings,下一步：小料
 DAY_CONTEXT_SUGAR,Choose Sugar Level,选择糖度
-DAY_NEXT_SUGAR,Next: Confirm Sugar Level,下一步：确认糖度
+DAY_NEXT_SUGAR,Next: Sugar,下一步：糖度
 DAY_CONTEXT_SHAKE,Shake and Seal,摇匀并封口
 DAY_NEXT_SHAKE,Next: %s Shake %d/%d,下一步：%s 摇匀 %d/%d
 DAY_NEXT_SHAKE_POINTER,Next: %s or Flick Side to Side · %d/%d,下一步：%s 或左右快速甩动 · %d/%d
@@ -222,7 +224,7 @@ DAY_NEXT_SHAKE_MOBILE,Next: Shake Device or Tap · %d/%d,下一步：摇晃设�
 DAY_SHAKE_BUTTON,%s / Shake  %d/%d,%s / 摇匀  %d/%d
 DAY_SHAKE_BUTTON_MOBILE,Tap / Shake  %d/%d,点击 / 摇匀  %d/%d
 DAY_SHAKE_GESTURE_HINT,Mouse: flick side to side · Mobile: shake device · Tap remains available,鼠标：左右快速甩动 · 手机：摇晃设备 · 始终可点击按钮
-DAY_CONFIRM_SUFFIX, · %s Confirm, · %s 确认
+DAY_CONFIRM_SUFFIX, · %s, · %s
 DAY_STAFF_ON_DUTY,%s · On Duty,%s · 今日值班
 DAY_STAFF_RESTING,%s · Rest Day,%s · 今日休整
 DAY_STAFF_RESTING_STATUS,Wage shortfall %d · All staff effects paused today,少发工资 %d · 今日全部员工效果暂停
@@ -242,8 +244,9 @@ DAY_ORDER_CRITIC,Critic · %d,评论家 · %d
 DAY_ORDER_INFLUENCER,Influencer · %d,网红 · %d
 DAY_ORDER_GROUP,Group · %d/%d,团单 · %d/%d
 DAY_ORDER_REGULAR,Order %d,订单 %d
+DAY_ORDER_DRINK_CARD,%s Milk Tea,%s奶茶
 DAY_ORDER_SUGAR,· %s,· %s
-DAY_HUD_TIME,Day %d · %ds,第 %d 天 · %ds
+DAY_HUD_TIME,Day %d · %d:%02d,第 %d 天 · %d:%02d
 DAY_HUD_PERFECT,Perfect %d,完美 %d
 DAY_HUD_SHOP,Shop %d/%d,店铺 %d/%d
 DAY_FEEDBACK_INCOMPLETE,"Choose a tea base, milk, and sugar level first!",请先选择茶底、奶基与糖度！

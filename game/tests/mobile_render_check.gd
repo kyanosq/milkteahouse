@@ -47,10 +47,9 @@ func _ready() -> void:
 
 	var failures: Array[String] = []
 	var hud_labels := {
-		"day": _shop.hud_day, "goal": _shop.hud_goal_text,
-		"coins": _shop.hud_coin, "costs": _shop.hud_cost,
-		"inspiration": _shop.hud_insp, "perfect": _shop.hud_perfect,
-		"streak": _shop.hud_streak, "shop": _shop.hud_upgrade,
+		"day": _shop.hud_day,
+		"coins": _shop.hud_coin,
+		"inspiration": _shop.hud_insp,
 		"event": _shop.hud_event,
 	}
 	for label_name in hud_labels:
@@ -61,6 +60,22 @@ func _ready() -> void:
 			failures.append("collapsed HUD label: %s width=%.1f" % [label_name, label.size.x])
 	if _shop.hud_status.global_position.x + _shop.hud_status.size.x > 432.0:
 		failures.append("status HUD overlaps the preparation panel")
+	var portrait_visible_bounds := {}
+	for customer in _shop.customers:
+		var portrait := customer["portrait"] as Sprite2D
+		var alpha_rect := _visible_alpha_rect(portrait.texture)
+		portrait_visible_bounds[int(customer["slot"])] = Vector2(
+			portrait.position.y + (alpha_rect.position.y - portrait.texture.get_height() * 0.5) * portrait.scale.y,
+			portrait.position.y + (alpha_rect.end.y - portrait.texture.get_height() * 0.5) * portrait.scale.y)
+		var portrait_bottom: float = portrait_visible_bounds[int(customer["slot"])].y
+		if portrait_bottom > 720.0:
+			failures.append("customer portrait leaves authored frame: slot=%d bottom=%.1f" % [
+				int(customer["slot"]), portrait_bottom])
+	if portrait_visible_bounds.has(1) and portrait_visible_bounds.has(2):
+		var rear_overlap: float = maxf(0.0,
+			portrait_visible_bounds[1].y - portrait_visible_bounds[2].x)
+		if rear_overlap > 30.0:
+			failures.append("rear customer obscures second portrait: overlap=%.1f" % rear_overlap)
 	if int(static_metrics["triangles"]) > MAX_VISIBLE_TRIANGLES:
 		failures.append("visible triangle budget exceeded: %d" % static_metrics["triangles"])
 	if int(static_metrics["surfaces"]) > MAX_VISIBLE_SURFACES:
@@ -93,6 +108,19 @@ func _ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	get_tree().quit(1 if enforce and not failures.is_empty() else 0)
+
+
+func _visible_alpha_rect(texture: Texture2D) -> Rect2i:
+	var image := texture.get_image()
+	var first := Vector2i(image.get_width(), image.get_height())
+	var last := Vector2i.ZERO
+	for y in image.get_height():
+		for x in image.get_width():
+			if image.get_pixel(x, y).a < 16.0 / 255.0:
+				continue
+			first = first.min(Vector2i(x, y))
+			last = last.max(Vector2i(x + 1, y + 1))
+	return Rect2i(first, last - first)
 
 
 func _measure_tree(root: Node) -> Dictionary:

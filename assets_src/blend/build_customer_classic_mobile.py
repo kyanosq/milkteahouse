@@ -4,10 +4,11 @@ import os
 from mathutils import Vector
 
 
-BLEND_PATH = "/Users/apple/Code/milkteahouse/assets_src/blend/customer.blend"
-SOURCE_GLB = "/Users/apple/Code/milkteahouse/assets_src/glb/customer.glb"
-RUNTIME_GLB = "/Users/apple/Code/milkteahouse/game/assets/glb/customer.glb"
-PREVIEW_PATH = "/Users/apple/Code/milkteahouse/assets_src/renders/customer_classic_mobile_preview.png"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+BLEND_PATH = os.path.join(ROOT, "assets_src/blend/customer.blend")
+SOURCE_GLB = os.path.join(ROOT, "assets_src/glb/customer.glb")
+RUNTIME_GLB = os.path.join(ROOT, "game/assets/glb/customer.glb")
+PREVIEW_PATH = os.path.join(ROOT, "assets_src/renders/customer_classic_mobile_preview.png")
 
 
 def reset():

@@ -200,7 +200,7 @@
         "creamy"
       ],
       "cost": 2,
-      "unlock_day": 2,
+      "unlock_day": 1,
       "color": "#f0c057"
     },
     {
@@ -293,6 +293,7 @@
     },
     {
       "id": "osmanthus_jelly",
+      "icon": "osmanthus_jelly-v3",
       "name": "桂花冻",
       "flavor": {
         "aroma": 3,

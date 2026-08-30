@@ -68,6 +68,13 @@ func _ready() -> void:
 	var menu := OS.get_environment("SHOT_MENU") == "1" or menu_confirm or menu_settings or display_settings or campaign_menu or staff_menu
 	var night := OS.get_environment("SHOT_NIGHT") == "1" or upgrades or night_settings or night_recipe or lab_brief_complete or market_settlement or market_final or recipe_book or menu_board or campaign_night or staff_recruit or staff_hired or contract_panel
 	var demo := OS.get_environment("SHOT_DEMO") == "1"
+	var topping_demo := OS.get_environment("SHOT_TOPPING") == "1"
+	var workbench_demo := OS.get_environment("SHOT_WORKBENCH") == "1"
+	var station_pulse_id := OS.get_environment("SHOT_STATION_PULSE")
+	var cup_pulse_kind := OS.get_environment("SHOT_CUP_PULSE")
+	var cup_handoff := OS.get_environment("SHOT_CUP_HANDOFF") == "1"
+	var context_reveal := OS.get_environment("SHOT_CONTEXT_REVEAL") == "1"
+	var next_action_pulse := OS.get_environment("SHOT_NEXT_ACTION_PULSE") == "1"
 	var batch_demo := OS.get_environment("SHOT_BATCH") == "1"
 	var dark_order_demo := OS.get_environment("SHOT_DARK_ORDER") == "1"
 	var hud_demo := OS.get_environment("SHOT_HUD") == "1"
@@ -353,8 +360,10 @@ func _ready() -> void:
 			shop.waste_cost = 3
 			shop.running = false
 			shop._update_info()
-		if demo:
+		if demo or topping_demo or workbench_demo:
 			await get_tree().create_timer(1.25).timeout
+			while shop.customers.size() < 2:
+				shop._spawn_customer()
 			if not shop.customers.is_empty():
 				var find := func(list: Array, id: String) -> Dictionary:
 					for item in list:
@@ -364,10 +373,29 @@ func _ready() -> void:
 				shop.active_customer["order"]["base"] = find.call(GameData.bases, "black_tea")
 				shop.active_customer["order"]["milk"] = find.call(GameData.milks, "fresh_milk")
 				shop.active_customer["order"]["tops"] = [find.call(GameData.toppings, "boba")]
+				if workbench_demo:
+					shop.active_customer["order"]["tops"].append(find.call(GameData.toppings, "pudding"))
 				shop.active_customer["order"]["sugar"] = GameData.sugar_levels[2]
+				shop._render_order_card(shop.active_customer)
+				var second_customer: Dictionary = shop.customers[1]
+				second_customer["order"]["base"] = find.call(GameData.bases, "black_tea")
+				second_customer["order"]["milk"] = find.call(GameData.milks, "fresh_milk")
+				second_customer["order"]["tops"] = [find.call(GameData.toppings, "coconut_jelly")]
+				second_customer["order"]["sugar"] = GameData.sugar_levels[2]
+				shop._render_order_card(second_customer)
+				for customer in shop.customers.slice(0, 2):
+					customer["patience"] = float(customer["max_patience"]) * 0.78
+					shop._style_order_card(customer, customer == shop.active_customer)
 				shop._on_base(shop.active_customer["order"]["base"])
 				shop._on_milk(shop.active_customer["order"]["milk"])
+				if not topping_demo:
+					shop._on_topping(shop.active_customer["order"]["tops"][0])
 				shop._style_order_card(shop.active_customer, true)
+				# The visual truth uses 11:17; keep the frozen QA state at that exact
+				# width while production retains the real 120-second countdown.
+				shop.time_left = 677.0
+				shop.running = false
+				shop._update_info()
 		if batch_demo:
 			await get_tree().create_timer(1.25).timeout
 			shop.tea_batch.start("black_tea")
@@ -496,6 +524,28 @@ func _ready() -> void:
 		GameState.settings["reduced_motion"] = false
 		shop.stage.pulse_route_sign()
 		await get_tree().create_timer(0.08).timeout
+	if not station_pulse_id.is_empty() and shop != null and is_instance_valid(shop):
+		GameState.settings["reduced_motion"] = false
+		shop._pulse_station_art(station_pulse_id)
+		await get_tree().create_timer(0.06).timeout
+	if not cup_pulse_kind.is_empty() and shop != null and is_instance_valid(shop):
+		GameState.settings["reduced_motion"] = false
+		shop._animate_cup_art(cup_pulse_kind)
+		await get_tree().create_timer(0.06).timeout
+	if cup_handoff and shop != null and is_instance_valid(shop):
+		GameState.settings["reduced_motion"] = false
+		shop._animate_cup_handoff()
+		await get_tree().create_timer(0.16).timeout
+	if context_reveal and shop != null and is_instance_valid(shop):
+		GameState.settings["reduced_motion"] = false
+		shop.stage._active_prop_kind = ""
+		shop._refresh_context_controls()
+		await get_tree().create_timer(0.06).timeout
+	if next_action_pulse and shop != null and is_instance_valid(shop):
+		GameState.settings["reduced_motion"] = false
+		shop._last_next_action_text = ""
+		shop._update_next_action_motion()
+		await get_tree().create_timer(0.04).timeout
 	var img := get_viewport().get_texture().get_image()
 	var suffix := "day%s" % day_env
 	if campaign_confirm:
@@ -590,8 +640,14 @@ func _ready() -> void:
 		suffix = "order_wrong"
 	elif sealed_demo:
 		suffix = "sealed"
+	elif cup_handoff:
+		suffix = "cup_handoff"
 	elif order_progress_match:
 		suffix = "order_match"
+	elif topping_demo:
+		suffix = "day_topping"
+	elif workbench_demo:
+		suffix = "day_workbench"
 	elif demo:
 		suffix = "day_demo"
 	elif batch_demo:
@@ -599,7 +655,8 @@ func _ready() -> void:
 	elif dark_order_demo:
 		suffix = "dark_order"
 	var output_override := OS.get_environment("SHOT_OUTPUT")
-	var path := output_override if output_override != "" else "/Users/apple/Code/milkteahouse/assets_src/renders/game_%s.png" % suffix
+	var default_path := ProjectSettings.globalize_path("res://../assets_src/renders/game_%s.png" % suffix)
+	var path := output_override if output_override != "" else default_path
 	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	img.save_png(path)
 	print("[SHOT] saved ", path)

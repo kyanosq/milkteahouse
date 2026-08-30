@@ -8,6 +8,7 @@ const CREAM := Color("FFF8ED")
 const COCOA := Color("30201D")
 const BUTTON_PRIMARY_SKIN := "res://assets/ui/full_set_v3/skins/ui-button-primary-frame.png"
 const BUTTON_SECONDARY_SKIN := "res://assets/ui/full_set_v3/skins/ui-button-secondary-frame.png"
+const BUTTON_SELECTED_SKIN := "res://assets/ui/full_set_v3/skins/ui-button-selected-frame-v1.png"
 const PANEL_SKIN := "res://assets/ui/full_set_v3/skins/ui-panel-cream-frame.png"
 const HUD_SKIN := "res://assets/ui/full_set_v3/skins/ui-hud-chip-frame.png"
 const ORDER_IDLE_SKIN := "res://assets/ui/full_set_v3/skins/ui-order-card-idle-frame.png"

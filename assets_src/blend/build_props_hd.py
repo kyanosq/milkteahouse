@@ -4,13 +4,33 @@ import os
 from mathutils import Vector
 
 
-BLEND_PATH = "/Users/apple/Code/milkteahouse/assets_src/blend/props_hd.blend"
-GLB_SOURCE_DIR = "/Users/apple/Code/milkteahouse/assets_src/glb/props_hd"
-GLB_RUNTIME_DIR = "/Users/apple/Code/milkteahouse/game/assets/glb/props"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+BLEND_PATH = os.path.join(ROOT, "assets_src/blend/props_hd.blend")
+GLB_SOURCE_DIR = os.path.join(ROOT, "assets_src/glb/props_hd")
+GLB_RUNTIME_DIR = os.path.join(ROOT, "game/assets/glb/props")
+PREP_MAT_TEXTURE = os.path.join(ROOT, "assets_src/textures/prep_mat_fabric_v1.png")
+PICKUP_TRAY_TEXTURE = os.path.join(ROOT, "assets_src/textures/pickup_tray_texture_v1.png")
 
 
 def material(name):
     return bpy.data.materials[name]
+
+
+def image_material(name, path):
+    mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    nodes.clear()
+    output = nodes.new("ShaderNodeOutputMaterial")
+    shader = nodes.new("ShaderNodeBsdfPrincipled")
+    texture = nodes.new("ShaderNodeTexImage")
+    texture.image = bpy.data.images.load(path, check_existing=True)
+    shader.inputs["Roughness"].default_value = 0.92
+    mat.node_tree.links.new(texture.outputs["Color"], shader.inputs["Base Color"])
+    mat.node_tree.links.new(texture.outputs["Alpha"], shader.inputs["Alpha"])
+    mat.node_tree.links.new(shader.outputs["BSDF"], output.inputs["Surface"])
+    mat.surface_render_method = "DITHERED"
+    return mat
 
 
 def collection(name):
@@ -54,6 +74,59 @@ def cube(name, loc, dims, mat, col, bevel=0.006, rot=(0, 0, 0)):
     obj.dimensions = dims
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     return finish(obj, name, mat, col, min(bevel, min(dims) * 0.24))
+
+
+def widen_rear(obj, scale, offset=0.0):
+    min_y = min(vertex.co.y for vertex in obj.data.vertices)
+    max_y = max(vertex.co.y for vertex in obj.data.vertices)
+    span = max_y - min_y
+    for vertex in obj.data.vertices:
+        rear_weight = (vertex.co.y - min_y) / span
+        vertex.co.x = vertex.co.x * (1.0 + (scale - 1.0) * rear_weight) + offset * rear_weight
+    obj.data.update()
+
+
+def rounded_prism(name, loc, dims, radius, mat, col, segments=5):
+    half_x, half_y, half_z = (value * 0.5 for value in dims)
+    points = []
+    for center_x, center_y, start in [
+            (half_x - radius, -half_y + radius, -math.pi * 0.5),
+            (half_x - radius, half_y - radius, 0.0),
+            (-half_x + radius, half_y - radius, math.pi * 0.5),
+            (-half_x + radius, -half_y + radius, math.pi)]:
+        for step in range(segments + 1):
+            angle = start + math.pi * 0.5 * step / segments
+            points.append((center_x + math.cos(angle) * radius,
+                           center_y + math.sin(angle) * radius))
+    vertices = [(x + loc[0], y + loc[1], loc[2] - half_z) for x, y in points]
+    vertices += [(x + loc[0], y + loc[1], loc[2] + half_z) for x, y in points]
+    count = len(points)
+    faces = [list(reversed(range(count))), list(range(count, count * 2))]
+    faces += [(index, (index + 1) % count, (index + 1) % count + count, index + count)
+              for index in range(count)]
+    mesh = bpy.data.meshes.new(name + "Mesh")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    col.objects.link(obj)
+    return finish(obj, name, mat, col, min(0.003, half_z * 0.45))
+
+
+def textured_plane(name, loc, dims, mat, col):
+    half_x, half_y = dims[0] * 0.5, dims[1] * 0.5
+    mesh = bpy.data.meshes.new(name + "Mesh")
+    mesh.from_pydata([
+        (-half_x, -half_y, 0), (half_x, -half_y, 0),
+        (half_x, half_y, 0), (-half_x, half_y, 0),
+    ], [], [(0, 1, 2, 3)])
+    mesh.uv_layers.new(name="UVMap")
+    for loop, uv in zip(mesh.uv_layers.active.data, [(0, 0), (1, 0), (1, 1), (0, 1)]):
+        loop.uv = uv
+    obj = bpy.data.objects.new(name, mesh)
+    obj.location = loc
+    col.objects.link(obj)
+    obj.data.materials.append(mat)
+    return obj
 
 
 def cylinder(name, loc, radius, depth, mat, col, vertices=20, bevel=0.003, rot=(0, 0, 0)):
@@ -187,17 +260,25 @@ def build_prep_mat():
     col = collection("PrepMatHD")
     cube("MatBase", (0, 0, 0.010), (0.380, 0.280, 0.020), "Wood", col, 0.018)
     cube("MatInset", (0, 0, 0.022), (0.350, 0.250, 0.014), "Cream", col, 0.014)
-    torus("CupGuide", (0, 0, 0.032), 0.066, 0.003, "Mint", col)
+    textured_plane("FabricOverlay", (0, -0.024, 0.030), (0.382, 0.290),
+                   image_material("Fabric", PREP_MAT_TEXTURE), col)
+    for index in range(16):
+        angle = math.tau * index / 16.0
+        cube("CupGuideDash_%02d" % index,
+             (-0.062 + math.cos(angle) * 0.090, math.sin(angle) * 0.090, 0.032),
+             (0.017, 0.006, 0.004), "Mint", col, 0.001,
+             rot=(0, 0, angle + math.pi * 0.5))
     return col
 
 
 def build_pickup_tray():
     col = collection("PickupTrayHD")
-    cube("TrayBase", (0, 0, 0.012), (0.320, 0.260, 0.024), "MintDark", col, 0.018)
-    cube("TrayInset", (0, 0, 0.025), (0.280, 0.220, 0.018), "Cream", col, 0.014)
-    tube("TrayFrame", [(-0.145, -0.115, 0.038), (0.145, -0.115, 0.038),
-                       (0.145, 0.115, 0.038), (-0.145, 0.115, 0.038)],
-         0.012, "Mint", col, cyclic=True)
+    widen_rear(rounded_prism("TrayBase", (0, 0, 0.012), (0.320, 0.260, 0.024), 0.022,
+                            "Mint", col), 1.10, 0.013)
+    widen_rear(rounded_prism("TrayInset", (0, 0, 0.025), (0.280, 0.220, 0.018), 0.018,
+                            "Cream", col), 1.10, 0.013)
+    textured_plane("TrayOverlay", (-0.006, -0.019, 0.035), (0.335, 0.312),
+                   image_material("TrayTexture", PICKUP_TRAY_TEXTURE), col)
     return col
 
 
@@ -256,16 +337,23 @@ def export_collection(col, filename):
     return stats
 
 
-assets = [
-    (build_kettle(), "kettle.glb"),
-    (build_milk_carton(), "milk_carton.glb"),
-    (build_topping_bin(), "topping_bin.glb"),
-    (build_sugar_pump(), "sugar_pump.glb"),
-    (build_shaker(), "shaker.glb"),
-    (build_prep_mat(), "prep_mat.glb"),
-    (build_pickup_tray(), "pickup_tray.glb"),
-    (build_service_bell(), "service_bell.glb"),
+builders = [
+    (build_kettle, "kettle.glb"),
+    (build_milk_carton, "milk_carton.glb"),
+    (build_topping_bin, "topping_bin.glb"),
+    (build_sugar_pump, "sugar_pump.glb"),
+    (build_shaker, "shaker.glb"),
+    (build_prep_mat, "prep_mat.glb"),
+    (build_pickup_tray, "pickup_tray.glb"),
+    (build_service_bell, "service_bell.glb"),
 ]
+targets = set(filter(None, os.environ.get("ASSET_TARGETS", "").split(",")))
+if targets:
+    unknown = targets - {filename for _, filename in builders}
+    if unknown:
+        raise ValueError("Unknown ASSET_TARGETS: %s" % ",".join(sorted(unknown)))
+    builders = [builder for builder in builders if builder[1] in targets]
+assets = [(build(), filename) for build, filename in builders]
 
 export_stats = {}
 for col, filename in assets:

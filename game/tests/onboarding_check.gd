@@ -58,14 +58,16 @@ func _ready() -> void:
 	assert(shop.tutorial_overlay._step == 3, "gate step 4 (shake) is next")
 	# 门控步骤 4 的摇杯路径同样必须可达：奶基/糖度走数字捷径，封杯走 game_shake
 	# action 注入（V1 复现：四路输入在修复前全部 0 进度）。
-	var press_key := func(key: Key) -> void:
+	var press_key := func(keycode: int) -> void:
 		var ev := InputEventKey.new()
-		ev.keycode = key
+		ev.keycode = keycode
 		ev.pressed = true
 		shop._input(ev)
 	var ready_guard := 0
 	while not shop._can_gesture_shake() and ready_guard < 8:
-		press_key.call(KEY_1)
+		var shortcut: int = shop._context_shortcuts.find(shop.next_action_button) \
+			if not shop.next_action_button.disabled else 0
+		press_key.call(int(KEY_1) + maxi(shortcut, 0))
 		ready_guard += 1
 	assert(shop._can_gesture_shake(),
 		"real number-key input during the gated tutorial must walk the prep flow")

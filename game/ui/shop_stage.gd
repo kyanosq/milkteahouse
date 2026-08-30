@@ -29,13 +29,13 @@ const ROUTE_SIGN_MODELS: Dictionary = {
 	"precision": preload("res://assets/glb/props/routes/route_precision.glb"),
 	"trend": preload("res://assets/glb/props/routes/route_trend.glb"),
 }
+const FLOOR_TEXTURE := preload("res://assets/ui/full_set_v3/background/background-floor-greige-v1.png")
 
 const COUNTER_TOP_Y := 0.985
-const CUP_SPOT := Vector3(0.14, 0.985, 1.02)
-# 柜台前横向错位排队：侧前方镜头下顾客站在台前走廊左段，越靠前越近，
-# 与左侧订单卡列对齐但保留间距；三人都保留完整轮廓。
-const QUEUE_SLOTS := [Vector3(-0.95, 0, 1.28), Vector3(-0.55, 0, 1.38), Vector3(-0.25, 0, 1.48)]
-const PROP_SCALE := 1.25
+const CUP_SPOT := Vector3(-0.20, 0.985, 1.20)
+# 参考图的顾客沿左侧走廊纵向排队，与三张订单卡逐一对齐。
+const QUEUE_SLOTS := [Vector3(-1.46, 0, 0.20), Vector3(-1.46, 0, 0.65), Vector3(-1.46, 0, 1.25)]
+const PROP_SCALE := 2.4
 const STAFF_SPOT := Vector3(1.62, 0.80, 0.10)
 const CORAL := Color("FF6259")
 const MINT := Color("27B9A7")
@@ -75,6 +75,25 @@ func _ready() -> void:
 	# 店铺模型（旧设备已在 Blender 源文件中移除，后场陈设为建模内容）
 	var model: Node3D = (load("res://assets/glb/shop_scene.glb") as PackedScene).instantiate()
 	_vp.add_child(model)
+	for hidden_name in ["PD_JarFill_0", "PD_LampShade_0", "PD_MenuCup",
+			"FrameOuter0", "FrameOuter1", "FrameOuter2",
+			"FrameInner0", "FrameInner1", "FrameInner2"]:
+		var hidden := model.find_child(hidden_name, true, false) as Node3D
+		if hidden != null:
+			hidden.visible = false
+	for hidden in model.find_children("Frame*", "", true, false):
+		if hidden is Node3D:
+			hidden.visible = false
+	for floor_mesh in model.find_children("*grey_cartago*", "MeshInstance3D", true, false):
+		var floor_material := (floor_mesh as MeshInstance3D).get_active_material(0).duplicate() as StandardMaterial3D
+		floor_material.albedo_color = Color(1.0, 1.04, 1.11)
+		floor_material.albedo_texture = FLOOR_TEXTURE
+		floor_material.roughness = 0.72
+		floor_material.detail_enabled = false
+		floor_material.normal_enabled = false
+		floor_material.ao_enabled = false
+		floor_material.vertex_color_use_as_albedo = false
+		(floor_mesh as MeshInstance3D).set_surface_override_material(0, floor_material)
 	_build_route_sign()
 
 	# 方案 3：更俯视、更宽的空间站点构图，顾客在左、制杯垫居中、原料沿后方展开。
@@ -82,34 +101,32 @@ func _ready() -> void:
 	# 柜台立面、后区原料带与顾客全身都进入画面，地板只留底部窄条。
 	_cam = Camera3D.new()
 	_vp.add_child(_cam)
-	# 侧前方机位（full-set-v3/01-day-shop.png）：低机位近平视（俯角 ~18°），
-	# 柜台立面与原料道具占满中景，顾客以半身高度站在左段走廊——
-	# 参考图里原料和顾客都是画面主角，不能远远缩成一条带。
-	_cam.position = Vector3(0.06, 1.75, 3.30)
-	_cam.look_at(Vector3(0.02, 0.78, 0.30))
-	_cam.fov = 45
+	# 侧前上方机位：保留柜台立面，同时看清台面、顾客全身与后区原料带。
+	_cam.position = Vector3(0.06, 3.75, 3.58)
+	_cam.look_at(Vector3(0.02, 1.12, 0.52))
+	_cam.fov = 42
 
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50, -20, 0)
-	sun.light_energy = 0.72
+	sun.light_energy = 0.66
 	sun.light_color = Color(1.0, 0.96, 0.90)
 	sun.shadow_enabled = true
 	sun.shadow_opacity = 0.46
-	sun.light_angular_distance = 1.0           # 软阴影半影（小尺度场景保留阴影存在感）
-	sun.shadow_blur = 1.0
+	sun.light_angular_distance = 3.0
+	sun.shadow_blur = 2.0
 	sun.directional_shadow_max_distance = 12.0
 	_vp.add_child(sun)
 	var warm := OmniLight3D.new()
 	warm.position = Vector3(0, 2.1, 0.8)
 	warm.omni_range = 7.0
-	warm.light_energy = 0.18
+	warm.light_energy = 0.22
 	warm.light_color = Color(1.0, 0.94, 0.88)
 	_vp.add_child(warm)
 	# 薄荷反杈补光：抬亮暖色阴影，呼应珊瑚薄荷色板
 	var fill := OmniLight3D.new()
 	fill.position = Vector3(-1.6, 1.6, 2.0)
 	fill.omni_range = 6.0
-	fill.light_energy = 0.14
+	fill.light_energy = 0.18
 	fill.light_color = Color(0.82, 0.95, 0.92)
 	_vp.add_child(fill)
 	var env := Environment.new()
@@ -117,25 +134,22 @@ func _ready() -> void:
 	# 参考图是暖奶油纸感：背景与环光整体提亮提暖。
 	env.background_color = Color(0.88, 0.83, 0.74)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.40, 0.37, 0.35)
-	env.ambient_light_energy = 0.54
+	env.ambient_light_color = Color(0.48, 0.43, 0.38)
+	env.ambient_light_energy = 0.70
 	# Steam 品质基线：ACES + SSAO 接触阴影 + 克制的 Glow；色彩矫正抑制 ACES 去饱和
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	env.tonemap_white = 4.0
 	env.adjustment_enabled = true
-	env.adjustment_brightness = 0.88
-	env.adjustment_saturation = 1.12
-	env.adjustment_contrast = 1.10
+	env.adjustment_brightness = 1.03
+	env.adjustment_saturation = 1.08
+	env.adjustment_contrast = 1.04
 	# Forward Mobile does not implement SSAO; setting it there only emits a warning.
 	# Keep the authored effect on desktop and let the mobile ambient/fill rig carry depth.
 	env.ssao_enabled = RenderingServer.get_current_rendering_method() != "mobile"
-	env.ssao_intensity = 1.35
-	env.ssao_radius = 0.5
-	env.ssao_power = 1.8
-	env.glow_enabled = true
-	env.glow_intensity = 0.14
-	env.glow_bloom = 0.015
-	env.glow_hdr_threshold = 1.25
+	env.ssao_intensity = 0.85
+	env.ssao_radius = 0.35
+	env.ssao_power = 1.4
+	env.glow_enabled = false
 	var we := WorldEnvironment.new()
 	we.environment = env
 	_vp.add_child(we)
@@ -143,26 +157,14 @@ func _ready() -> void:
 	# 台面工作杯是视觉中心；俯视镜头下略放大保证液体分层仍然清楚。
 	cup = CupRigScene.new()
 	cup.position = CUP_SPOT
-	cup.scale = Vector3(2.20, 2.20, 2.20)
+	cup.scale = Vector3(3.3, 3.3, 3.3)
+	cup.visible = false
 	_vp.add_child(cup)
-	# 参考图的虚线定位圈：杯垫上的珊瑚圆环，标出“杯子放这里”。
-	var ring := MeshInstance3D.new()
-	var torus := TorusMesh.new()
-	torus.inner_radius = 0.150
-	torus.outer_radius = 0.168
-	ring.mesh = torus
-	var ring_mat := StandardMaterial3D.new()
-	ring_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	ring_mat.albedo_color = Color(CORAL.r, CORAL.g, CORAL.b, 0.9)
-	ring.material_override = ring_mat
-	ring.position = Vector3(CUP_SPOT.x, COUNTER_TOP_Y + 0.006, CUP_SPOT.z)
-	ring.scale = Vector3(1.55, 0.10, 1.55)
-	_vp.add_child(ring)
 	var cup_hit := StaticBody3D.new()
 	cup_hit.position = CUP_SPOT + Vector3(0, 0.14, 0)
 	var cs := CollisionShape3D.new()
 	var cyl := CylinderShape3D.new()
-	cyl.radius = 0.1
+	cyl.radius = 0.16
 	cyl.height = 0.3
 	cs.shape = cyl
 	cup_hit.add_child(cs)
@@ -218,24 +220,54 @@ func _build_dressing() -> void:
 	_upgrade_visuals.clear()
 	var shaker_level := UpgradeCatalog.level("shaker")
 	var dressing := [
-		["prep_mat.glb", Vector3(0.14, 0.982, 1.02), 1.5],
-		["pickup_tray.glb", Vector3(1.50, 0.982, 1.05), 1.2],
-		["service_bell.glb", Vector3(1.84, 0.982, 0.95), 1.4],
+		["prep_mat.glb", Vector3(0.025, 0.982, 0.97), Vector3(4.00, 4.00, 3.93)],
+		["pickup_tray.glb", Vector3(1.903, 0.982, 1.00), Vector3(2.84, 2.45, 3.50)],
+		["service_bell.glb", Vector3(1.37, 1.03, 1.39), Vector3(2.16, 2.25, 2.16)],
 	]
 	for d in dressing:
 		var node := _load_prop(d[0])
 		node.position = d[1]
-		node.scale = Vector3.ONE * d[2]
+		node.scale = d[2] if d[2] is Vector3 else Vector3.ONE * d[2]
+		if d[0] == "prep_mat.glb":
+			var prep_palette := {"Wood": Color("F6E4D0"), "Cream": Color("FFF8ED")}
+			for mesh_name in prep_palette:
+				var mesh_node := node.find_child(mesh_name, true, false) as MeshInstance3D
+				var prep_material := mesh_node.mesh.surface_get_material(0).duplicate() as StandardMaterial3D
+				prep_material.albedo_color = prep_palette[mesh_name]
+				prep_material.roughness = 0.88
+				mesh_node.material_override = prep_material
+			var cup_guide := node.find_child("Mint", true, false) as Node3D
+			cup_guide.visible = false
+		if d[0] == "pickup_tray.glb":
+			var tray_basis := node.basis
+			tray_basis.z.x = -0.70
+			node.basis = tray_basis
+		if d[0] in ["pickup_tray.glb", "service_bell.glb"]:
+			var pickup_palette := {
+				"Mint": Color("95C9C7"), "Tint_Mint": Color("95C9C7"),
+				"MintDark": Color("69A4A0"), "Cream": Color("FFF3E1"),
+			}
+			for mesh_name in pickup_palette:
+				var mesh_node := node.find_child(mesh_name, true, false) as MeshInstance3D
+				if mesh_node == null:
+					continue
+				var pickup_material := mesh_node.mesh.surface_get_material(0).duplicate() as StandardMaterial3D
+				pickup_material.albedo_color = pickup_palette[mesh_name]
+				mesh_node.material_override = pickup_material
+		if d[0] == "service_bell.glb":
+			node.visible = false
 		_vp.add_child(node)
 	if shaker_level > 0:
-		_add_upgrade_visual("shaker", "auto_shaker.glb", shaker_level,
+		var auto_shaker := _add_upgrade_visual("shaker", "auto_shaker.glb", shaker_level,
 			Vector3(1.92, 0.982, 0.55), 0.72)
+		auto_shaker.visible = false
 	else:
 		var manual_shaker := _load_prop("shaker.glb")
 		manual_shaker.name = "ManualShaker"
 		# 摇匀站在糖泵右侧、同一条原料带上（参考图最右站点），不再占用操作台。
-		manual_shaker.position = Vector3(1.78, 0.982, 0.22)
-		manual_shaker.scale = Vector3.ONE * 1.1
+		manual_shaker.position = Vector3(3.15, 0.982, -0.92)
+		manual_shaker.scale = Vector3.ONE * 2.6
+		manual_shaker.visible = false
 		_vp.add_child(manual_shaker)
 	var comfort_level := UpgradeCatalog.level("comfort")
 	if comfort_level > 0:
@@ -296,32 +328,21 @@ func build_props(day: int, sugar_item: Dictionary) -> void:
 	var teas := GameData.unlocked(GameData.bases, day)
 	for i in teas.size():
 		_add_prop(_make_kettle(teas[i]), teas[i], "base",
-			Vector3(-0.96 + i * 0.48, COUNTER_TOP_Y, 0.12), 0.36)
-	if teas.size() > 0:
-		_add_station_sign("STATION_TEA",
-			Vector3(-0.96 + (teas.size() - 1) * 0.24, 0.70, 0.70))
+			Vector3(-1.35 + i * 0.38, COUNTER_TOP_Y, -0.92), 0.36)
 	var milks := GameData.unlocked(GameData.milks, day)
 	for i in milks.size():
 		_add_prop(_make_milk(milks[i]), milks[i], "milk",
-			Vector3(0.08 + i * 0.30, COUNTER_TOP_Y, 0.12), 0.34)
+			Vector3(-0.85 + i * 0.28, COUNTER_TOP_Y, -0.92), 0.34)
 		var milk_lbl: Label3D = _prop_nodes[milks[i]["id"]].get_node("NameLabel")
 		milk_lbl.font_size = 28
-	if milks.size() > 0:
-		_add_station_sign("STATION_MILK",
-			Vector3(0.08 + (milks.size() - 1) * 0.15, 0.70, 0.70))
 	var tops := GameData.unlocked(GameData.toppings, day)
 	for i in tops.size():
 		# 后期最多 8 罐：容器压缩间距避开糖泵区；标签改为单项焦点提示后，
 		# 直接落在罐体正面，不再上浮到后排茶壶轮廓里。
 		_add_prop(_make_bin(tops[i]), tops[i], "topping",
-			Vector3(-0.95 + i * 0.24, COUNTER_TOP_Y, 0.48), 0.03)
+			Vector3(-0.10 + i * 0.34, COUNTER_TOP_Y, -0.84), 0.03)
 		var bin_lbl: Label3D = _prop_nodes[tops[i]["id"]].get_node("NameLabel")
 		bin_lbl.font_size = 34
-	if tops.size() > 0:
-		# 小料/糖度挂牌抬到上一行：道具带前后两层，站牌也分两行才不与邻组粘连；
-		# no_depth_test 让牌子压在杯垫等近景道具之上。
-		_add_station_sign("STATION_TOPPING",
-			Vector3(-0.95 + (tops.size() - 1) * 0.12, 0.88, 0.70))
 	# 智能糖控启用后糖度会自动匹配；移除五个手动泵，避免视觉冗余和错误交互暗示。
 	if not UpgradeCatalog.auto_sugar_after_milk():
 		for i in GameData.sugar_levels.size():
@@ -330,19 +351,15 @@ func build_props(day: int, sugar_item: Dictionary) -> void:
 			lv["name"] = _short_sugar_name(String(lv["name"]))
 			var pump := _load_prop("sugar_pump.glb", PUMP_COLORS[mini(i, PUMP_COLORS.size() - 1)])
 			_add_prop(pump, lv, "sugar",
-				Vector3(1.02 + i * 0.18, COUNTER_TOP_Y, 0.52), 0.26)
+				Vector3(1.40 + i * 0.20, COUNTER_TOP_Y, -0.82), 0.26)
 			var pump_lbl: Label3D = _prop_nodes[lv["id"]].get_node("NameLabel")
 			pump_lbl.font_size = 26
-		_add_station_sign("STATION_SUGAR",
-			Vector3(1.02 + (GameData.sugar_levels.size() - 1) * 0.09, 0.88, 0.70))
-	_add_station_sign("STATION_SHAKE", Vector3(1.70, 0.70, 0.70))
-	_add_station_sign("STATION_PICKUP", Vector3(1.42, COUNTER_TOP_Y + 0.44, 1.02), 72)
 	set_sugar_label(sugar_item)
 
 
 ## 常驻站牌：可可字 + 奶油描边，随道具重建一起刷新（挂在 _props_root 下）。
 ## 字号按 2.6 单位观看距离折算，屏上约 35px 高。
-func _add_station_sign(key: String, pos: Vector3, size := 96) -> void:
+func _add_station_sign(key: String, pos: Vector3, size := 52) -> void:
 	var sign := Label3D.new()
 	sign.name = "StationSign"
 	sign.text = GameLocale.text(key)
@@ -354,8 +371,8 @@ func _add_station_sign(key: String, pos: Vector3, size := 96) -> void:
 	sign.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	# 站牌是界面标签而非场景物体：不做深度测试，杯垫/托盘等近景道具不会吃掉它。
 	sign.no_depth_test = true
-	sign.modulate = Color(0.30, 0.19, 0.11)
-	sign.outline_size = 20
+	sign.modulate = CORAL
+	sign.outline_size = 12
 	sign.outline_modulate = Color(0.99, 0.96, 0.90, 0.98)
 	_props_root.add_child(sign)
 
@@ -368,6 +385,7 @@ func _short_sugar_name(name: String) -> String:
 func _add_prop(root: Node3D, item: Dictionary, kind: String, pos: Vector3, label_y := 0.30) -> void:
 	root.position = pos
 	root.scale = Vector3(PROP_SCALE, PROP_SCALE, PROP_SCALE)
+	root.visible = false
 	root.set_meta("ingredient_kind", kind)
 	root.set_meta("ingredient_item", item.duplicate(true))
 	_props_root.add_child(root)
@@ -657,7 +675,7 @@ func add_customer(slot: int, tint: Color, kind := "regular") -> Node3D:
 	var target: Vector3 = QUEUE_SLOTS[clampi(slot, 0, QUEUE_SLOTS.size() - 1)]
 	actor.position = target + Vector3(-1.6, 0, 0)
 	# 参考图里顾客是画面主角之一：贴近柜台并放大到半身入镜。
-	var actor_scale := 0.75 if kind_key == "group" else 0.70
+	var actor_scale := 1.05 if kind_key == "group" else 1.0
 	actor.scale = Vector3.ONE * actor_scale   # 双人组合略放大，仍守住队列槽宽。
 	_vp.add_child(actor)
 	if GameState.reduced_motion():

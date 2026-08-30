@@ -4,7 +4,7 @@ import os
 from mathutils import Vector
 
 
-ROOT = "/Users/apple/Code/milkteahouse"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 BLEND_PATH = os.path.join(ROOT, "assets_src/blend/route_signs.blend")
 SOURCE_DIR = os.path.join(ROOT, "assets_src/glb/props/routes")
 RUNTIME_DIR = os.path.join(ROOT, "game/assets/glb/props/routes")

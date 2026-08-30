@@ -685,7 +685,7 @@ func _shelf_group(shelf: HBoxContainer, title: String, items: Array, kind: Strin
 		var btn := Button.new()
 		btn.custom_minimum_size = Vector2(56, 56)
 		btn.tooltip_text = GameLocale.text("NIGHT_SELECT_TOOLTIP", [display_name])
-		var icon_path := "res://assets/icons/%s.png" % String(item.get("id", ""))
+		var icon_path := "res://assets/icons/%s.png" % String(item.get("icon", item.get("id", "")))
 		if ResourceLoader.exists(icon_path):
 			btn.icon = load(icon_path)
 			btn.add_theme_constant_override("icon_max_width", 44)

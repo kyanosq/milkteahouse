@@ -133,7 +133,8 @@ func _ready() -> void:
 	var stock_before_discard: int = shop.stock_cost
 	var waste_before_discard: int = shop.waste_cost
 	shop._refresh_cup()
-	assert(shop.reset_button.text.contains(str(discard_cost)))
+	assert(shop.reset_brand_label.text.contains(str(discard_cost)),
+		"the reset sign must disclose its loss before touch or click")
 	# ≥3 币的弃杯必须先武装二次确认：第一下不扣费、给出金额提示。
 	assert(discard_cost >= 3, "fixture must exercise the confirmed-discard path")
 	shop._on_reset_cup_pressed()

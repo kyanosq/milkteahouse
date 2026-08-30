@@ -14,6 +14,37 @@ const HudCoinIcon := preload("res://assets/icons/hud/coin.png")
 const HudInspirationIcon := preload("res://assets/icons/hud/inspiration.png")
 const HudPerfectIcon := preload("res://assets/icons/hud/perfect.png")
 const HudStreakIcon := preload("res://assets/icons/hud/streak.png")
+const CustomerMint := preload("res://assets/ui/full_set_v3/illustrations/character-mint-customer-v5.png")
+const CustomerYellow := preload("res://assets/ui/full_set_v3/illustrations/character-yellow-customer-waiting-v2.png")
+const CustomerShadow := preload("res://assets/ui/full_set_v3/illustrations/customer-contact-shadow-v1.png")
+const DrinkClassic := preload("res://assets/ui/full_set_v3/illustrations/drink-classic-boba-v2.png")
+const DrinkCoconut := preload("res://assets/ui/full_set_v3/illustrations/drink-coconut-milk-v2.png")
+const DrinkTaro := preload("res://assets/ui/full_set_v3/illustrations/drink-taro-boba.png")
+const DrinkBrownSugar := preload("res://assets/ui/full_set_v3/illustrations/drink-brown-sugar-pudding.png")
+const PauseIcon := preload("res://assets/ui/full_set_v3/icons/ui-icon-pause.png")
+const NextHandIcon := preload("res://assets/ui/full_set_v3/icons/ui-icon-next-hand.png")
+const ResetSign := preload("res://assets/ui/full_set_v3/icons/ui-sign-reset-front-v6.png")
+const ResetSignCupIcon := preload("res://assets/ui/full_set_v3/icons/ui-icon-sign-cup-v1.png")
+const CupGuide := preload("res://assets/ui/full_set_v3/icons/ui-cup-guide-v1.png")
+const OrderTicketStack := preload("res://assets/ui/full_set_v3/icons/ui-order-ticket-stack.png")
+const PickupArrow := preload("res://assets/ui/full_set_v3/icons/ui-arrow-pickup-v5.png")
+const StationTeaMilk := preload("res://assets/ui/full_set_v3/station/station-tea-milk-v4.png")
+const StationToppings := preload("res://assets/ui/full_set_v3/station/station-toppings-v2.png")
+const StationSugar := preload("res://assets/ui/full_set_v3/station/station-sugar-v3.png")
+const StationShaker := preload("res://assets/ui/full_set_v3/station/station-shaker-v2.png")
+const StationCabinet := preload("res://assets/ui/full_set_v3/station/station-cabinet-v8.png")
+const ServiceBell := preload("res://assets/ui/full_set_v3/station/service-bell-v2.png")
+const BackgroundEntrance := preload("res://assets/ui/full_set_v3/background/background-entrance-v2.png")
+const BackgroundEntryRailing := preload("res://assets/ui/full_set_v3/background/background-entry-railing-v7.png")
+const BackgroundSucculent := preload("res://assets/ui/full_set_v3/background/background-succulent-v1.png")
+const BackgroundWindow := preload("res://assets/ui/full_set_v3/background/background-window-v1.png")
+const BackgroundShelf := preload("res://assets/ui/full_set_v3/background/background-shelf-v2.png")
+const BackgroundWallSeam := preload("res://assets/ui/full_set_v3/background/background-wall-floor-v2.png")
+const CupEmpty := preload("res://assets/ui/full_set_v3/cup/cup-empty-v1.png")
+const CupTea := preload("res://assets/ui/full_set_v3/cup/cup-tea-v1.png")
+const CupMilk := preload("res://assets/ui/full_set_v3/cup/cup-milk-v1.png")
+const CupTopping := preload("res://assets/ui/full_set_v3/cup/cup-topping-v2.png")
+const CupSealed := preload("res://assets/ui/full_set_v3/cup/cup-sealed-v1.png")
 
 const DAY_LENGTH := 120.0
 const SHAKE_DECAY := 1.2
@@ -113,8 +144,22 @@ var context_panel: PanelContainer
 var context_title: Label
 var context_choices: GridContainer
 var next_action_panel: PanelContainer
+var next_action_button: Button
 var next_action_label: Label
 var reset_button: Button
+var reset_brand_label: Label
+var order_ticket_art: TextureRect
+var order_ticket_name: Label
+var station_art: Dictionary = {}
+var station_art_tweens: Dictionary = {}
+var active_station_art_id := ""
+var cup_art: TextureRect
+var cup_art_state := ""
+var cup_art_tween: Tween
+var _cup_handoff_art: TextureRect
+var _cup_handoff_tween: Tween
+var service_bell_art: TextureRect
+var service_bell_tween: Tween
 var prep_panel: PanelContainer
 var tea_prep_title: Label
 var tea_prep_state: Label
@@ -151,6 +196,7 @@ var _card_panel_idle: StyleBoxTexture
 var _card_fill_healthy: StyleBoxFlat
 var _card_fill_warn: StyleBoxFlat
 var _card_fill_low: StyleBoxFlat
+var _card_dot_empty: StyleBoxFlat
 var _info_inputs: Array = []
 var _flash_tween: Tween
 var _streak_tween: Tween
@@ -180,6 +226,10 @@ func _prep_fill_style(state: String) -> StyleBoxFlat:
 	return style
 var _context_panel_target_visible := true
 var _context_panel_tween: Tween
+var _last_next_action_text := ""
+var _next_action_tween: Tween
+var _topping_step_confirmed := false
+var _departing_customer_art: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -213,8 +263,9 @@ func _process(delta: float) -> void:
 		stage.cup.update_cup(cup_base, cup_milk, cup_tops, cup_sugar,
 			shake_progress / float(_shakes_needed()), cup_sealed)
 	shake_bar.value = shake_progress
-	shake_bar.visible = not cup_sealed and cup_base != null
-	shake_bar.position = _window_to_frame(stage.cup_screen_pos()) - Vector2(shake_bar.size.x / 2.0, 0)
+	shake_bar.visible = not cup_sealed and sugar_confirmed
+	shake_bar.position = cup_art.position + Vector2((cup_art.size.x - shake_bar.size.x) / 2.0,
+		cup_art.size.y + 6.0)
 	# 手机传感器连续采样，但检测器只在有效冲击与冷却窗口后发出一次语义摇动。
 	if _can_gesture_shake() and _shake_gesture.sample_accelerometer(
 		Input.get_accelerometer(), Time.get_ticks_msec()):
@@ -263,6 +314,7 @@ func _process(delta: float) -> void:
 		_spawn_customer()
 		spawn_timer = _spawn_interval()
 	_update_info()
+	_update_next_action_motion()
 	if time_left <= 0.0:
 		_end_day()
 
@@ -337,19 +389,46 @@ func _build_ui() -> void:
 	stage.staff_clicked.connect(_on_staff_clicked)
 	ui_frame = SafeFrameScene.new()
 	add_child(ui_frame)
+	for spec in [[BackgroundWallSeam, Vector2(0, 42), Vector2(650, 160)],
+			[BackgroundEntrance, Vector2(0, -30), Vector2(120, 108)],
+			[BackgroundSucculent, Vector2(281, 450), Vector2(70, 88)],
+			[BackgroundWindow, Vector2(560, -120), Vector2(280, 186)],
+			[BackgroundShelf, Vector2(830, -21), Vector2(480, 95)]]:
+		var background_art := TextureRect.new()
+		background_art.texture = spec[0]
+		background_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background_art.stretch_mode = TextureRect.STRETCH_SCALE
+		background_art.position = spec[1]
+		background_art.size = spec[2]
+		background_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		ui_frame.add_child(background_art)
+	var entry_railing := TextureRect.new()
+	entry_railing.texture = BackgroundEntryRailing
+	entry_railing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	entry_railing.stretch_mode = TextureRect.STRETCH_SCALE
+	entry_railing.position = Vector2(126, 72)
+	entry_railing.size = Vector2(220, 680)
+	entry_railing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	entry_railing.z_index = 1
+	ui_frame.add_child(entry_railing)
 
 	# 药丸 HUD：顶部一条珊瑚薄荷芯片带（参考图区域一），事件/合约压缩到第二行。
 	hud_primary = HBoxContainer.new()
-	hud_primary.position = Vector2(14, 10)
-	hud_primary.size = Vector2(850, 54)
-	hud_primary.custom_minimum_size = Vector2(850, 54)
+	hud_primary.position = Vector2(14, 12)
+	hud_primary.size = Vector2(400, 50)
+	hud_primary.custom_minimum_size = Vector2(400, 50)
 	hud_primary.add_theme_constant_override("separation", 10)
 	ui_frame.add_child(hud_primary)
 	hud_day = _day_goal_pill(hud_primary)
+	var hud_day_gap := Control.new()
+	hud_day_gap.custom_minimum_size = Vector2.ZERO
+	hud_primary.add_child(hud_day_gap)
 	hud_coin = _cash_pill(hud_primary)
 	hud_insp = _pill(hud_primary, HudInspirationIcon)
 	hud_perfect = _pill(hud_primary, HudPerfectIcon)
 	hud_streak = _pill(hud_primary, HudStreakIcon)
+	hud_perfect.get_parent().get_parent().visible = false
+	hud_streak.get_parent().get_parent().visible = false
 	var upgrade_pill := PanelContainer.new()
 	upgrade_pill.add_theme_stylebox_override("panel",
 		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
@@ -357,6 +436,7 @@ func _build_ui() -> void:
 	hud_upgrade = Label.new()
 	hud_upgrade.add_theme_font_size_override("font_size", 17)
 	upgrade_pill.add_child(hud_upgrade)
+	upgrade_pill.visible = false
 	# Event/contract copy has a separate compact row above the order queue. Keeping
 	# it out of the primary metric HBox prevents late-game two-line route copy from
 	# squeezing every core value down to an icon on 1280x720/mobile layouts.
@@ -390,10 +470,21 @@ func _build_ui() -> void:
 	contract_pill.add_child(hud_contract)
 	contract_pill.visible = false
 	pause_button = Button.new()
-	pause_button.text = "DAY_PAUSE"
-	pause_button.position = Vector2(1198, 10)
-	pause_button.custom_minimum_size = Vector2(68, 54)
+	pause_button.icon = PauseIcon
+	pause_button.expand_icon = true
+	pause_button.add_theme_constant_override("icon_max_width", 38)
+	pause_button.position = Vector2(1193, 12)
+	pause_button.custom_minimum_size = Vector2(66, 66)
 	_style_utility_button(pause_button, AppTheme.CORAL)
+	for state in ["normal", "hover", "pressed"]:
+		var pause_style := StyleBoxFlat.new()
+		pause_style.bg_color = AppTheme.CREAM if state == "normal" else Color("FFF0EC")
+		pause_style.set_corner_radius_all(33)
+		pause_style.set_border_width_all(3)
+		pause_style.border_color = Color("D7A26A")
+		pause_button.add_theme_stylebox_override(state, pause_style)
+	for icon_color in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color"]:
+		pause_button.add_theme_color_override(icon_color, Color("80664D"))
 	pause_button.pressed.connect(_toggle_pause)
 	ui_frame.add_child(pause_button)
 
@@ -413,26 +504,38 @@ func _build_ui() -> void:
 	status_label.max_lines_visible = 2
 	status_label.custom_minimum_size = Vector2(0, 24)
 	status_panel.add_child(status_label)
+	status_panel.modulate.a = 0.0
+	status_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# 情境原料选择：像参考图的“选择小料”气泡，悬浮在原料带上方（区域三），
 	# 宽度随选项数收缩；摇匀步骤单独落到底部，把中景永远留给杯子和顾客。
 	context_panel = PanelContainer.new()
-	context_panel.add_theme_stylebox_override("panel",
-		AppTheme.texture_box(AppTheme.PANEL_SKIN, 26, 26, 14, 10, 4))
-	context_panel.position = Vector2(240, 196)
+	context_panel.z_index = 2
+	var context_style := StyleBoxFlat.new()
+	context_style.bg_color = Color("3AAE9F")
+	context_style.set_corner_radius_all(18)
+	context_style.set_border_width_all(4)
+	context_style.border_color = AppTheme.CREAM
+	context_style.content_margin_left = 12
+	context_style.content_margin_right = 12
+	context_style.content_margin_top = 4
+	context_style.content_margin_bottom = 4
+	context_panel.add_theme_stylebox_override("panel", context_style)
+	context_panel.position = Vector2(240, 170)
 	context_panel.custom_minimum_size = Vector2(800, 118)
 	ui_frame.add_child(context_panel)
 	var context_box := VBoxContainer.new()
-	context_box.add_theme_constant_override("separation", 6)
+	context_box.add_theme_constant_override("separation", 3)
 	context_panel.add_child(context_box)
 	context_title = Label.new()
 	context_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	context_title.add_theme_font_size_override("font_size", 18)
+	context_title.add_theme_font_size_override("font_size", 16)
+	context_title.add_theme_color_override("font_color", AppTheme.CREAM)
 	context_box.add_child(context_title)
 	context_choices = GridContainer.new()
 	context_choices.columns = 4
-	context_choices.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	context_choices.add_theme_constant_override("separation", 8)
+	context_choices.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	context_choices.add_theme_constant_override("h_separation", 12)
 	context_box.add_child(context_choices)
 	if OS.has_feature("mobile"):
 		# 触屏把情境按钮加高到 82px（P10-1）：小屏 SafeFrame 缩放 ~0.542 下
@@ -444,27 +547,133 @@ func _build_ui() -> void:
 		context_panel.add_theme_stylebox_override("panel", slim_panel)
 		context_panel.custom_minimum_size = Vector2(800, 124)
 	_build_prep_panel()
+	_build_station_art()
+	_build_cup_art()
+	_build_service_bell_art()
+	_build_station_tags()
 
 	# 底部唯一主提示 + 可恢复的重置操作（区域五：底部动作条）。
 	# 参考图的“下一步”是画面里最大的按钮：加宽加高，读单后视线自然落点。
 	next_action_panel = PanelContainer.new()
 	next_action_panel.add_theme_stylebox_override("panel",
-		AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 12, 12, 16, 8, 4))
-	next_action_panel.position = Vector2(380, 650)
-	next_action_panel.custom_minimum_size = Vector2(520, 62)
+		AppTheme.texture_box(AppTheme.BUTTON_SELECTED_SKIN, 12, 12, 16, 4, 3))
+	next_action_panel.position = Vector2(518, 638)
+	next_action_panel.custom_minimum_size = Vector2(260, 65)
+	next_action_panel.size = Vector2(260, 65)
 	ui_frame.add_child(next_action_panel)
+	next_action_button = Button.new()
+	next_action_button.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	next_action_button.flat = true
+	next_action_button.focus_mode = Control.FOCUS_ALL
+	next_action_button.disabled = true
+	next_action_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	next_action_button.pressed.connect(_on_next_action_pressed)
+	next_action_panel.add_child(next_action_button)
+	var next_row := HBoxContainer.new()
+	next_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	next_row.add_theme_constant_override("separation", 7)
+	next_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	next_action_panel.add_child(next_row)
+	var next_icon := TextureRect.new()
+	next_icon.texture = NextHandIcon
+	next_icon.custom_minimum_size = Vector2(56, 56)
+	next_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	next_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	next_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	next_row.add_child(next_icon)
 	next_action_label = Label.new()
 	next_action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	next_action_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	next_action_label.add_theme_font_size_override("font_size", 21)
-	next_action_panel.add_child(next_action_label)
+	next_action_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	next_action_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	next_action_label.add_theme_font_size_override("font_size", 24)
+	next_row.add_child(next_action_label)
 	reset_button = Button.new()
-	reset_button.position = Vector2(16, 650)
-	reset_button.custom_minimum_size = Vector2(200, 56)
-	reset_button.text = GameLocale.text("DAY_RESET_CUP")
-	_style_utility_button(reset_button, Color("C83E49"), true)
+	reset_button.position = Vector2(208, 489)
+	reset_button.custom_minimum_size = Vector2(161, 203)
+	reset_button.rotation = -0.18
+	reset_button.pivot_offset = Vector2(80.5, 101.5)
+	reset_button.scale = Vector2(0.88, 0.86)
+	reset_button.z_index = 2
+	reset_button.text = ""
+	reset_button.flat = true
+	reset_button.add_theme_font_size_override("font_size", 18)
+	for color_state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		reset_button.add_theme_color_override(color_state, AppTheme.CREAM)
+	var reset_sign := TextureRect.new()
+	reset_sign.texture = ResetSign
+	reset_sign.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	reset_sign.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	reset_sign.stretch_mode = TextureRect.STRETCH_SCALE
+	reset_sign.flip_h = true
+	reset_sign.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reset_sign.show_behind_parent = true
+	reset_button.add_child(reset_sign)
+	reset_brand_label = Label.new()
+	reset_brand_label.position = Vector2(0, 47)
+	reset_brand_label.size = Vector2(161, 60)
+	reset_brand_label.text = GameLocale.text("DAY_RESET_SIGN").replace("|", "\n")
+	reset_brand_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	reset_brand_label.add_theme_font_size_override("font_size", 20)
+	reset_brand_label.add_theme_color_override("font_color", AppTheme.CREAM)
+	reset_brand_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reset_button.add_child(reset_brand_label)
+	var reset_brand_icon := TextureRect.new()
+	reset_brand_icon.texture = ResetSignCupIcon
+	reset_brand_icon.position = Vector2(60, 96)
+	reset_brand_icon.size = Vector2(22, 22)
+	reset_brand_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	reset_brand_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	reset_brand_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reset_button.add_child(reset_brand_icon)
 	reset_button.pressed.connect(_on_reset_cup_pressed)
 	ui_frame.add_child(reset_button)
+	var pickup_arrow := TextureRect.new()
+	pickup_arrow.texture = PickupArrow
+	pickup_arrow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	pickup_arrow.stretch_mode = TextureRect.STRETCH_SCALE
+	pickup_arrow.position = Vector2(829, 305)
+	pickup_arrow.size = Vector2(195, 125)
+	pickup_arrow.pivot_offset = Vector2(97.5, 62.5)
+	pickup_arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(pickup_arrow)
+	var order_ticket := Control.new()
+	order_ticket.name = "OrderTicket"
+	order_ticket.position = Vector2(712, 381)
+	order_ticket.custom_minimum_size = Vector2(124, 174)
+	order_ticket.pivot_offset = Vector2(62, 87)
+	order_ticket.scale = Vector2(1.05, 1.20)
+	ui_frame.add_child(order_ticket)
+	var ticket_bg := TextureRect.new()
+	ticket_bg.texture = OrderTicketStack
+	ticket_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	ticket_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	ticket_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	ticket_bg.pivot_offset = Vector2(62, 174)
+	ticket_bg.scale = Vector2(1.09, 0.92)
+	ticket_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	order_ticket.add_child(ticket_bg)
+	var ticket_title := Label.new()
+	ticket_title.position = Vector2(25, 30)
+	ticket_title.size = Vector2(74, 22)
+	ticket_title.text = "订单"
+	ticket_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ticket_title.add_theme_font_size_override("font_size", 14)
+	order_ticket.add_child(ticket_title)
+	order_ticket_art = TextureRect.new()
+	order_ticket_art.position = Vector2(34, 42)
+	order_ticket_art.size = Vector2(56, 74)
+	order_ticket_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	order_ticket_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	order_ticket_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	order_ticket.add_child(order_ticket_art)
+	order_ticket_name = Label.new()
+	order_ticket_name.position = Vector2(14, 104)
+	order_ticket_name.size = Vector2(96, 34)
+	order_ticket_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	order_ticket_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	order_ticket_name.add_theme_font_size_override("font_size", 14)
+	order_ticket.add_child(order_ticket_name)
 
 	# 摇茶进度（跟随杯子）
 	shake_bar = ProgressBar.new()
@@ -510,8 +719,8 @@ func _build_ui() -> void:
 func _build_prep_panel() -> void:
 	prep_panel = PanelContainer.new()
 	# 备料双站贴住 HUD 第二行，构成“后区控制栈”，中景留给工作台。
-	prep_panel.position = Vector2(240, 112)
-	prep_panel.custom_minimum_size = Vector2(800, 82)
+	prep_panel.position = Vector2(440, 78)
+	prep_panel.custom_minimum_size = Vector2(440, 54)
 	var panel_style := AppTheme.texture_box(AppTheme.PANEL_SKIN, 26, 26, 10, 7, 4)
 	# 暖砂色调与奶油内卡拉开层次，备料区读作“后台”而不是又一张白卡。
 	panel_style.modulate_color = Color("F0DDBE")
@@ -532,11 +741,254 @@ func _build_prep_panel() -> void:
 	pearl_prep_progress = pearl_controls["progress"]
 	pearl_prep_button = pearl_controls["button"]
 	pearl_prep_button.pressed.connect(_on_pearl_batch_pressed)
+	prep_panel.visible = false
+
+
+func _build_station_tags() -> void:
+	var tea_tag := _station_tag("STATION_TEA", Vector2(353, 217), 85.0, true)
+	tea_tag.custom_minimum_size.y = 40.0
+	tea_tag.add_theme_font_size_override("font_size", 17)
+	tea_tag.pressed.connect(func(): prep_panel.visible = not prep_panel.visible)
+	var milk_tag := _station_tag("STATION_MILK", Vector2(474, 217), 77.0)
+	milk_tag.custom_minimum_size.y = 40.0
+	milk_tag.add_theme_font_size_override("font_size", 17)
+	var topping_tag := _station_tag("STATION_TOPPING", Vector2(670, 61), 74.0)
+	topping_tag.custom_minimum_size.y = 44.0
+	topping_tag.add_theme_font_size_override("font_size", 18)
+	for i in mini(4, GameData.sugar_levels.size()):
+		var sugar: Dictionary = GameData.sugar_levels[i]
+		var sugar_tag := _station_tag(String(sugar["name"]), Vector2(894 + i * 56, 229), 52.0)
+		sugar_tag.add_theme_font_size_override("font_size", 11)
+		var sugar_style := sugar_tag.get_theme_stylebox("normal").duplicate()
+		sugar_style.bg_color = Color("F7EFE6")
+		sugar_style.border_color = Color("DCC19D")
+		for state in ["normal", "hover", "pressed"]:
+			sugar_tag.add_theme_stylebox_override(state, sugar_style)
+		for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+			sugar_tag.add_theme_color_override(state, AppTheme.COCOA)
+	var shaker_tag := _station_tag("STATION_SHAKE", Vector2(1164, 228), 84.0)
+	shaker_tag.custom_minimum_size.y = 44.0
+	var pickup_tag := _station_tag("STATION_PICKUP", Vector2(1065, 338), 140.0)
+	pickup_tag.name = "PickupTag"
+	pickup_tag.custom_minimum_size.y = 56.0
+	pickup_tag.add_theme_font_size_override("font_size", 26)
+	for state in ["normal", "hover", "pressed"]:
+		var pickup_style := pickup_tag.get_theme_stylebox(state).duplicate()
+		pickup_style.set_corner_radius_all(18)
+		pickup_style.bg_color = Color("F1AA90") if state == "normal" else (
+			Color("F6B6A0") if state == "hover" else Color("E79A83"))
+		pickup_tag.add_theme_stylebox_override(state, pickup_style)
+
+
+func _build_station_art() -> void:
+	_station_art("cabinet", StationCabinet, Vector2(550, 53), Vector2(608, 258))
+	_station_art("tea_milk", StationTeaMilk, Vector2(333, 104), Vector2(225, 128))
+	_station_art("toppings", StationToppings, Vector2(575, 92), Vector2(278, 140))
+	_station_art("sugar", StationSugar, Vector2(890, 95), Vector2(235, 140))
+	_station_art("shaker", StationShaker, Vector2(1130, 98), Vector2(168, 162))
+
+
+func _build_cup_art() -> void:
+	var cup_guide_art := TextureRect.new()
+	cup_guide_art.name = "CupGuideArt"
+	cup_guide_art.texture = CupGuide
+	cup_guide_art.position = Vector2(480, 390)
+	cup_guide_art.size = Vector2(200, 140)
+	cup_guide_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cup_guide_art.stretch_mode = TextureRect.STRETCH_SCALE
+	cup_guide_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(cup_guide_art)
+	cup_art = TextureRect.new()
+	cup_art.position = Vector2(503, 364)
+	cup_art.size = Vector2(150, 150)
+	cup_art.pivot_offset = cup_art.size * 0.5
+	cup_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cup_art.stretch_mode = TextureRect.STRETCH_SCALE
+	cup_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(cup_art)
+	_set_cup_art_state("empty", false)
+
+
+func _build_service_bell_art() -> void:
+	service_bell_art = TextureRect.new()
+	service_bell_art.name = "ServiceBellArt"
+	service_bell_art.texture = ServiceBell
+	service_bell_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	service_bell_art.stretch_mode = TextureRect.STRETCH_SCALE
+	service_bell_art.position = Vector2(956, 459)
+	service_bell_art.size = Vector2(105, 118)
+	service_bell_art.pivot_offset = service_bell_art.size * 0.5
+	service_bell_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(service_bell_art)
+
+
+func _animate_service_bell() -> void:
+	if service_bell_tween != null and service_bell_tween.is_valid():
+		service_bell_tween.kill()
+	service_bell_art.rotation = 0.0
+	service_bell_art.scale = Vector2.ONE
+	if GameState.reduced_motion():
+		return
+	service_bell_tween = service_bell_art.create_tween()
+	service_bell_tween.tween_property(service_bell_art, "rotation", -0.07, 0.05)
+	service_bell_tween.parallel().tween_property(service_bell_art, "scale", Vector2(1.04, 0.96), 0.05)
+	service_bell_tween.tween_property(service_bell_art, "rotation", 0.06, 0.07)
+	service_bell_tween.parallel().tween_property(service_bell_art, "scale", Vector2(0.98, 1.02), 0.07)
+	service_bell_tween.tween_property(service_bell_art, "rotation", 0.0, 0.10).set_trans(Tween.TRANS_SINE)
+	service_bell_tween.parallel().tween_property(service_bell_art, "scale", Vector2.ONE, 0.10) \
+		.set_trans(Tween.TRANS_BACK)
+
+
+func _set_cup_art_state(state: String, animate := true) -> void:
+	if cup_art_state == state:
+		return
+	cup_art_state = state
+	cup_art.texture = {
+		"tea": CupTea, "milk": CupMilk, "topping": CupTopping, "sealed": CupSealed,
+	}.get(state, CupEmpty)
+	if animate:
+		_animate_cup_art(state)
+
+
+func _animate_cup_art(kind: String) -> void:
+	if cup_art_tween != null and cup_art_tween.is_valid():
+		cup_art_tween.kill()
+	cup_art.position = Vector2(503, 364)
+	cup_art.scale = Vector2.ONE
+	cup_art.rotation = 0.0
+	if GameState.reduced_motion():
+		return
+	cup_art_tween = create_tween()
+	if kind == "shake":
+		cup_art_tween.tween_property(cup_art, "rotation", -0.09, 0.05)
+		cup_art_tween.tween_property(cup_art, "rotation", 0.08, 0.08)
+		cup_art_tween.tween_property(cup_art, "rotation", 0.0, 0.09).set_trans(Tween.TRANS_BACK)
+	elif kind == "topping":
+		cup_art.position.y -= 7.0
+		cup_art_tween.tween_property(cup_art, "position:y", 364.0, 0.20).set_trans(Tween.TRANS_BOUNCE)
+	elif kind == "sealed":
+		cup_art.scale = Vector2(1.08, 0.90)
+		cup_art_tween.tween_property(cup_art, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK)
+	elif kind == "sugar":
+		cup_art.scale = Vector2(1.025, 0.97)
+		cup_art_tween.tween_property(cup_art, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_BACK)
+	else:
+		cup_art.scale = Vector2(0.96, 1.04)
+		cup_art_tween.tween_property(cup_art, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK)
+
+
+func _clear_cup_handoff() -> void:
+	if _cup_handoff_tween != null and _cup_handoff_tween.is_valid():
+		_cup_handoff_tween.kill()
+	_cup_handoff_tween = null
+	if is_instance_valid(_cup_handoff_art):
+		_cup_handoff_art.queue_free()
+	_cup_handoff_art = null
+
+
+func _animate_cup_handoff() -> void:
+	_clear_cup_handoff()
+	if GameState.reduced_motion():
+		return
+	var flight := TextureRect.new()
+	flight.name = "CupHandoff"
+	flight.texture = CupSealed
+	flight.position = cup_art.position
+	flight.size = cup_art.size
+	flight.pivot_offset = flight.size * 0.5
+	flight.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	flight.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	flight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(flight)
+	ui_frame.move_child(flight, cup_art.get_index() + 1)
+	_cup_handoff_art = flight
+	_cup_handoff_tween = flight.create_tween()
+	_cup_handoff_tween.tween_property(flight, "position", Vector2(745, 335), 0.14) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_cup_handoff_tween.parallel().tween_property(flight, "scale", Vector2(0.46, 0.46), 0.14) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_cup_handoff_tween.tween_property(flight, "position", Vector2(1040, 355), 0.22) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_cup_handoff_tween.parallel().tween_property(flight, "scale", Vector2(0.30, 0.30), 0.22) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_cup_handoff_tween.parallel().tween_property(flight, "modulate:a", 0.0, 0.12).set_delay(0.10)
+	_cup_handoff_tween.tween_callback(func():
+		if is_instance_valid(flight):
+			flight.queue_free()
+		if _cup_handoff_art == flight:
+			_cup_handoff_art = null
+			_cup_handoff_tween = null)
+
+
+func _station_art(id: String, texture: Texture2D, pos: Vector2, extent: Vector2) -> void:
+	var art := TextureRect.new()
+	art.texture = texture
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_SCALE
+	art.position = pos
+	art.size = extent
+	art.pivot_offset = extent * 0.5
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(art)
+	station_art[id] = art
+
+
+func _set_active_station_art(id: String) -> void:
+	if active_station_art_id == id:
+		return
+	active_station_art_id = id
+	if not id.is_empty():
+		_pulse_station_art(id)
+
+
+func _pulse_station_art(id: String) -> void:
+	var art := station_art.get(id) as TextureRect
+	if art == null:
+		return
+	var previous := station_art_tweens.get(id) as Tween
+	if previous != null and previous.is_valid():
+		previous.kill()
+	art.scale = Vector2.ONE
+	art.rotation = 0.0
+	if GameState.reduced_motion():
+		return
+	var tween := create_tween()
+	station_art_tweens[id] = tween
+	if id == "shaker":
+		tween.tween_property(art, "rotation", -0.035, 0.05)
+		tween.tween_property(art, "rotation", 0.035, 0.08)
+		tween.tween_property(art, "rotation", 0.0, 0.10).set_trans(Tween.TRANS_BACK)
+	else:
+		tween.tween_property(art, "scale", Vector2(1.055, 0.96), 0.07)
+		tween.tween_property(art, "scale", Vector2.ONE, 0.16).set_trans(Tween.TRANS_BACK)
+
+
+func _station_tag(key: String, pos: Vector2, width: float, interactive := false) -> Button:
+	var tag := Button.new()
+	tag.text = key
+	tag.position = pos
+	tag.custom_minimum_size = Vector2(width, 34)
+	tag.add_theme_font_size_override("font_size", 15)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("E97A64")
+	style.set_corner_radius_all(10)
+	style.set_border_width_all(3)
+	style.border_color = Color("F8DCC1")
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	for state in ["normal", "hover", "pressed"]:
+		tag.add_theme_stylebox_override(state, style)
+	for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+		tag.add_theme_color_override(state, AppTheme.CREAM)
+	tag.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if interactive else Control.CURSOR_ARROW
+	tag.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
+	ui_frame.add_child(tag)
+	return tag
 
 
 func _prep_station(parent: HBoxContainer, tea_station: bool) -> Dictionary:
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(385, 68)
+	card.custom_minimum_size = Vector2(210, 44)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(1.0, 0.975, 0.91, 0.98)
@@ -548,17 +1000,18 @@ func _prep_station(parent: HBoxContainer, tea_station: bool) -> Dictionary:
 	card.add_theme_stylebox_override("panel", style)
 	parent.add_child(card)
 	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 2)
+	stack.add_theme_constant_override("separation", 0)
 	card.add_child(stack)
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 6)
 	stack.add_child(header)
 	var title := Label.new()
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_font_size_override("font_size", 12)
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	header.add_child(title)
 	var state := Label.new()
-	state.add_theme_font_size_override("font_size", 12)
+	state.add_theme_font_size_override("font_size", 10)
 	state.add_theme_color_override("font_color", Color("8C67B5"))
 	header.add_child(state)
 	var action_row := HBoxContainer.new()
@@ -567,12 +1020,12 @@ func _prep_station(parent: HBoxContainer, tea_station: bool) -> Dictionary:
 	var progress := ProgressBar.new()
 	progress.max_value = 100.0
 	progress.show_percentage = false
-	progress.custom_minimum_size = Vector2(132, 10)
+	progress.custom_minimum_size = Vector2(60, 8)
 	progress.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	action_row.add_child(progress)
 	var button := Button.new()
-	button.custom_minimum_size = Vector2(172, 34)
-	button.add_theme_font_size_override("font_size", 13)
+	button.custom_minimum_size = Vector2(88, 25)
+	button.add_theme_font_size_override("font_size", 11)
 	button.accessibility_name = GameLocale.text("DAY_PREP_START_TEA" if tea_station else "DAY_PREP_START_PEARL")
 	action_row.add_child(button)
 	return {"title": title, "state": state, "progress": progress, "button": button}
@@ -811,45 +1264,66 @@ func _return_to_menu() -> void:
 ## 开启时重建舞台上的店员/顾客（reduced_motion 分支直接静态就位）。
 ## 关闭时刻意不重建——中途补回动画收益低且会造成可见的位置跳变。
 func _on_reduced_motion_toggled(enabled: bool) -> void:
-	if not enabled or stage == null:
+	if not enabled:
+		return
+	for departure in _departing_customer_art.duplicate():
+		var tween := departure["tween"] as Tween
+		if tween.is_valid():
+			tween.kill()
+		_finish_customer_departure(departure)
+	if _next_action_tween != null and _next_action_tween.is_valid():
+		_next_action_tween.kill()
+	if next_action_panel != null:
+		next_action_panel.scale = Vector2.ONE
+	_clear_cup_handoff()
+	if service_bell_tween != null and service_bell_tween.is_valid():
+		service_bell_tween.kill()
+	if service_bell_art != null:
+		service_bell_art.rotation = 0.0
+		service_bell_art.scale = Vector2.ONE
+	if stage == null:
 		return
 	if StaffCatalog.is_on_duty():
 		stage.remove_staff()
 		stage.add_staff(String(StaffCatalog.current().get("id", "")))
 		stage.set_staff_state(staff_state)
 	for c in customers:
+		_settle_customer_arrival(c)
 		var node: Node3D = stage.add_customer(int(c["slot"]), Color(c.get("tint", Color.WHITE)), \
 			String(c.get("kind", "regular")))
+		node.visible = c.get("portrait") == null
 		stage.remove_customer(c["node"], false)
 		c["node"] = node
 
 
 func _pill(hud: HBoxContainer, icon_texture: Texture2D) -> Label:
 	var p := PanelContainer.new()
+	p.custom_minimum_size = Vector2(75, 48)
 	p.add_theme_stylebox_override("panel",
-		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
+		AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 11, 11, 10, 5, 4))
 	hud.add_child(p)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 5)
 	p.add_child(row)
 	var icon := TextureRect.new()
 	icon.texture = icon_texture
-	icon.custom_minimum_size = Vector2(28, 28)
+	icon.custom_minimum_size = Vector2(36, 36)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
 	var l := Label.new()
-	l.add_theme_font_size_override("font_size", 19)
+	l.custom_minimum_size.x = 12.0
+	l.add_theme_font_size_override("font_size", 20)
 	row.add_child(l)
 	return l
 
 
 func _cash_pill(hud: HBoxContainer) -> Label:
 	var p := PanelContainer.new()
-	p.custom_minimum_size = Vector2(152, 0)
+	p.custom_minimum_size = Vector2(75, 48)
 	p.add_theme_stylebox_override("panel",
-		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
+		AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 11, 11, 10, 5, 4))
 	hud.add_child(p)
 	coin_pill = p
 	var row := HBoxContainer.new()
@@ -857,7 +1331,7 @@ func _cash_pill(hud: HBoxContainer) -> Label:
 	p.add_child(row)
 	var icon := TextureRect.new()
 	icon.texture = HudCoinIcon
-	icon.custom_minimum_size = Vector2(28, 28)
+	icon.custom_minimum_size = Vector2(36, 36)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -867,21 +1341,22 @@ func _cash_pill(hud: HBoxContainer) -> Label:
 	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(stack)
 	var value := Label.new()
-	value.add_theme_font_size_override("font_size", 19)
+	value.add_theme_font_size_override("font_size", 20)
 	stack.add_child(value)
 	hud_cost = Label.new()
 	hud_cost.add_theme_font_size_override("font_size", 10)
 	hud_cost.add_theme_color_override("font_color", Color(0.30, 0.22, 0.18, 0.68))
 	hud_cost.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	stack.add_child(hud_cost)
+	hud_cost.visible = false
 	return value
 
 
 func _day_goal_pill(hud: HBoxContainer) -> Label:
 	var p := PanelContainer.new()
-	p.custom_minimum_size = Vector2(250, 0)
+	p.custom_minimum_size = Vector2(205, 48)
 	p.add_theme_stylebox_override("panel",
-		AppTheme.texture_box(AppTheme.HUD_SKIN, 11, 11, 10, 5, 4))
+		AppTheme.texture_box(AppTheme.BUTTON_SECONDARY_SKIN, 11, 11, 10, 5, 4))
 	hud.add_child(p)
 	var stack := VBoxContainer.new()
 	stack.add_theme_constant_override("separation", 1)
@@ -891,19 +1366,20 @@ func _day_goal_pill(hud: HBoxContainer) -> Label:
 	stack.add_child(row)
 	var icon := TextureRect.new()
 	icon.texture = HudDayIcon
-	icon.custom_minimum_size = Vector2(28, 28)
+	icon.custom_minimum_size = Vector2(36, 36)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(icon)
 	var label := Label.new()
-	label.add_theme_font_size_override("font_size", 19)
+	label.add_theme_font_size_override("font_size", 20)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(label)
 	hud_goal_text = Label.new()
 	hud_goal_text.add_theme_font_size_override("font_size", 15)
 	hud_goal_text.modulate = Color(0.30, 0.22, 0.18, 0.72)
 	row.add_child(hud_goal_text)
+	hud_goal_text.visible = false
 	hud_goal_bar = ProgressBar.new()
 	# 条宽到 140%：三星线就是条的尽头，目标线留一个刻度——打烊前仍有冲刺牵引。
 	hud_goal_bar.max_value = STAR_GOAL_MULT * 100.0
@@ -920,6 +1396,7 @@ func _day_goal_pill(hud: HBoxContainer) -> Label:
 	goal_tick.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hud_goal_bar.add_child(goal_tick)
 	stack.add_child(hud_goal_bar)
+	hud_goal_bar.visible = false
 	return label
 
 
@@ -1172,6 +1649,7 @@ func _on_base(item: Dictionary) -> void:
 		cup_sugar = GameData.sugar_levels[sugar_index]
 	Sfx.play("pour_tea")
 	Haptics.play("tap")
+	_pulse_station_art("tea_milk")
 	# 智能糖台高级档：选完茶基即匹配糖度，比奶基后钩子再快一步。
 	if UpgradeCatalog.auto_sugar_after_base() and not sugar_confirmed \
 			and active_customer != null and customers.has(active_customer):
@@ -1189,6 +1667,7 @@ func _on_milk(item: Dictionary) -> void:
 	cup_milk = item
 	Sfx.play("pour_milk")
 	Haptics.play("tap")
+	_pulse_station_art("tea_milk")
 	if UpgradeCatalog.auto_sugar_after_milk() and not sugar_confirmed \
 			and active_customer != null and customers.has(active_customer):
 		_on_sugar(active_customer["order"]["sugar"])
@@ -1200,6 +1679,9 @@ func _on_milk(item: Dictionary) -> void:
 func _on_topping(item: Dictionary) -> void:
 	if cup_sealed:
 		return
+	_topping_step_confirmed = false
+	_pulse_station_art("toppings")
+	var was_topping_art := cup_art_state == "topping"
 	for t in cup_tops:
 		if t["id"] == item["id"]:
 			_mark_cup_correction()
@@ -1210,6 +1692,8 @@ func _on_topping(item: Dictionary) -> void:
 			Sfx.play("topping", 0.88)
 			Haptics.play("tap")
 			_refresh_cup()
+			if was_topping_art and cup_art_state == "topping":
+				_animate_cup_art("topping")
 			return
 	if cup_tops.size() < 2:
 		if String(item["id"]) == "boba":
@@ -1223,6 +1707,10 @@ func _on_topping(item: Dictionary) -> void:
 		stage.set_prop_selected(item["id"], true)
 		Sfx.play("topping")
 		Haptics.play("tap")
+		_refresh_cup()
+		if was_topping_art and cup_art_state == "topping":
+			_animate_cup_art("topping")
+		return
 	_refresh_cup()
 
 
@@ -1240,7 +1728,11 @@ func _on_sugar(item: Dictionary) -> void:
 	stage.set_sugar_label(cup_sugar)
 	Sfx.play("sugar")
 	Haptics.play("tap")
+	_pulse_station_art("sugar")
+	var previous_art_state := cup_art_state
 	_refresh_cup()
+	if cup_art_state == previous_art_state:
+		_animate_cup_art("sugar")
 
 
 func _on_shake() -> void:
@@ -1251,9 +1743,11 @@ func _on_shake() -> void:
 		Haptics.play("warning")
 		return
 	shake_progress += 1.0
+	_pulse_station_art("shaker")
 	# 衰减宽限：刚摇过的半秒内不衰减，避免连点时“按了计数却没涨”的漏桶手感。
 	_shake_grace_left = SHAKE_GRACE_SECONDS
 	stage.cup.play_shake()
+	_animate_cup_art("shake")
 	Sfx.play("shake", randf_range(0.9, 1.15))
 	Haptics.play("shake")
 	if shake_progress >= _shakes_needed():
@@ -1329,6 +1823,7 @@ func _reset_cup() -> void:
 	for t in cup_tops:
 		stage.set_prop_selected(t["id"], false)
 	cup_tops = []
+	_topping_step_confirmed = false
 	cup_sugar = GameData.sugar_levels[sugar_index]
 	sugar_confirmed = false
 	shake_progress = 0.0
@@ -1342,6 +1837,9 @@ func _reset_cup() -> void:
 func _refresh_cup() -> void:
 	stage.cup.update_cup(cup_base, cup_milk, cup_tops, cup_sugar,
 		shake_progress / float(_shakes_needed()), cup_sealed)
+	_set_cup_art_state("sealed" if cup_sealed else (
+		"topping" if not cup_tops.is_empty() else (
+		"milk" if cup_milk != null else ("tea" if cup_base != null else "empty"))))
 	var parts: Array = []
 	# 状态行空间有限：一律用短名（全名最坏串实测 1112px > 505px 面板，P4-1）。
 	parts.append(GameLocale.ingredient_short_name(cup_base) if cup_base else GameLocale.text("DAY_MISSING_BASE"))
@@ -1357,16 +1855,38 @@ func _refresh_cup() -> void:
 	status_label.text = GameLocale.text("DAY_CUP_STATUS", [" + ".join(parts), sugar_name, state + _batch_quality_text()])
 	var discarded_cost := _current_cup_cost()
 	reset_button.disabled = not _cup_has_contents()
-	reset_button.text = GameLocale.text("DAY_RESET_CUP_WASTE", [discarded_cost]) \
-		if discarded_cost > 0 else GameLocale.text("DAY_RESET_CUP")
+	reset_brand_label.text = ("%s\n−%d" % [GameLocale.text("DAY_RESET_CUP"), discarded_cost] \
+		if discarded_cost > 0 else GameLocale.text("DAY_RESET_SIGN").replace("|", "\n"))
+	var reset_hint := (GameLocale.text("DAY_RESET_CUP_WASTE", [discarded_cost]) \
+		if discarded_cost > 0 else GameLocale.text("DAY_RESET_CUP"))
+	reset_button.accessibility_name = reset_hint
+	reset_button.tooltip_text = reset_hint
 	_refresh_context_controls()
 	_update_all_order_progress()
 	_refresh_all_order_action_hints()
 
 
+func _desired_topping_count() -> int:
+	return active_customer["order"]["tops"].size() \
+		if active_customer != null and customers.has(active_customer) else 0
+
+
+func _on_next_action_pressed() -> void:
+	var desired_tops := _desired_topping_count()
+	if cup_sealed or sugar_confirmed or desired_tops <= 0 or cup_tops.size() < desired_tops:
+		return
+	_topping_step_confirmed = true
+	Sfx.play("tap")
+	Haptics.play("tap")
+	_refresh_context_controls()
+
+
 func _refresh_context_controls() -> void:
 	if context_choices == null:
 		return
+	var previous_prop_kind: String = stage._active_prop_kind
+	next_action_label.add_theme_font_size_override("font_size", 19 if InputPrompts.gamepad_mode else 24)
+	next_action_button.disabled = true
 	_context_shortcuts.clear()
 	# 先摘再删：queue_free 的节点当帧仍留在树里抬高最小尺寸，
 	# 面板会被一步步撑大且永不回缩（Control 尺寸只涨不缩）。
@@ -1376,6 +1896,7 @@ func _refresh_context_controls() -> void:
 
 	if cup_sealed:
 		stage.set_active_prop_kind("")
+		_set_active_station_art("")
 		context_title.text = GameLocale.text("DAY_CONTEXT_SEALED")
 		next_action_label.text = GameLocale.text("DAY_NEXT_DELIVER_GAMEPAD", [InputPrompts.accept_hint()]) \
 			if InputPrompts.gamepad_mode else GameLocale.text("DAY_NEXT_DELIVER_TOUCH")
@@ -1392,46 +1913,62 @@ func _refresh_context_controls() -> void:
 	_set_context_panel_visible(true)
 	if cup_base == null:
 		stage.set_active_prop_kind("base")
+		_set_active_station_art("tea_milk")
 		context_title.text = GameLocale.text("DAY_CONTEXT_BASE")
 		next_action_label.text = GameLocale.text("DAY_NEXT_BASE") + _confirm_suffix()
 		var items := GameData.unlocked(GameData.bases, GameState.day)
 		_set_context_columns(items.size())
 		for item in items:
-			_add_context_button(item, _on_base, false, _context_button_width(items.size()))
+			_add_context_button(item, _on_base, false, _context_button_width(items.size()),
+				previous_prop_kind != "base")
 		return
 	if cup_milk == null:
 		stage.set_active_prop_kind("milk")
+		_set_active_station_art("tea_milk")
 		context_title.text = GameLocale.text("DAY_CONTEXT_MILK")
 		next_action_label.text = GameLocale.text("DAY_NEXT_MILK") + _confirm_suffix()
 		var items := GameData.unlocked(GameData.milks, GameState.day)
 		_set_context_columns(items.size())
 		for item in items:
-			_add_context_button(item, _on_milk, false, _context_button_width(items.size()))
+			_add_context_button(item, _on_milk, false, _context_button_width(items.size()),
+				previous_prop_kind != "milk")
 		return
 
-	var desired_tops := 0
-	if active_customer != null and customers.has(active_customer):
-		desired_tops = active_customer["order"]["tops"].size()
-	if cup_tops.size() < desired_tops:
+	var desired_tops := _desired_topping_count()
+	if not sugar_confirmed and desired_tops > 0 and not _topping_step_confirmed:
+		var topping_ready := cup_tops.size() >= desired_tops
 		stage.set_active_prop_kind("topping")
-		context_title.text = GameLocale.text("DAY_CONTEXT_TOPPING", [cup_tops.size(), desired_tops])
-		next_action_label.text = GameLocale.text("DAY_NEXT_TOPPING") + _confirm_suffix()
+		_set_active_station_art("toppings")
+		context_title.text = GameLocale.text("DAY_CONTEXT_TOPPING_READY") if topping_ready \
+			else GameLocale.text("DAY_CONTEXT_TOPPING", [cup_tops.size(), desired_tops])
+		next_action_label.text = GameLocale.text("DAY_NEXT_SUGAR") + _confirm_suffix() if topping_ready \
+			else GameLocale.text("DAY_NEXT_TOPPING") + _confirm_suffix()
 		var items := GameData.unlocked(GameData.toppings, GameState.day)
 		_set_context_columns(items.size())
 		for item in items:
-			_add_context_button(item, _on_topping, _has_topping(item), _context_button_width(items.size()))
+			_add_context_button(item, _on_topping, _has_topping(item), _context_button_width(items.size()),
+				previous_prop_kind != "topping")
+		if topping_ready:
+			next_action_button.disabled = false
+			for shortcut in _context_shortcuts:
+				shortcut.focus_neighbor_bottom = shortcut.get_path_to(next_action_button)
+			next_action_button.focus_neighbor_top = next_action_button.get_path_to(_context_shortcuts[0])
+			_context_shortcuts.append(next_action_button)
 		return
 	if not sugar_confirmed:
 		stage.set_active_prop_kind("sugar")
+		_set_active_station_art("sugar")
 		context_title.text = GameLocale.text("DAY_CONTEXT_SUGAR")
 		next_action_label.text = GameLocale.text("DAY_NEXT_SUGAR") + _confirm_suffix()
 		_set_context_columns(GameData.sugar_levels.size())
 		for item in GameData.sugar_levels:
 			_add_context_button(item, _on_sugar,
-				int(item["value"]) == int(cup_sugar["value"]), _context_button_width(GameData.sugar_levels.size()))
+				int(item["value"]) == int(cup_sugar["value"]), _context_button_width(GameData.sugar_levels.size()),
+				previous_prop_kind != "sugar")
 		return
 
 	stage.set_active_prop_kind("")
+	_set_active_station_art("shaker")
 	context_title.text = GameLocale.text("DAY_CONTEXT_SHAKE")
 	next_action_label.text = _shake_next_action_text()
 	# 摇匀阶段视线钉在杯子上：气泡缩成一颗按钮落到状态条上方，
@@ -1461,6 +1998,25 @@ func _refresh_context_controls() -> void:
 		(func():
 			if is_instance_valid(shake) and shake.is_inside_tree():
 				shake.grab_focus()).call_deferred()
+
+
+func _update_next_action_motion() -> void:
+	next_action_button.accessibility_name = next_action_label.text
+	if next_action_panel == null or next_action_label == null or next_action_label.text == _last_next_action_text:
+		return
+	_last_next_action_text = next_action_label.text
+	if _next_action_tween != null and _next_action_tween.is_valid():
+		_next_action_tween.kill()
+	next_action_panel.scale = Vector2.ONE
+	if GameState.reduced_motion():
+		return
+	next_action_panel.pivot_offset = next_action_panel.size * 0.5
+	next_action_panel.scale = Vector2(0.96, 0.96)
+	_next_action_tween = next_action_panel.create_tween()
+	_next_action_tween.tween_property(next_action_panel, "scale", Vector2(1.02, 1.02), 0.12) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_next_action_tween.tween_property(next_action_panel, "scale", Vector2.ONE, 0.08) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _shake_count_display() -> int:
@@ -1510,22 +2066,43 @@ func _set_context_panel_visible(show_panel: bool) -> void:
 				context_panel.modulate.a = 1.0)
 
 
-func _add_context_button(item: Dictionary, handler: Callable, selected := false, button_width := 106.0) -> void:
+func _add_context_button(item: Dictionary, handler: Callable, selected := false,
+		button_width := 106.0, animate_reveal := true) -> void:
 	var btn := Button.new()
 	var item_name := GameLocale.ingredient_short_name(item).replace("（纯茶）", "")
-	btn.text = _context_button_label(_context_shortcuts.size() + 1, item_name)
+	var display_text := _context_button_label(_context_shortcuts.size() + 1, item_name)
 	btn.custom_minimum_size = Vector2(button_width, _context_button_height())
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn.add_theme_font_size_override("font_size", 16)
 	btn.tooltip_text = GameLocale.ingredient_name(item)
-	var icon_path := "res://assets/icons/%s.png" % String(item.get("id", ""))
+	btn.accessibility_name = display_text
+	var choice := VBoxContainer.new()
+	choice.name = "Choice"
+	choice.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	choice.alignment = BoxContainer.ALIGNMENT_CENTER
+	choice.add_theme_constant_override("separation", 1)
+	choice.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	btn.add_child(choice)
+	var icon_path := "res://assets/icons/%s.png" % String(item.get("icon", item.get("id", "")))
 	if ResourceLoader.exists(icon_path):
-		btn.icon = load(icon_path)
-		btn.add_theme_constant_override("icon_max_width", 30)
-	# Ingredient tiles are choices, not six simultaneous primary actions. Coral is
-	# reserved for the selected state while the default stays calm and scannable.
+		var icon := TextureRect.new()
+		icon.texture = load(icon_path)
+		icon.custom_minimum_size = Vector2(76, 72)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		choice.add_child(icon)
+	var label := Label.new()
+	label.name = "Label"
+	label.text = display_text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", AppTheme.COCOA)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	choice.add_child(label)
+	# The source keeps selected ingredients on cream paper and uses coral only as
+	# the outline; reuse the existing selected-card skin instead of filling the tile.
 	var normal := AppTheme.texture_box(
-		AppTheme.BUTTON_PRIMARY_SKIN if selected else AppTheme.BUTTON_SECONDARY_SKIN,
+		AppTheme.BUTTON_SELECTED_SKIN if selected else AppTheme.BUTTON_SECONDARY_SKIN,
 		12, 12, 8, 6, 4)
 	var hover: StyleBoxTexture = normal.duplicate()
 	hover.modulate_color = Color(1.05, 1.02, 1.02, 1.0) if selected else Color("FFF0EC")
@@ -1550,29 +2127,36 @@ func _add_context_button(item: Dictionary, handler: Callable, selected := false,
 	btn.mouse_exited.connect(stage.clear_prop_hint.bind(item_id, "button_hover"))
 	context_choices.add_child(btn)
 	_context_shortcuts.append(btn)
+	if animate_reveal and not GameState.reduced_motion():
+		btn.modulate.a = 0.0
+		var reveal := btn.create_tween()
+		reveal.tween_interval(0.025 * float(_context_shortcuts.size() - 1))
+		reveal.tween_property(btn, "modulate:a", 1.0, 0.12) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	# 延迟 grab 不得落在教学遮罩之下：_next 的同帧焦点会被后入队的延迟
 	# 调用偷走（P3-F4）。教程结束时会补一次重建接管。按钮可能已被下一轮
 	# 重建摘出树（先摘再删），抢焦点前必须确认仍在树上。
 	if InputPrompts.gamepad_mode and _context_shortcuts.size() == 1 and not tutorial_overlay.visible:
-		(func():
-			if is_instance_valid(btn) and btn.is_inside_tree():
-				btn.grab_focus()).call_deferred()
+		call_deferred("_focus_context_button", btn.get_instance_id())
 
 
-## 情境按钮文案：键盘用「1  名字」效率捷径；手柄/触屏没有数字键——
-## 触屏显示编号是键盘泄漏（P10-4）。
-func _context_button_label(index: int, item_name: String, mobile_override: Variant = null) -> String:
-	var mobile := OS.has_feature("mobile") if mobile_override == null else bool(mobile_override)
-	if InputPrompts.gamepad_mode or mobile:
-		return item_name
-	return "%d  %s" % [index, item_name]
+func _focus_context_button(instance_id: int) -> void:
+	var button := instance_from_id(instance_id) as Button
+	var focused := get_viewport().gui_get_focus_owner()
+	if button != null and button.is_inside_tree() \
+			and (focused == null or not focused.is_inside_tree() or not focused.is_visible_in_tree()):
+		button.grab_focus()
+
+
+## 数字键仍是效率捷径，但参考卡面只显示原料名；输入提示留给焦点与帮助文案。
+func _context_button_label(_index: int, item_name: String, _mobile_override: Variant = null) -> String:
+	return item_name
 
 
 ## 触屏主操作的触控目标补偿（P10-1）：最小手机可视高度下 SafeFrame 缩放
 ## ~0.542，authored 54px 只剩 ~29pt；触屏把主按钮加高到 82px（≈44.4pt）。
-func _context_button_height(mobile_override: Variant = null) -> float:
-	var mobile := OS.has_feature("mobile") if mobile_override == null else bool(mobile_override)
-	return 82.0 if mobile else 54.0
+func _context_button_height(_mobile_override: Variant = null) -> float:
+	return 100.0
 
 
 func _style_utility_button(button: Button, accent: Color, danger_copy := false) -> void:
@@ -1600,16 +2184,18 @@ func _style_utility_button(button: Button, accent: Color, danger_copy := false) 
 
 
 func _context_button_width(count: int) -> float:
-	return 120.0 if count >= 5 else 132.0
+	return 62.0 if count == 5 else (87.0 if count == 3 else (70.0 if count >= 4 else 105.0))
 
 
 func _set_context_columns(count: int) -> void:
-	context_choices.columns = 5 if count == 5 else mini(maxi(count, 1), 4)
-	# 气泡宽度随选项数收缩（≤3 选项时像参考图的小弹层），居中悬在原料带上方。
-	var wide := 800.0 if count >= 4 else (600.0 if count == 3 else 480.0)
-	var tall := 124.0 if OS.has_feature("mobile") else 118.0
+	var columns := maxi(count, 1)
+	context_choices.columns = columns
+	# 参考图状态保持 320px；后期解锁项横向展开，避免多排面板压住杯子和柜台。
+	var wide := maxf(314.0, _context_button_width(columns) * columns + 12.0 * (columns - 1) + 24.0)
+	var tall := 124.0
 	context_panel.custom_minimum_size = Vector2(wide, tall)
-	context_panel.position = Vector2((1280.0 - wide) * 0.5, 196.0)
+	var center_x := 714.0
+	context_panel.position = Vector2(center_x - wide * 0.5, 238.0)
 	context_panel.size = Vector2(wide, tall)
 
 
@@ -1858,47 +2444,119 @@ func _spawn_customer() -> void:
 	if dark_order:
 		customer_color = Color("8C67B5")
 	var node: Node3D = stage.add_customer(slot, customer_color, kind)
+	# 顾客统一进入左侧固定队列；特殊顾客仍由订单卡标识，不再躲在柜台模型后方。
+	node.visible = false
+	var portrait := Sprite2D.new()
+	var mint_portrait := spawned_count % 2 == 1
+	portrait.texture = CustomerMint if mint_portrait else CustomerYellow
+	if slot == 2:
+		portrait.position = Vector2(185, 628) if mint_portrait else Vector2(173, 625)
+		portrait.scale = Vector2(0.54, 0.40) if mint_portrait else Vector2(0.39, 0.37)
+	else:
+		portrait.position = Vector2(195, 215.5) if mint_portrait else Vector2(175, 444)
+		portrait.scale = Vector2(0.515, 0.5035) if mint_portrait else Vector2(0.538, 0.452)
+	var contact_shadow := Sprite2D.new()
+	contact_shadow.texture = CustomerShadow
+	contact_shadow.position = Vector2(portrait.position.x, 700 if slot == 2 else (315 if mint_portrait else 550))
+	contact_shadow.scale = Vector2(0.78, 0.62) if mint_portrait else Vector2(0.72, 0.60)
+	ui_frame.add_child(contact_shadow)
+	ui_frame.add_child(portrait)
+	var portrait_target_x := portrait.position.x
+	var arrival: Tween
+	if not GameState.reduced_motion():
+		portrait.position.x -= 48.0
+		portrait.modulate.a = 0.0
+		contact_shadow.position.x -= 48.0
+		contact_shadow.modulate.a = 0.0
+		arrival = portrait.create_tween().set_parallel(true)
+		arrival.tween_property(portrait, "position:x", portrait_target_x, 0.28) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		arrival.tween_property(portrait, "modulate:a", 1.0, 0.18)
+		arrival.tween_property(contact_shadow, "position:x", portrait_target_x, 0.28) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		arrival.tween_property(contact_shadow, "modulate:a", 1.0, 0.18)
 	Sfx.play("customer_arrive", randf_range(0.96, 1.06))
 
 	# 固定订单卡：位置不再追随 3D 头像，信息更稳、触控目标更大；压窄给顾客让出站位。
 	# 左列即参考图区域二：顾客队列沿左缘纵向排列。
 	var bubble := PanelContainer.new()
-	bubble.position = Vector2(16, 116 + slot * 158)
-	bubble.custom_minimum_size = Vector2(248 if special or featured_order or dark_order else 212, 138)
+	bubble.position = Vector2(18, 98 + slot * 210)
+	bubble.custom_minimum_size = Vector2(108, 134)
+	var order_badge := Label.new()
+	order_badge.text = str(slot + 1)
+	order_badge.position = Vector2(10, 92 + slot * 210)
+	order_badge.size = Vector2(32, 32)
+	order_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	order_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	order_badge.add_theme_font_size_override("font_size", 17)
+	order_badge.add_theme_color_override("font_color", Color.WHITE)
+	var badge_style := StyleBoxFlat.new()
+	badge_style.bg_color = Color("EC8568")
+	badge_style.set_corner_radius_all(16)
+	badge_style.set_border_width_all(3)
+	badge_style.border_color = AppTheme.CREAM
+	order_badge.add_theme_stylebox_override("normal", badge_style)
+	ui_frame.add_child(order_badge)
 	var card_box := VBoxContainer.new()
 	card_box.add_theme_constant_override("separation", 5)
 	bubble.add_child(card_box)
 	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", 2)
 	card_box.add_child(header)
 	var order_title := Label.new()
-	order_title.add_theme_font_size_override("font_size", 16 if named_order else 20)
-	order_title.custom_minimum_size = Vector2(160, 38) if named_order else Vector2(112, 0)
+	order_title.add_theme_font_size_override("font_size", 12 if named_order else 14)
+	order_title.custom_minimum_size = Vector2(36, 0)
 	order_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	order_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	order_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if named_order else TextServer.AUTOWRAP_OFF
-	order_title.max_lines_visible = 2 if named_order else 1
+	order_title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	order_title.max_lines_visible = 1
 	header.add_child(order_title)
 	var order_progress := Label.new()
-	order_progress.custom_minimum_size = Vector2(42, 0)
+	order_progress.custom_minimum_size = Vector2(18, 0)
 	order_progress.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	order_progress.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	order_progress.add_theme_font_size_override("font_size", 13)
+	order_progress.add_theme_font_size_override("font_size", 10)
 	header.add_child(order_progress)
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(spacer)
 	var patience_label := Label.new()
-	patience_label.add_theme_font_size_override("font_size", 16)
+	patience_label.custom_minimum_size = Vector2(30, 0)
+	patience_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	patience_label.add_theme_font_size_override("font_size", 12)
 	header.add_child(patience_label)
+	header.visible = false
+	var drink_art := TextureRect.new()
+	drink_art.custom_minimum_size = Vector2(0, 72)
+	drink_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	drink_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	drink_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_box.add_child(drink_art)
+	var drink_name := Label.new()
+	drink_name.custom_minimum_size = Vector2(0, 20)
+	drink_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	drink_name.add_theme_font_size_override("font_size", 14)
+	drink_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	drink_name.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card_box.add_child(drink_name)
+	var progress_dots := HBoxContainer.new()
+	progress_dots.alignment = BoxContainer.ALIGNMENT_CENTER
+	progress_dots.add_theme_constant_override("separation", 7)
+	var patience_dots: Array[PanelContainer] = []
+	for i in 4:
+		var dot := PanelContainer.new()
+		dot.custom_minimum_size = Vector2(16, 16)
+		progress_dots.add_child(dot)
+		patience_dots.append(dot)
+	card_box.add_child(progress_dots)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 4)
+	row.add_theme_constant_override("separation", 2)
 	card_box.add_child(row)
+	row.visible = false
 	var patience_bar := ProgressBar.new()
 	patience_bar.max_value = 100.0
 	patience_bar.show_percentage = false
-	patience_bar.custom_minimum_size = Vector2(0, 12)
+	patience_bar.custom_minimum_size = Vector2(0, 4)
 	patience_bar.tooltip_text = GameLocale.text("DAY_ROUTE_PATIENCE_TOOLTIP") \
 		if LegacyRoutes.active_id() == "precision" else ""
+	patience_bar.visible = false
 	card_box.add_child(patience_bar)
 	var patience_threshold := ColorRect.new()
 	patience_threshold.color = Color("8C67B5")
@@ -1912,9 +2570,13 @@ func _spawn_customer() -> void:
 	patience_threshold.visible = LegacyRoutes.active_id() == "precision"
 	patience_bar.add_child(patience_threshold)
 	var hint := Label.new()
-	hint.add_theme_font_size_override("font_size", 13)
+	hint.add_theme_font_size_override("font_size", 10)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.max_lines_visible = 2
+	hint.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	hint.modulate = Color(0.42, 0.30, 0.22)
 	card_box.add_child(hint)
+	hint.visible = false
 	var btn := Button.new()
 	btn.flat = true
 	btn.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -1929,6 +2591,7 @@ func _spawn_customer() -> void:
 	btn.add_theme_stylebox_override("focus", order_focus)
 	bubble.add_child(btn)
 	ui_frame.add_child(bubble)
+	order_badge.move_to_front()
 
 	var patience_mult := 1.0
 	if kind == "critic":
@@ -1942,10 +2605,14 @@ func _spawn_customer() -> void:
 		"order": order, "orders": orders, "group_index": 0, "group_total": orders.size(),
 		"patience": patience, "max_patience": patience,
 		"editor": editor, "live_second": live_second,
-		"node": node, "bubble": bubble, "btn": btn, "slot": slot, "tint": customer_color,
+		"node": node, "portrait": portrait, "contact_shadow": contact_shadow,
+		"arrival_tween": arrival, "arrival_x": portrait_target_x,
+		"bubble": bubble, "order_badge": order_badge,
+		"btn": btn, "slot": slot, "tint": customer_color,
 		"patience_bar": patience_bar, "patience_label": patience_label,
 		"order_title": order_title, "order_progress": order_progress,
-		"order_row": row, "hint": hint,
+		"order_row": row, "drink_art": drink_art, "drink_name": drink_name,
+		"patience_dots": patience_dots, "hint": hint,
 		"special": special, "dark": dark_order, "kind": kind,
 	}
 	_render_order_card(c)
@@ -1995,6 +2662,23 @@ func _render_order_card(c: Dictionary) -> void:
 		if MenuCatalog.dark_item_id(entry) == dark_menu_id:
 			dark_entry = entry
 			break
+	var order: Dictionary = c["order"]
+	var topping_ids: Array[String] = []
+	for topping in order["tops"]:
+		topping_ids.append(String(topping["id"]))
+	if "taro" in topping_ids:
+		c["drink_art"].texture = DrinkTaro
+	elif "pudding" in topping_ids:
+		c["drink_art"].texture = DrinkBrownSugar
+	elif "coconut_jelly" in topping_ids:
+		c["drink_art"].texture = DrinkCoconut
+	else:
+		c["drink_art"].texture = DrinkClassic
+	var title_ingredient: Dictionary = order["tops"][0] if not order["tops"].is_empty() else order["milk"]
+	c["drink_name"].text = GameLocale.text("DAY_ORDER_DRINK_CARD", [
+		GameLocale.ingredient_short_name(title_ingredient)])
+	if c == active_customer:
+		_sync_order_ticket(c)
 	if not dark_entry.is_empty():
 		c["order_title"].text = GameLocale.text("DAY_ORDER_DARK", [MenuCatalog.dark_display_name(dark_entry)])
 	else:
@@ -2011,12 +2695,11 @@ func _render_order_card(c: Dictionary) -> void:
 	c["order_title"].tooltip_text = c["order_title"].text
 	c["btn"].tooltip_text = c["order_title"].text
 	c["btn"].accessibility_name = c["order_title"].text
-	c["order_title"].add_theme_font_size_override("font_size", 16 if not menu_item.is_empty() or not dark_entry.is_empty() else 20)
+	c["order_title"].add_theme_font_size_override("font_size", 12 if not menu_item.is_empty() or not dark_entry.is_empty() else 14)
 	var row: HBoxContainer = c["order_row"]
 	for child in row.get_children():
 		row.remove_child(child)
 		child.queue_free()
-	var order: Dictionary = c["order"]
 	var components: Array[Dictionary] = [
 		{"kind": "base", "item": order["base"]},
 		{"kind": "milk", "item": order["milk"]},
@@ -2024,14 +2707,14 @@ func _render_order_card(c: Dictionary) -> void:
 	for topping in order["tops"]:
 		components.append({"kind": "topping", "item": topping})
 	var progress_slots: Array[Dictionary] = []
-	var icon_size := 34 if order["tops"].size() >= 2 else 38
+	var icon_size := 16 if order["tops"].size() >= 2 else 20
 	for component in components:
 		var ingredient: Dictionary = component["item"]
 		var slot := PanelContainer.new()
 		slot.custom_minimum_size = Vector2(icon_size, icon_size)
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var icon := TextureRect.new()
-		icon.texture = load("res://assets/icons/%s.png" % ingredient["id"])
+		icon.texture = load("res://assets/icons/%s.png" % String(ingredient.get("icon", ingredient["id"])))
 		icon.custom_minimum_size = Vector2(icon_size, icon_size)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -2041,8 +2724,8 @@ func _render_order_card(c: Dictionary) -> void:
 		badge.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		badge.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-		badge.add_theme_font_size_override("font_size", 13)
-		badge.add_theme_constant_override("outline_size", 4)
+		badge.add_theme_font_size_override("font_size", 9)
+		badge.add_theme_constant_override("outline_size", 2)
 		badge.add_theme_color_override("font_outline_color", Color("FFF8ED"))
 		badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot.add_child(badge)
@@ -2052,11 +2735,11 @@ func _render_order_card(c: Dictionary) -> void:
 			"panel": slot, "badge": badge,
 		})
 	var sugar_slot := PanelContainer.new()
-	sugar_slot.custom_minimum_size = Vector2(58 if order["tops"].size() >= 2 else 68, icon_size)
+	sugar_slot.custom_minimum_size = Vector2(24 if order["tops"].size() >= 2 else 32, icon_size)
 	sugar_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sugar_label := Label.new()
 	sugar_label.text = GameLocale.text("DAY_ORDER_SUGAR", [GameLocale.ingredient_short_name(order["sugar"])])
-	sugar_label.add_theme_font_size_override("font_size", 13 if order["tops"].size() >= 2 else 15)
+	sugar_label.add_theme_font_size_override("font_size", 8 if order["tops"].size() >= 2 else 9)
 	sugar_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sugar_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	sugar_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -2240,11 +2923,21 @@ func _set_active_customer(c: Dictionary) -> void:
 	if active_customer == c:
 		return
 	active_customer = c
+	if not sugar_confirmed:
+		_topping_step_confirmed = false
+	_sync_order_ticket(c)
 	for item in customers:
 		_style_order_card(item, item == active_customer)
 	_refresh_context_controls()
 	_update_all_order_progress()
 	_refresh_all_order_action_hints()
+
+
+func _sync_order_ticket(c: Dictionary) -> void:
+	if order_ticket_art == null or not c.has("drink_art"):
+		return
+	order_ticket_art.texture = c["drink_art"].texture
+	order_ticket_name.text = c["drink_name"].text
 
 
 func _focus_active_order() -> void:
@@ -2265,10 +2958,11 @@ func _style_order_card(c: Dictionary, active: bool) -> void:
 		return
 	# 四种组合的样式在建卡后不再变化；共享缓存实例，避免逐帧分配与主题失效。
 	if _card_panel_active == null:
-		_card_panel_active = AppTheme.texture_box(AppTheme.ORDER_SELECTED_SKIN, 27, 24, 10, 8, 2)
 		_card_panel_idle = AppTheme.texture_box(AppTheme.ORDER_IDLE_SKIN, 27, 27, 10, 8, 2)
+		# 订单编号和键盘焦点已经表达选择；活动卡继续使用参考图的浅纸框。
+		_card_panel_active = _card_panel_idle
 		_card_fill_healthy = StyleBoxFlat.new()
-		_card_fill_healthy.bg_color = Color("27B9A7")
+		_card_fill_healthy.bg_color = Color("4D948F")
 		_card_fill_healthy.set_corner_radius_all(6)
 		_card_fill_warn = StyleBoxFlat.new()
 		_card_fill_warn.bg_color = Color("D99A43")
@@ -2276,8 +2970,26 @@ func _style_order_card(c: Dictionary, active: bool) -> void:
 		_card_fill_low = StyleBoxFlat.new()
 		_card_fill_low.bg_color = Color("E5484D")
 		_card_fill_low.set_corner_radius_all(6)
+		_card_dot_empty = StyleBoxFlat.new()
+		_card_dot_empty.bg_color = Color("F7E9DA")
+		_card_dot_empty.set_corner_radius_all(7)
+		_card_dot_empty.set_border_width_all(1)
+		_card_dot_empty.border_color = Color(0.30, 0.58, 0.56, 0.48)
 	var ratio: float = c["patience"] / c["max_patience"]
 	c["bubble"].add_theme_stylebox_override("panel", _card_panel_active if active else _card_panel_idle)
+	var filled_dots := clampi(int(floor(ratio * 4.0)), 0, 4)
+	var filled_style := _card_fill_healthy if ratio > 0.70 else (_card_fill_warn if ratio > 0.40 else _card_fill_low)
+	var dots: Array[PanelContainer] = c["patience_dots"]
+	for i in dots.size():
+		var filled := i < filled_dots
+		var changed := dots[i].has_meta("filled") and bool(dots[i].get_meta("filled")) != filled
+		dots[i].set_meta("filled", filled)
+		dots[i].add_theme_stylebox_override("panel", filled_style if filled else _card_dot_empty)
+		if changed and not GameState.reduced_motion():
+			dots[i].pivot_offset = Vector2(7, 7)
+			dots[i].scale = Vector2(0.78, 0.78)
+			dots[i].create_tween().tween_property(dots[i], "scale", Vector2.ONE, 0.14) \
+				.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	# 三档色带与服务费档位一致（>0.7 满小费 / >0.4 低小费 / 以下无小费）：
 	# 掉档即可读出正在损失的钱，而不是 35% 处一次性红转。
 	c["patience_bar"].add_theme_stylebox_override("fill",
@@ -2421,6 +3133,8 @@ func _on_deliver(c: Dictionary) -> void:
 		_punch(Vector2(0, -6))
 		Sfx.play("serve")
 		Haptics.play("success")
+		_animate_cup_handoff()
+		_animate_service_bell()
 		if combo_bonus > 0:
 			Sfx.play("combo")
 		EventBus.customer_served.emit(true, total_coins)
@@ -2510,14 +3224,60 @@ func _customer_leave(c: Dictionary, msg: String) -> void:
 	_remove_customer(c)
 
 
+func _settle_customer_arrival(c: Dictionary) -> void:
+	var arrival := c.get("arrival_tween") as Tween
+	if arrival != null and arrival.is_valid():
+		arrival.kill()
+	c["arrival_tween"] = null
+	var portrait := c["portrait"] as Sprite2D
+	var contact_shadow := c["contact_shadow"] as Sprite2D
+	portrait.position.x = float(c["arrival_x"])
+	portrait.modulate.a = 1.0
+	contact_shadow.position.x = float(c["arrival_x"])
+	contact_shadow.modulate.a = 1.0
+
+
+func _finish_customer_departure(departure: Dictionary) -> void:
+	_departing_customer_art.erase(departure)
+	for node in [departure["portrait"], departure["contact_shadow"]]:
+		node.visible = false
+		node.queue_free()
+
+
 func _remove_customer(c: Dictionary, served := false) -> void:
 	var was_active: bool = active_customer == c
 	customers.erase(c)
 	stage.remove_customer(c["node"], served)
+	_settle_customer_arrival(c)
+	var portrait := c.get("portrait") as Node
+	var contact_shadow := c.get("contact_shadow") as Node
+	if portrait != null:
+		if GameState.reduced_motion():
+			portrait.queue_free()
+			contact_shadow.queue_free()
+		else:
+			var departure := portrait.create_tween().set_parallel(true)
+			departure.tween_property(portrait, "position:x",
+				portrait.position.x + (64.0 if served else -64.0), 0.28) \
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			departure.tween_property(portrait, "modulate:a", 0.0, 0.22)
+			departure.tween_property(contact_shadow, "position:x",
+				contact_shadow.position.x + (64.0 if served else -64.0), 0.28) \
+				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+			departure.tween_property(contact_shadow, "modulate:a", 0.0, 0.22)
+			var departure_art := {
+				"portrait": portrait, "contact_shadow": contact_shadow, "tween": departure,
+			}
+			_departing_customer_art.append(departure_art)
+			departure.finished.connect(_finish_customer_departure.bind(departure_art))
+	var order_badge := c.get("order_badge") as Node
+	if order_badge != null:
+		order_badge.queue_free()
 	c["bubble"].queue_free()
 	if was_active:
 		active_customer = customers[0] if not customers.is_empty() else null
 		if active_customer != null:
+			_sync_order_ticket(active_customer)
 			_notify_head_promotion(active_customer)
 			# 封杯在手时，自动晋升的新队首挂一次性「先核对」标记（P11-F1）。
 			if cup_sealed:
@@ -2941,7 +3701,9 @@ func _update_info() -> void:
 	if inputs == _info_inputs:
 		return
 	_info_inputs = inputs
-	hud_day.text = GameLocale.text("DAY_HUD_TIME", [GameState.day, int(time_left)])
+	var seconds_left := maxi(0, ceili(time_left))
+	hud_day.text = GameLocale.text("DAY_HUD_TIME",
+		[GameState.day, seconds_left / 60, seconds_left % 60])
 	hud_goal_text.text = GameLocale.text("DAY_HUD_GOAL", [earned, goal, int(goal * STAR_GOAL_MULT)])
 	if goal_relief:
 		# 回暖日徽标（D5）：折价必须透明，玩家不能误判自己的真实实力。
@@ -2967,12 +3729,13 @@ func _update_info() -> void:
 	hud_insp.text = "%d" % GameState.inspiration
 	hud_perfect.text = GameLocale.text("DAY_HUD_PERFECT", [perfect])
 	hud_streak.text = "x%d" % streak
-	hud_streak.get_parent().get_parent().visible = true
+	hud_streak.get_parent().get_parent().visible = false
 	hud_streak.get_parent().get_parent().modulate.a = 1.0 if streak >= 2 else 0.48
 	hud_upgrade.text = GameLocale.text("DAY_HUD_SHOP", [UpgradeCatalog.total_levels(), UpgradeCatalog.total_max_levels()])
 	hud_event.add_theme_font_size_override("font_size", 12 if LegacyRoutes.is_active() else 14)
 	hud_event.text = _event_hud_text()
 	contract_pill.visible = not active_contract.is_empty()
+	hud_status.visible = String(day_event.get("id", "calm")) != "calm" or contract_pill.visible
 	if contract_pill.visible:
 		hud_contract.text = EndlessContracts.progress_text(active_contract, {
 			"earned": earned, "perfect": perfect, "angry": angry, "best_streak": best_streak})

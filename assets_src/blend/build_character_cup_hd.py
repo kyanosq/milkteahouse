@@ -3,9 +3,10 @@ import math
 import os
 
 
-BLEND_PATH = "/Users/apple/Code/milkteahouse/assets_src/blend/props_hd.blend"
-SRC_DIR = "/Users/apple/Code/milkteahouse/assets_src/glb"
-RUNTIME_DIR = "/Users/apple/Code/milkteahouse/game/assets/glb"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+BLEND_PATH = os.path.join(ROOT, "assets_src/blend/props_hd.blend")
+SRC_DIR = os.path.join(ROOT, "assets_src/glb")
+RUNTIME_DIR = os.path.join(ROOT, "game/assets/glb")
 
 
 def ensure_material(name, rgb, rough=0.45, metallic=0.0, alpha=1.0, transmission=0.0):

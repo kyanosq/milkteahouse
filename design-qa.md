@@ -479,3 +479,767 @@ Gates after integration: 25/25 core + 3/3 campaign routes green (careful A/35★
 ### Iteration 65 (sustained single-reviewer sweep: 10 consecutive noise)
 
 Per owner directive, ran a continuous review-fix loop on HEAD `7d889f5` without sub-agents, stopping at 10 consecutive noise findings (record: `docs/contrarian-review/1.0-sustained-sweep.md`). Ten directed hypotheses over the freshest fix surfaces — tutorial practice guards, pricing cadence edges, the endless winnable envelope, cross-domain reserved-key/orientation edits, save-debounce teardown, focus confinement vs naming, placeholder i18n, night_check output format, plus an economy regression spot-check — all verified clean; the spot-check reproduced the pre-fix balance table bit-for-bit. No new defects; no code changes required; gates remain green from `7d889f5`. Convergence pattern across Iterations 61 → 64 → 65 (adversarial loop, 12-user verified playtest, sustained sweep) indicates automated review is now noise-dominated; human/device evidence is the next tier.
+
+### Iteration 66 (day-shop reference alignment)
+
+- Source of truth: `design/mockups/coral_mint/full-set-v3/01-day-shop.png` (1672×941), normalized to the authored 1280×720 game viewport. Implementation state: zh_CN, `SHOT_DEMO=1`, Day Shop topping-selection step. Final implementation capture: `design/mockups/coral_mint/full-set-v3/00-current-implementation-final.png`.
+- Same-input full-view comparison: `design/mockups/coral_mint/full-set-v3/qa/day-layout-comparison-final.png`. Focused left-queue/workbench comparison: `design/mockups/coral_mint/full-set-v3/qa/day-layout-focus-final.png`.
+- Comparison history: baseline → v1 raised side camera → v2 closer counter/vertical queue → v3 cleared central prep obstruction → v4 restored reference-scale work mat and pickup zone → v5-v9 replaced the mismatched regular-customer render with the existing transparent reference-guided cutout and tuned scale/placement → final mint context and coral station labels.
+- Required surfaces: top-left day/currency/inspiration HUD and top-right pause are separated; order cards and customers form the left vertical queue; tea/milk/toppings/sugar/shaker read as the rear station band; the cup/work mat owns the lower center; pickup tray/bell occupy the right; cup status and one next-step action remain bottom-centered. No P0/P1/P2 clipping, overlap, hierarchy, or interaction defect remains. The compact top-right preparation strip is an intentional gameplay extension absent from the concept, and stays subordinate to the reference composition (P3).
+- Functional verification: `tools/run_godot_checks.sh` passed 25/25 core scenes; final screenshot rendered through the real Metal Forward+ path. `git diff --check` clean.
+
+Final result:
+passed
+
+### Iteration 67 (day-shop reference alignment, exact-detail rebuild)
+
+- Source of truth: `design/mockups/coral_mint/full-set-v3/01-day-shop.png`, normalized to 1280×720. Final implementation: `design/mockups/coral_mint/full-set-v3/00-current-implementation-final.png`. Same-input comparison: `design/mockups/coral_mint/full-set-v3/qa/day-layout-comparison-final.png`; focused comparison: `design/mockups/coral_mint/full-set-v3/qa/day-layout-focus-final.png`.
+- P0: none. P1 fixes: rebuilt the left order/customer slots to the reference dimensions and 210px rhythm; unified regular/special customers into the fixed side queue; moved the context panel to the measured lower rear-band position; restored the side queue rail; removed the foreground prep tier that occluded pickup; re-centered the work mat/cup; rebuilt the pickup tray and bell placement; restored the order-ticket and pickup-arrow flow.
+- P2 fixes: matched HUD/pause geometry and station-label baselines; moved tea, milk, topping, sugar and shaker props onto the rear tier; removed the oversized menu-board/lamp visual noise while retaining required semantic GLB nodes; changed lighting from low-exposure ACES + heavy SSAO/glow to warm matte cream light; added transparent reference-guided pause, next-hand, reset-sign, order-ticket and pickup-arrow assets.
+- Interaction remains live: station tags still trigger their actions, the tea tag toggles preparation, order cards remain selectable, the order ticket follows the active customer, reset remains available through the A-frame sign, and the primary action continues to reflect the current recipe step.
+- Verification: Metal Forward+ final screenshot review; Day 9 three-customer layout review; `tools/run_godot_checks.sh` passed 25/25; `mobile_render_check.tscn` passed with shop 28 meshes / 13,240 triangles and full scene 44,392 triangles; `git diff --check` clean.
+
+Final result:
+passed
+
+### Iteration 68 (day-shop structure and material convergence)
+
+- Source visual truth: `design/mockups/coral_mint/full-set-v3/01-day-shop.png` (1672×941). Implementation: `design/mockups/coral_mint/full-set-v3/00-current-implementation-final.png` (1280×720, CSS/game viewport 1280×720, density 1). State: zh_CN, Day 1, two-customer queue, valid sugar-selection step after tea/milk/topping. The source was normalized to 1280×720 before comparison.
+- Full-view evidence: `design/mockups/coral_mint/full-set-v3/qa/day-layout-comparison-final.png`. Focused queue/workbench evidence: `design/mockups/coral_mint/full-set-v3/qa/day-layout-focus-final.png`. Day 9 three-customer resilience evidence: `design/mockups/coral_mint/full-set-v3/qa/day9-three-customer-final.png`.
+- Earlier P1 findings and fixes: the rear station was a flat shelf instead of the reference's enveloping cabinetry, the queue rail ran diagonally through the foreground, and the dark-teal counter fascia dominated the lower half. The revised GLB adds a cream cabinet/apron/divider structure and centered jar cubby, projects the rail vertically at the measured left divider, and removes the oversized inset fascia while retaining the mint kick and warm wood top. Post-fix evidence shows the same left queue / rear station / center mat / right pickup hierarchy as the source.
+- Earlier P2 findings and fixes: rear props were undersized and too low, the pickup tray was left of its source slot, the cup guide was a continuous ring, the second customer sat too high, and three-option panels could overflow their teal shell. Props and jar dressing were enlarged and raised, tray/bell were re-aligned, the guide is now a thin dashed mint ring, customer slots fit the 720px queue, and context sizing now covers 2/3/5-option states without overflow.
+- Required fidelity surfaces: WenKai typography and app copy retain the established game system; spacing/layout follows the normalized source regions; coral/mint/cream tokens are warmer and slightly more saturated without restoring glossy glow; generated transparent pause/arrow/ticket/sign assets retain clean alpha; app-specific text and all controls remain live. The source's painterly ingredient detail is denser than the runtime's existing low-poly 3D prop family; keeping the real interactive props is an intentional P3 product constraint, not a layout substitute.
+- Verification: 25/25 core checks passed; Forward Mobile Day 10 three-customer/full-upgrade pressure passed at 161 visible meshes, 42,700 triangles, 276 draw calls and 123.84 MiB; `git diff --check` passed.
+
+Final result:
+passed
+
+### Iteration 69 (six-region crop alignment)
+
+- Source and viewport: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` and `design/mockups/coral_mint/full-set-v3/00-current-implementation-region-aligned.png`, both 1280×720. The six same-coordinate comparisons are `qa/regions/01-hud-comparison-final.png` through `06-bottom-comparison-final.png`.
+- Region 1 — HUD: restored the measured 205/75/75px pill widths, 42px height and source pause-button bounds; the mobile HUD keeps a 12px minimum value width.
+- Region 2 — queue: aligned both order cards and customer cutouts to the source's vertical rhythm; resized and lowered the A-frame reset sign to the reference slot.
+- Region 3 — rear station: removed the unrelated overhead jar rack, enlarged the live tea/milk/topping/sugar/shaker props, and redistributed the groups across the source station band. The real Day-1 data exposes more choices than the concept, so the interactive props remain denser while their group bounds align.
+- Region 4 — workbench: matched the prep-mat rectangle, cup guide, cup and active-order ticket bounds. The five-choice sugar panel is centered on the same axis as the source's three-choice topping panel.
+- Region 5 — pickup: flipped and aligned the dashed flow arrow, then matched the pickup sign, tray and bell bounds independently.
+- Region 6 — lower counter: added the missing cream/mint front fascia at the measured depth and aligned the single bottom action bar. No extra bottom controls were introduced.
+- Verification: `tools/run_godot_checks.sh` passed 25/25; Forward+ mobile pressure passed at 154 meshes / 154 surfaces / 37,844 triangles; shop GLB passed at 24 meshes / 5,660 triangles; `git diff --check` passed.
+
+Final result:
+passed
+
+### Iteration 70 (rear-station asset and motion convergence)
+
+- Visual truth and normalization: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` (1280×720, density 1) and final implementation `design/mockups/coral_mint/full-set-v3/00-current-implementation-station-art-final.png` (1280×720, density 1). The focused rear-station comparison uses `qa/regions/03-rear-station-comparison-art-final.png`; the implementation half is the same topping-selection interaction state with three unlocked topping choices, cropped to the same `(250,40,1030,260)` rectangle.
+- Earlier P1: the runtime's duplicated low-poly kettles, cartons, bins, pumps and shaker no longer matched the source's soft painterly equipment family. Fix: generated five reference-grounded transparent groups (tea/milk, toppings, sugar, shaker and equal-width twin cabinet), placed them at measured bounds, and hid only the old mesh renderers while leaving their physics hotspots and ingredient handlers active. Post-fix evidence shows matching object count, silhouettes, palette and group density.
+- Earlier P2: the source's cabinet enclosure and top `小料` sign were absent, five physical sugar labels spilled into the shaker slot, and static equipment had no tactile feedback. Fix: added the twin cream/light-wood cabinet and measured sign, limited the physical pump labels to the source's four bottles while keeping all five sugar choices in the functional chooser, added 70–230ms squash/recover feedback per ingredient group and a three-beat shaker wiggle, and preserved reduced-motion suppression. Motion evidence: `qa/animation/station-topping-pulse-contact-final.png`.
+- Required fidelity surfaces: WenKai text, weight and label scale remain consistent; rear-group margins, cabinet divider, top/bottom rails and context-panel axis match the normalized source; coral/mint/cream tokens and matte highlights come from the source crops; final images have real alpha and no runtime placeholders; app copy remains localized and all visible station/order controls remain functional.
+- Interaction and accessibility: transparent art uses `MOUSE_FILTER_IGNORE`, so mouse/touch/gamepad paths still reach the live controls; the complete base → milk → topping → sugar → shake → seal → review/deliver flow is exercised by `input_check.tscn`; reduced motion skips station tweens.
+- Verification: 25/25 core checks passed; Forward+ mobile pressure passed at 62 meshes / 62 surfaces / 15,340 triangles; shop GLB passed at 21 meshes / 3,856 triangles; `git diff --check` passed. No actionable P0/P1/P2 finding remains in this iteration.
+
+Final result:
+passed
+
+### Iteration 71 (central cup state and motion convergence)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png`; implementation: `design/mockups/coral_mint/full-set-v3/00-current-implementation-cup-final.png`, both 1280×720 at density 1 in the same zh_CN topping/sugar flow. Full-view evidence: `qa/regions/00-full-comparison-cup-final.png`; focused same-scale workbench evidence: `qa/regions/04-workbench-comparison-cup-final.png`; sealed-state evidence: `qa/regions/04-cup-sealed-final.png`.
+- Earlier P1 (image quality): the work cup was a low-poly cylinder with red rings and a dark horizontal meter across its center. Fix: replaced only its renderer with five pixel-aligned transparent painterly states—empty, tea, milk tea, topping and sealed—while retaining the real cup hotspot and gameplay state. The meter now appears only after sugar confirmation and sits below the cup.
+- Earlier P2 (behavior): cup contents changed numerically but had no readable preparation beat. Fix: tea/milk use a restrained 180ms settle, toppings a 200ms drop/bounce, shake a 220ms three-beat wiggle, and seal a 220ms squash/recover; reduced motion resets directly to the stable transform. Motion contact evidence: `qa/animation/cup-topping-bounce-contact-final.png`.
+- Required surfaces: typography and app copy are unchanged; the cup now matches the source's warm amber/ivory palette, soft matte highlights, clean alpha, double rim and pearl scale; its focused size, top/bottom baseline and dashed guide relationship match the source crop; no placeholder geometry remains visible; all five state transitions and the complete serve flow are asserted.
+- Correction from the next same-coordinate grid audit: the earlier 120px workbench-offset finding was caused by reading the right half of an `hstack` comparison as if it retained the left half's global x origin. Direct 100px-grid overlays prove the mat, dashed guide, cup, ticket, bell and pickup tray already occupy the reference coordinates. The trial group translation made fidelity worse and was fully reverted; no absolute-layout P1 remains from this iteration.
+- Verification: 25/25 core checks passed before the final 10px cup-height trim; the focused `input_check.tscn` passed afterward, including all five textures, hidden 3D cup, below-cup shake meter and reduced-motion stability. Built-in imagegen prompt set and workspace assets are recorded in `assets-transparent/cup/README.md`.
+
+Final result:
+passed
+
+### Iteration 72 (context-card hierarchy and coordinate audit)
+
+- Visual truth and state: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region72-final.png`, both 1280×720/density 1. The new `SHOT_WORKBENCH=1` harness holds a real pearl-added cup in the still-selecting-toppings step so the reference panel and runtime panel can be compared at the same interaction phase.
+- P1 corrected, not shipped: a trial translation moved the complete workbench left after an `hstack` half-offset was mistaken for global x drift. A direct 100px grid proved the source/runtime work mat, cup and pickup coordinates already coincide; the trial was reverted before final capture. This prevents an apparent numerical improvement from degrading the real layout.
+- P2 image/hierarchy fix: runtime ingredient choices were horizontal text buttons with 20–30px icon subjects, while the reference uses large product bowls above the labels. Each live choice now reuses its real ingredient PNG in a 66px image slot above a centered 15px label, retains the keyboard number only for keyboard mode, and exposes the same display text through the button accessibility name. The focused comparison is `qa/regions/03-context-comparison-region72-final.png`.
+- P2 spacing fix: ingredient panels were 32px above the reference baseline. Standard ingredient states now start at y=227 and finish on the reference lower edge; the panel's internal top/bottom margins and gap were tightened so the larger imagery does not inflate the shell. The action bar moved 8px right and gained 2px height; the pickup arrow moved 16px right; the reset sign was shortened and lowered to the source bounds.
+- Motion and accessibility: choice cards reveal in a restrained 25ms stagger plus 120ms fade, with no positional jump. `qa/animation/context-card-reveal-contact-final.png` captures the mid-transition contact state. Reduced motion skips the reveal and leaves every card at alpha 1; existing focus ring, pointer, keyboard, gamepad and touch handlers remain on the parent Button.
+- Required surfaces: WenKai typography, coral/mint/cream tokens and localized copy remain unchanged; layout baselines, button image scale and workbench/pickup spacing were compared at equal pixels; all imagery uses existing real PNG assets; the source concept shows three unlocked toppings while the real Day-1 data correctly exposes two, an intentional content difference with the same panel center and tile geometry.
+
+Final result:
+passed
+
+### Iteration 73 (left queue and order-card convergence)
+
+- Visual truth and state: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region73-final.png`, both 1280×720/density 1. The focused same-coordinate crop is `qa/regions/07-queue-comparison-region73-final.png`; the full-view pair is `qa/regions/00-full-comparison-region73-final.png`.
+- P1 position fix: order badges were 15px too high and 5px too far left, and the customer cutouts sat about 9px left of the reference. Badges now overlap the paper cards at the measured top-left corner, render above the card, and both regular customer cutouts share the reference queue centerline. Card bounds and the 210px vertical rhythm were already correct and were not moved.
+- P2 hierarchy fix: the selected order used a heavy double coral frame, the drink image was undersized, the title truncated multi-topping recipes, and three static dots plus a long bar duplicated patience. Active and idle cards now share the source's light paper frame; the existing real drink PNG fills a 72px slot; the visible title is the localized primary-topping milk-tea name while the complete recipe remains in the button accessibility description; four 14px patience beats replace the redundant bar.
+- Motion and game readability: patience beats drain from four to zero from the real patience ratio and inherit mint/amber/red warning bands. A changed beat uses a restrained 140ms scale recovery; reduced motion updates it instantly. The existing keyboard focus ring remains the explicit selection indicator, so matching the paper frame does not make gamepad focus ambiguous.
+- Same-state harness fix: `SHOT_WORKBENCH=1` now rerenders the order card after setting its deterministic recipe, so the queue card, ticket and workbench all show the same drink during visual QA.
+
+Final result:
+passed
+
+### Iteration 74 (top HUD scale and icon alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region74-final.png`. The equal-pixel top-band comparison is `qa/regions/08-hud-comparison-region74-final.png`; the full pair is `qa/regions/00-full-comparison-region74-final.png`.
+- P2 scale fix: the 205px day pill and two 75px currency pills already matched the source widths, but their 42px bodies, 22px image slots and 18px labels produced visibly undersized content. The bodies are now 48px, the existing real HUD PNGs use 40px slots, and values use 20px type; moving the row down 2px matches the source's top and bottom baselines.
+- Pause fix: the control is now 66px at the measured top-right position with a 38px icon slot. The existing transparent pause asset is tinted cocoa instead of bright gold, matching the reference while preserving hover, pressed, focus and touch behavior.
+- Verification: 25/25 core checks passed before the final HUD-only scale trim; focused `input_check.tscn`, Forward Mobile `mobile_render_check.tscn` and `git diff --check` passed afterward.
+
+Final result:
+passed
+
+### Iteration 75 (reset-sign silhouette and lower-left alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region75-final.png`. The equal-pixel lower-left comparison is `qa/regions/09-reset-sign-comparison-region75-final.png`; the full pair is `qa/regions/00-full-comparison-region75-final.png`.
+- P2 asset fix: the prior blank A-frame asset had feet that splayed too far to match both the source's top rail and outside-foot bounds through uniform scaling. A reference-grounded ImageGen edit produced `assets-transparent/ui/ui-sign-reset-narrow.png`; the selected artifact was background-extracted, verified as a real-alpha 500×512 PNG, copied to the runtime asset directory, and recorded in the UI asset manifest.
+- P2 coordinate fix: the sign slot is now 186×165 at `(199,527)` with its rotation pivot at center. Its visible top/bottom and outside-foot bounds align with the source crop, while the live button text remains localized reset/waste feedback instead of baking decorative concept copy into the image.
+- Interaction: the transparent TextureRect remains mouse-ignoring behind the original Button, so pointer, touch, focus, tooltip, disabled state and reset-cost behavior are unchanged. `input_check.tscn` and `git diff --check` pass after the asset swap.
+
+Final result:
+passed
+
+### Iteration 76 (pickup flow and right-side micro-alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region76-final.png`. The equal-pixel pickup crop is `qa/regions/10-pickup-comparison-region76-final.png`; the full pair is `qa/regions/00-full-comparison-region76-final.png`.
+- Coordinate audit: the tray left edge, pickup-sign center and bell center were already on the reference axes, so the group was not translated. The dashed arrow alone moved down 19px and shortened to 102px, matching the source arc instead of floating above it.
+- P2 hierarchy fixes: the pickup tag keeps its 140×50 bounds but now uses the source-like 18px corners and 26px label. The real 3D service bell was raised to the source baseline at world y=1.06; its interaction and render path remain unchanged.
+- Intentional remaining material difference: the live 3D tray retains slightly stronger perspective than the concept's painterly top-down tray. Its measured bounds and pickup hit region match, so it stays real geometry rather than introducing a second visual-only interaction surface.
+- Verification: Forward+ same-state capture and `git diff --check` pass; the earlier focused input and mobile-render checks cover the unchanged interaction path.
+
+Final result:
+passed
+
+### Iteration 77 (bottom action bar and gamepad resilience)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region77-final.png`. The equal-pixel bottom comparison is `qa/regions/11-bottom-action-comparison-region77-final.png`; the full pair is `qa/regions/00-full-comparison-region77-final.png`.
+- P2 visual fix: the outer 260px bar was already aligned, but the real hand PNG rendered at roughly 60% of the source subject and the label sat one optical size low. The hand slot is now 52px, pointer text 24px, vertical texture content margins 4px, and panel height 65px. The default bar retains the source width and bottom baseline; the live topping copy was shortened to `下一步：小料` / `Next: Toppings` to match the reference density.
+- P1 responsive/gamepad fix: English gamepad copy previously expanded the fixed bar to about 400px. Gamepad prompts now use a 19px optical size, compact `· A` suffix, and ellipsis-safe expanding Label inside an explicitly fixed 260×65 panel. Evidence: `qa/regions/11-bottom-action-gamepad-en-region77-final.png`.
+- Runtime fix: rapid input-scheme rebuilds previously left a deferred lambda holding a freed context Button, producing `Lambda capture ... was freed` in the real screenshot run. Deferred focus now passes the instance ID and resolves the Button at execution time; the same English/gamepad capture completes without errors.
+- Verification: focused `input_check.tscn` asserts the 260px gamepad bound and visible accept hint; default and English gamepad Forward+ captures and `git diff --check` pass.
+
+Final result:
+passed
+
+### Iteration 78 (real pickup-tray perspective correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region78-final.png`. The equal-pixel pickup comparison is `qa/regions/12-pickup-tray-comparison-region78-final.png`; the full pair is `qa/regions/00-full-comparison-region78-final.png`.
+- Earlier P1: the real tray occupied the correct general slot but projected as a strongly slanted parallelogram, while the source tray is an almost screen-aligned rounded rectangle. Camera translation was ruled out because the shop camera is centered and changing it would regress every already-aligned region.
+- Root fix: the Blender source now builds the tray from real rounded-prism meshes, widens only its rear edge by 16% to counter off-axis convergence, and exports the same two live mint/cream GLB meshes. The runtime instance keeps a calibrated x/z scale plus a fixed basis shear; post-fix evidence shows source/runtime outer bounds, inset bounds, corner radii and top/bottom baselines within a few pixels without adding a 2D overlay or duplicate hit surface.
+- Image quality: the tray retains the runtime's matte cream/mint material and real scene lighting; the source carries slightly denser painterly grain, classified as P3 material polish rather than a geometry or interaction mismatch.
+- Verification: 25/25 core checks pass. `model_asset_check.tscn` reports the tray at 2 meshes / 568 triangles, and Forward Mobile passes at 60 meshes / 12,956 triangles; `git diff --check` passes.
+
+Final result:
+passed
+
+### Iteration 79 (ingredient-card vertical rhythm correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region79-final.png`. The equal-pixel panel comparison is `qa/regions/13-context-height-comparison-region79-final.png`; the full pair is `qa/regions/00-full-comparison-region79-final.png`.
+- Earlier P2: the panel's center and lower edge were close, but each live ingredient card rendered about 10px shorter than the source, leaving a visibly heavy empty strip below the cards. This was hidden in full-view comparisons and became clear only in the focused crop.
+- Fix: standard ingredient cards are now 100px and the shell baseline moves from y=227 to y=230. Post-fix card top/bottom, title region, shell top/bottom and lower padding match within a few pixels. The real Day-1 state still exposes two toppings while the concept shows three, so width differs intentionally but per-card geometry and center axis match.
+- Accessibility/responsiveness: at the smallest authored mobile scale the 100px target remains above 44pt; keyboard/gamepad/touch handlers, real ingredient PNGs and reduced-motion reveal behavior are unchanged. Focused `input_check.tscn` and `git diff --check` pass.
+
+Final result:
+passed
+
+### Iteration 80 (next-action transition cue)
+
+- The bottom action bar keeps the exact Region-77 static bounds, but now responds once whenever its live step copy changes: 96% contact, 102% overshoot, then a 200ms return to rest. It reuses the existing panel and tween system; no parallel overlay or perpetual pulse was added.
+- Motion evidence: `design/mockups/coral_mint/full-set-v3/qa/animation/next-action-rest-contact-region80-final.png`. Full-view evidence: `qa/regions/00-full-comparison-region80-final.png`.
+- Accessibility: enabling reduced motion kills any in-flight cue and restores `Vector2.ONE` immediately. `input_check.tscn` asserts both the live contact state and reduced-motion rest state.
+
+Final result:
+passed
+
+### Iteration 81 (customer-lane vertical spacing)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region81-final.png`. The same-coordinate queue crop is `qa/regions/14-customer-lane-comparison-region81-final.png`; the full pair is `qa/regions/00-full-comparison-region81-final.png`.
+- The two live 3D customer slots now use z=0.20 and z=0.65, tightening their projected spacing around the reference's two character centers while leaving the already-aligned fixed order cards untouched. The third pressure-test slot remains unchanged.
+- Remaining silhouette differences come from the real authored customer variants and their live idle gestures; their centerline and queue rhythm align, so those differences are retained as gameplay character variety rather than replaced by static cutouts.
+
+Final result:
+passed
+
+### Iteration 82 (rear-station cabinet structure correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region82-final.png`. The equal-coordinate rear strip is `qa/regions/15-rear-station-comparison-region82-final.png`; the full pair is `qa/regions/00-full-comparison-region82-final.png`.
+- Root structure fix: the twin cabinet had been placed behind the topping and sugar groups, but the reference cabinet encloses tea/milk and toppings while sugar remains independent on the right. The existing real-alpha cabinet moved from x=523 to x=298 and was calibrated to 672×220 at y=55, preserving the already-aligned live prop art.
+- Post-fix evidence aligns the cabinet's left/right walls, center divider, top rail and lower rail with the reference. Mouse/touch/gamepad hotspots remain the original world controls because the cabinet stays mouse-ignoring behind the station art. Focused `input_check.tscn` and `git diff --check` pass.
+
+Final result:
+passed
+
+### Iteration 83 (context-shell width stability)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region83-final.png`. The same-coordinate panel crop is `qa/regions/16-context-width-comparison-region83-final.png`; the full pair is `qa/regions/00-full-comparison-region83-final.png`.
+- Earlier P2: two unlocked Day-1 toppings collapsed the teal shell to 260px, while the reference keeps a stable roughly 320px choice bubble. The shell now stays 320px on the measured x=714 center axis, and the live GridContainer shrink-centers the real number of cards inside it.
+- This preserves reference geometry without inventing a third unlocked ingredient. Two-, three-, four- and five-choice states retain their real data, selection/focus behavior and 100px touch targets; only the outer frame no longer jumps between steps. Focused `input_check.tscn` and `git diff --check` pass.
+
+Final result:
+passed
+
+### Iteration 84 (top-wall background completion)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region84-final.png`. The equal-coordinate top strip is `qa/regions/17-background-top-comparison-region84-final.png`; the full pair is `qa/regions/00-full-comparison-region84-final.png`.
+- Earlier P2: the reference top wall contains a centered cream/mint wood window and a right two-tier oak shelf, while runtime showed blank wall and unrelated tilted frames. Two new real-alpha painterly assets were generated with the built-in image-generation path using the reference as style/material/perspective input, then saved in `assets-transparent/background/` and copied to the runtime asset tree.
+- The window subject now projects at approximately x=602–797/y=0–31 and the shelf at x=819–1164/y=0–63, matching the reference strip. The old source `Frame*` meshes are excluded during the existing optimized GLB export rather than hidden after material batching; shop geometry drops from 3,856 to 3,784 triangles.
+- Prompt set and authored slots are recorded in `assets-transparent/background/README.md`. Both TextureRects ignore pointer input. Focused input, model-budget and Forward+ mobile pressure checks pass; mobile reports 60 meshes / 12,884 triangles.
+
+Final result:
+passed
+
+### Iteration 85 (left entrance color-block alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region85-final.png`. The equal-coordinate upper-left crop is `qa/regions/18-entrance-comparison-region85-final.png`; the full pair is `qa/regions/00-full-comparison-region85-final.png`.
+- Earlier P3: the source's deep-teal entrance block created a strong left counterweight behind the HUD, while runtime continued the cream wall to the edge. A new real-alpha entrance prop was generated from the same reference; v2 narrows the cream jamb and projects the teal/jamb boundary at approximately x=100/120, matching the reference crop.
+- The decorative TextureRect is behind HUD/order controls and ignores pointer input. Focused `input_check.tscn` and `git diff --check` pass. Prompt intent and runtime slot are recorded in `assets-transparent/background/README.md`.
+
+Final result:
+passed
+
+### Iteration 86 (queue-floor color-temperature correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region86-final.png`. The equal-coordinate customer/floor crop is `qa/regions/19-queue-floor-comparison-region86-final.png`; the full pair is `qa/regions/00-full-comparison-region86-final.png`.
+- Earlier P3: the live queue floor rendered noticeably yellower than the source, making the already-aligned customers and paper order cards appear pasted over a different color temperature. The existing batched `grey_cartago` material is duplicated once at runtime and tinted with `D9D4D6`, preserving its geometry, lighting and texture rather than adding a screen-space floor patch.
+- The concept has denser painted plank seams than the runtime material; this remains a P3 texture-density difference. Focused `input_check.tscn`, Forward+ capture and `git diff --check` pass.
+
+Final result:
+passed
+
+### Iteration 87 (complete preparation-motion regression)
+
+- Four same-state Forward+ contact captures were regenerated after the layout/material passes: station response, cup topping bounce, context-card reveal and next-action transition. Combined evidence: `design/mockups/coral_mint/full-set-v3/qa/animation/00-motion-contact-grid-region86-final.png`.
+- Each cue remains scoped to one gameplay meaning: station art confirms the selected work area, cup motion confirms ingredient transfer, card fade explains choice-set replacement, and the bottom bar marks the next step. None is a perpetual loop; reduced-motion gates remain in the shared runtime paths.
+- The grid confirms customer, station, workbench, pickup and bottom-action geometry stay fixed across all four contact states. The full input suite continues to cover base → milk → topping → sugar → shake → seal → review/deliver, wrong-order loss, pointer/touch/keyboard/gamepad paths and reduced-motion settling.
+
+Final result:
+passed
+
+### Iteration 88 (front-counter fascia alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region88-final.png`. The equal-coordinate lower-counter crop is `qa/regions/20-front-counter-comparison-region88-final.png`; the full pair is `qa/regions/00-full-comparison-region88-final.png`.
+- Earlier P2: the cream rail and mint inset projected about 20px below the reference, while the inset used a much brighter emerald material. The existing Blender export geometry was raised once at the shared source, and the inset now owns one matte grey-blue mint material instead of mutating the station mint used elsewhere.
+- Post-fix evidence puts the rail and inset within roughly 5px of the reference baselines while preserving the real 3D counter depth, lighting and lower action-bar clearance. No screen-space patch or duplicate interaction layer was added.
+
+Final result:
+passed
+
+### Iteration 89 (late-game ingredient-panel confinement)
+
+- Pressure state: zh_CN, Day 10, three live customers and nine unlocked toppings. Before/after evidence is `design/mockups/coral_mint/full-set-v3/qa/regions/21-day10-high-choice-comparison-region89-final.png`.
+- Earlier P1: the shared four-column cap forced nine 100px ingredient cards into three rows, growing the choice panel over the cup, order ticket and lower counter. The shared layout function now keeps the reference's 320×132 shell for ordinary one-to-three-choice states and expands later unlock sets horizontally on the same y=230 baseline.
+- The final nine-choice state keeps every real ingredient visible in one row while leaving the cup, active ticket, pickup tray, customers and bottom action bar readable. Existing card reveal stagger, focus, keyboard shortcuts, touch targets and reduced-motion behavior are unchanged.
+- Verification: `input_check.tscn` asserts the nine-column confinement and passed the complete preparation/delivery flow; the full 25/25 core suite, Forward+ mobile pressure (61 meshes / 12,884 triangles) and `git diff --check` also pass.
+
+Final result:
+passed
+
+### Iteration 90 (rear-cabinet structural correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region90-final.png`. Focused evidence: `qa/regions/22-rear-cabinet-comparison-region90-final.png`.
+- A same-coordinate crop disproved Iteration 82's cabinet reading: the source keeps tea/milk outside and encloses toppings/sugar. The existing transparent cabinet moved from x=298 to x=550 and was calibrated to 608×258, placing its visible left/right bounds at approximately x=568/1155 versus the source's x=570/1159.
+- The correction changes only the decorative, pointer-ignoring cabinet layer; every live station hotspot and selection handler remains in place.
+
+Final result:
+passed
+
+### Iteration 93 (sugar and shaker subregion alignment)
+
+- Equal-coordinate evidence: `design/mockups/coral_mint/full-set-v3/qa/regions/25-sugar-shaker-comparison-region93-final.png`; full pair: `qa/regions/00-full-comparison-region93-final.png`.
+- The four sugar pumps were narrowed, moved into the corrected cabinet and lowered to the source baseline. Their labels now use the source's cream-paper treatment, 52px width and measured spacing instead of coral primary-action styling.
+- The shaker renderer and label were moved independently until cap, body and tag centerlines matched the source. Its existing three-beat feedback and reduced-motion gate are unchanged.
+
+Final result:
+passed
+
+### Iteration 96 (topping cabinet internal alignment)
+
+- Focused evidence: `design/mockups/coral_mint/full-set-v3/qa/regions/27-toppings-comparison-region96-final.png`; full pair: `qa/regions/00-full-comparison-region96-final.png`.
+- The topping art was reduced from 292×154 to 278×140 and moved to `(575,92)`, aligning all three front-bin edges, rear jars and the `小料` sign inside the corrected cabinet rather than touching its upper rail.
+- A trial work-mat extension was rejected by the required equal-coordinate crop and fully reverted before this iteration: the original mat already matched the source, while the apparent 120px gap was the surrounding wood counter.
+
+Final result:
+passed
+
+### Iteration 101 (order-ticket paper/content calibration)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region101-final.png`. Focused evidence: `qa/regions/32-order-ticket-comparison-region101-final.png`; full pair: `qa/regions/00-full-comparison-region101-final.png`.
+- The ticket now matches the source's paper-stack width and top/bottom baselines without stretching its live drink preview: the control uses independent x/y calibration while the background alone receives the remaining horizontal paper-width compensation.
+- The active customer's real drink art, localized name and ticket synchronization remain live. Focused `input_check.tscn` passes after the final geometry trim.
+
+Final result:
+passed
+
+### Iteration 105 (reset-sign asset and silhouette correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/source-reset-sign-original.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region105-final.png`. Equal-coordinate evidence: `qa/regions/36-reset-sign-comparison-region105-final.png`; full pair: `qa/regions/00-full-comparison-region105-final.png`.
+- Coordinate-only trials were rejected because the old square asset's board and rear brace remained offset after its outer bounds aligned. Built-in ImageGen rebuilt a near-front, blank-board A-frame from the source crop, then a focused proportion pass widened/shortened the board; a separate extraction pass produced verified real alpha.
+- The selected `ui-sign-reset-front-v3.png` is placed at 161×203 with a restrained -0.06 rad lean and horizontal presentation flip. Its visible outer bounds finish within roughly 2px of the source while the live localized reset/waste text, Button hit target, tooltip and disabled behavior remain unchanged.
+
+Final result:
+passed
+
+### Iteration 121 (pickup handoff same-coordinate alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region121-final.png`. Equal-coordinate evidence: `qa/regions/37-pickup-handoff-comparison-region121-final.png` and `qa/regions/38-pickup-arrow-comparison-region121-final.png`; full pair: `qa/regions/00-full-comparison-region121-final.png`.
+- The live tray keeps its two real GLB meshes, but its authored rear edge now widens 10% with a 0.013 world-unit offset; the calibrated runtime scale/shear puts its outer and inset edges within roughly 0–8px of the source across the full depth.
+- Built-in ImageGen rebuilt the arrow as a lower-left head plus five rounded mint dashes, removed highlights, and extracted true alpha. The high-resolution master is `assets-transparent/ui/ui-arrow-pickup-v3.png`; the runtime copy is resized to its actual 195×125 slot at `(829,305)`, preserving the same visible bounds without retaining a 1672×941 texture in memory or intercepting pointer input.
+- The real 3D service bell is independently calibrated to `(1.38,1.02,1.39)` and `(2.30,2.55,2.30)`, matching the source bell center, base and button while leaving the already-aligned tray and pickup tag untouched.
+- Delivery remains functional: the sealed-state capture is `qa/regions/39-pickup-sealed-region120-final.png`; correct service uses the existing customer-to-pickup exit animation, while reduced-motion takes the static branch. Input and model checks pass; Forward Mobile passes at 61 meshes / 12,884 triangles / 151.77 MiB, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 125 (customer lane and front-fascia alignment)
+
+- The comparison state now matches the reference's two-customer preparation scene instead of relying on the default one-customer spawn timing. Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region125-final.png`; equal-coordinate customer evidence: `qa/regions/40-customer-order-comparison-region125-final.png`.
+- Both visible customer portraits were calibrated independently. The mint customer uses `(0.55,0.48)` at x=185 and the yellow customer `(0.418,0.451)` at x=184; their head, feet and left/right silhouette bounds now land within roughly 0–3px of the source while preserving the fixed live order-card controls.
+- The earlier front fascia spanned into the customer lane from x≈0. Its existing real Blender boxes were shortened and right-anchored: the cream fascia now begins around x=205 and the mint inset around x=330, matching `qa/regions/41-front-fascia-comparison-region125-final.png` without adding a screen-space patch. Runtime shop geometry remains 22 meshes / 3,784 triangles.
+- Motion root fix: visible customers are 2D portrait sprites while the previous departure tween only moved their hidden 3D actors. The real portrait now receives a short arrival slide/fade and served/angry directional exit; reduced motion still removes it immediately. `input_check.tscn` pins the visible served departure lifecycle.
+- Verification: focused input and model checks pass; Forward Mobile passes at 61 meshes / 12,884 triangles / 152.31 MiB, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 136 (entrance floor and reset-sign material alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region136-final.png`. Both are 1280×720 pixels at the authored 1280×720 viewport and density 1. Full evidence: `qa/regions/00-full-comparison-region136-final.png`; focused evidence: `qa/regions/43-entrance-floor-comparison-region136-final.png` and `qa/regions/42-reset-sign-comparison-region136-final.png`.
+- Earlier P1 layout/material finding: the entrance floor mixed a beige plane, mint quadrilateral and triangular stipple instead of the source's continuous cool-grey planks. The mint/triangle pieces were traced to obsolete `SignFrame`/`SignBoard` meshes duplicated underneath the live reset button and removed from the shared Blender runtime export. A built-in ImageGen material pass produced `background-floor-greige-v1.png`; the 512×512 runtime albedo reuses the real 3D floor and preserves scene shadows.
+- Color verification samples the same unobstructed floor rectangle: source averages RGB `(195.62,184.62,177.43)` and runtime `(194.55,184.32,177.28)`. Plank spacing, horizontal seams and matte grain now match; the generated material master and final prompt are recorded in `assets-transparent/background/README.md`.
+- Earlier P2 image-quality finding: the reset sign's orange glossy rails caused the oily look even after its bounds aligned. Built-in ImageGen rebuilt the frame as pale matte cream wood; black-background extraction produced true-alpha `ui-sign-reset-front-v4.png`. The live Button remains localized and clickable, with its outer sign bounds within roughly 0–4px of the reference and an enlarged readable reset-cost label.
+- Typography/copy, spacing, coral/mint tokens, source image assets, pointer behavior and reduced-motion behavior remain intact. Residual inner-board proportion drift is P3 and does not affect the live hit target or copy. Input and model checks pass; the runtime shop is 22 meshes / 3,760 triangles, Forward Mobile passes at 61 meshes / 12,860 triangles / 146.88 MiB, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 140 (entry railing and succulent handoff)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region140-final.png`, both at 1280×720 and density 1. Focused equal-coordinate evidence: `qa/regions/44-succulent-railing-comparison-region140-final.png`; full pair: `qa/regions/00-full-comparison-region140-final.png`.
+- Earlier P2 structural gap: the source's entry handrail, muted-teal side panel and potted succulent were absent behind the reset sign. Built-in ImageGen generated two true-alpha props from the measured source crops: `background-entry-railing-v1.png` and `background-succulent-v1.png`. The railing's second pass preserves the source's unusual post spacing and is gently desaturated to its matte pale-oak palette.
+- Layering is explicit and non-interactive: the succulent stays behind customers and sign, the railing is z=1 in front of customers/plant, and the live A-frame Button is z=2. The final crop aligns the plant crown, rail diagonal, three post centers and sign overlap; the remaining rail-shaft thickness difference is P3.
+- Verification: `input_check.tscn` and `model_asset_check.tscn` pass; Forward Mobile passes at 61 meshes / 12,860 triangles / 176 maximum draw calls / 146.73 MiB, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 142 (yellow-customer waiting-pose alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/source-yellow-customer-original.png` and the full `reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region142-final.png`, all normalized to the authored 1280×720 viewport at density 1. Focused equal-coordinate evidence: `qa/regions/45-yellow-customer-comparison-region142-final.png`; full evidence: `qa/regions/00-full-comparison-region142-final.png`.
+- Earlier P1 image/pose mismatch: the second customer used a cheering sprite with both arms raised, open mouth and a diagonal body, contradicting the source's calm waiting silhouette and breaking the railing overlap. Built-in ImageGen reconstructed a matte, neutral waiting pose from the source crop; a dedicated extraction pass produced verified real alpha. The selected master is `assets-transparent/character-yellow-customer-waiting-v1.png`, with a 270×512 runtime copy.
+- The runtime sprite uses independent `(0.51,0.49)` calibration at `(173,434)` for the second slot. Head top/width, body center, foot baseline and right-side railing occlusion now match the source crop; the visible left hand remains approximately 10px high and is classified P3 because the overall waiting gesture, hit-free decorative layer and silhouette are correct.
+- The existing arrival and served/angry departure tweens continue to act on the real visible portrait, including the reduced-motion branch. `input_check.tscn`, `model_asset_check.tscn`, Forward Mobile (61 meshes / 12,860 triangles / 176 maximum draw calls / 146.84 MiB) and `git diff --check` pass.
+
+Final result:
+passed
+
+### Iteration 149 (topping hold state and explicit sugar advance)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region149-final.png`, both 1280×720 at density 1. Equal-coordinate evidence: `qa/regions/46-topping-next-action-comparison-region149-final.png`; full evidence: `qa/regions/00-full-comparison-region149-final.png`.
+- Earlier P1 behavior/state mismatch: selecting the requested topping immediately replaced the three-card topping chooser with sugar controls, while the source keeps toppings visible and changes the bottom action to `下一步：糖度`. The cup now holds that state until the player activates the real bottom Button; the action is pointer-clickable, focusable, reachable from every topping card by D-pad, available through the existing number-shortcut list, and preserves reduced-motion behavior.
+- Earlier P2 content/layout drift: Day 1 exposed only two topping cards. Pudding now joins boba and coconut jelly on Day 1, restoring the source's three 90px cards and 320px panel. Campaign strategy still passes at S grade across all 14 simulated days.
+- Earlier P2 color/copy drift: selected tiles used a solid coral fill and keyboard labels leaked `1/2/3` into the card faces. Built-in ImageGen produced real-alpha `ui-button-selected-frame-v1.png`, a blank cream nine-slice skin with the source's strong coral double outline. Card faces now show only ingredient names, while keyboard shortcuts remain active; icon slots were enlarged to match the source bowls.
+- Fidelity surfaces: font family/weight and centered labels remain shared with the existing theme; panel/card/button spacing and baselines align in the focused crop; mint/coral/cream tokens and selected-state contrast match; generated frame alpha has no halo or content-area decoration; copy is now `选择小料` and `下一步：糖度` in the exact source state. Remaining P3: the runtime bowl illustrations are slightly simpler than the painted source bowls.
+- Verification: `input_check.tscn` covers the held topping state, focus reachability and explicit transition; localization and 14-day strategy checks pass; Forward Mobile passes at 61 meshes / 12,860 triangles / 176 maximum draw calls / 146.22 MiB; `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 150 (central counter wood material alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region150-final.png`, both 1280×720 at density 1. Focused equal-coordinate evidence: `qa/regions/50-central-wood-comparison-region150-final.png`; full evidence: `qa/regions/00-full-comparison-region150-final.png`.
+- Earlier P1 material mismatch: the central counter used the packed raw wood diffuse under warm scene lighting, producing a saturated orange slab unlike the source's matte, low-saturation greige oak. The existing Blender hue node was not a valid fix because glTF does not preserve that unsupported shader graph.
+- The export now swaps only `fine_grained_wood` for the baked source texture `assets_src/textures/shop_counter_wood_cool.jpg`; counters, lighting, UI, customers and other aligned materials remain untouched. The same unobstructed 30×30 sample moved from `#c39761` to `#c7a788`, against source `#caaa8f`.
+- Fidelity surfaces: grain remains real raster detail rather than a flat color; the counter keeps its original UVs, roughness, geometry and shadows; the focused pair verifies color, edge contrast and surrounding coral/mint/cream relationships together. Remaining P2 within this region is plank direction/seam spacing, which will be handled as geometry/UV alignment rather than another color change.
+- Verification: `input_check.tscn`, `model_asset_check.tscn` and Forward Mobile pass; runtime shop remains 22 meshes / 3,760 triangles, the Mobile stress scene is 61 meshes / 12,860 triangles, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 151 (central counter plank direction and seams)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region151-final.png`, both 1280×720 at density 1 and captured in the same selected-boba / `下一步：糖度` state. Focused equal-coordinate evidence: `qa/regions/53-counter-planks-comparison-region151-final.png`; full evidence: `qa/regions/00-full-comparison-region151-final.png`.
+- Earlier P2 texture/structure drift: the calibrated wood still read as one uninterrupted slab with screen-horizontal streaks, while the source uses long front-to-back boards with narrow perspective seams. The baked wood raster is rotated into the source direction, and the single top slab is exported as four contiguous real 3D planks separated by three 0.006-unit grooves.
+- The visible first seam lands at the same left work-surface division as the source and keeps a continuous perspective line without a screen-space overlay. A rejected rounded-plank draft raised the shop from 3,760 to 4,180 triangles; the accepted square-edge version is 3,796 triangles and retains one batched wood surface.
+- Fidelity surfaces: typography and copy are unchanged and the comparison state is now exact; panel/workmat spacing is unchanged; wood color remains within `#c6a786` versus source `#caaa8f`; the real raster grain stays sharp with no alpha/compression halo; selected topping, arrow and bottom action remain live. Remaining grain-frequency variation is P3.
+- Verification: `input_check.tscn` and `model_asset_check.tscn` pass; Forward Mobile passes at 61 meshes / 12,896 triangles, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 152 (live topping cup cleanup)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against `design/mockups/coral_mint/full-set-v3/00-current-implementation-region152-final.png`, both 1280×720 at density 1 in the same selected-boba / `下一步：糖度` state. Focused evidence: `qa/regions/57-cup-ticket-wide-comparison-region152-final.png`; full evidence: `qa/regions/00-full-comparison-region152-final.png`.
+- Earlier P2 image-quality drift: `cup-topping-v1.png` had a noisy white extraction fringe, heavy multi-line rim, high liquid highlight and oversized dense pearls. Built-in ImageGen used the isolated source cup and live transparent sprite to rebuild `assets-transparent/cup/cup-topping-v2.png`; the 296×332 runtime copy keeps the previously aligned outer bounds while using a clean alpha edge, thinner rim, softer/lower liquid and smaller pearls.
+- The accepted cup remains exactly inside the existing 140×160 live `TextureRect`; no workmat, order, arrow or interaction geometry moved. Pearl count remains a P3 density difference, but particle scale, cup silhouette, liquid palette and edge cleanliness now match the reference direction.
+- A blank ticket-stack replacement was also generated and compared. It reduced the pin/glow but lengthened the front sheet and broke the previously accepted paper baseline, so it was rejected to `qa/rejected/region152-ticket/` and the existing runtime ticket asset was restored. The final evidence therefore changes only the cup root asset.
+- Fidelity surfaces: typography/copy and live ticket content are unchanged; workbench spacing and dashed guide ring remain fixed; the cup's cream/caramel/black palette is less saturated; final alpha is genuine with no halo or stray pixels; selected topping, order synchronization, bottom action and cup bounce/shake states remain functional.
+- Verification: `input_check.tscn` and `model_asset_check.tscn` pass; Forward Mobile passes at 61 meshes / 12,896 triangles, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 153 (prep-to-pickup motion continuity)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` against the 1280×720 mid-motion render `design/mockups/coral_mint/full-set-v3/00-current-implementation-region153-handoff.png`. Focused equal-coordinate evidence is `qa/regions/58-cup-handoff-comparison-region153-final.png`; the full pair is `qa/regions/00-full-comparison-region153-handoff.png`.
+- Earlier P1 feedback gaps: changing a second topping and confirming sugar could leave the cup visually still because the artwork state did not change. Those actions now reuse the existing restrained cup bounce/compression cues; shake and seal retain their existing stage and cup motion, sound and haptics.
+- Earlier P1 delivery discontinuity: a correct sealed drink disappeared from the workmat before the customer exit/reward cue. A duplicate of the real sealed-cup asset now follows a 360ms, two-segment shrink-and-fade path from the live cup through the order/pickup gap. It is inserted beside the cup layer so the ingredient chooser remains legible and ends small enough not to obscure the bell or tray.
+- Accessibility and behavior: the handoff is feedback-only, pointer-ignoring and never delays scoring, customer removal or cup reset. Enabling reduced motion kills and removes an in-flight handoff immediately; the focused input check pins both the sealed texture and reduced-motion cleanup.
+- Verification: `input_check.tscn`, `model_asset_check.tscn` and `autoplay.tscn` pass. Forward Mobile remains at 61 meshes / 12,896 triangles with a 9.232ms average process time, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 154 (three-customer queue safe-frame alignment)
+
+- Visual truth: the Day 1 source `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with the Day 9 three-order pressure render `design/mockups/coral_mint/full-set-v3/00-current-implementation-region154-pressure-final.png`, both at 1280×720 and density 1. The first two source-backed queue slots are paired in `qa/regions/59-customer-queue-comparison-region154-final.png`; the pressure-only third slot is proven by `qa/regions/60-third-customer-before-after-region154-final.png`; full context is `qa/regions/00-full-comparison-region154-pressure-final.png`.
+- Earlier P2 layout/crop drift: the third mint portrait retained the first two slots' vertical interval and ended at authored y=743, leaving about 23px outside the frame. The third slot center moves from y=620 to y=596, preserving its source-matched x position, scale, art, order-card geometry and layer order while bringing the complete portrait to y=719.
+- Fidelity surfaces: the first two portrait head tops, widths and card coordinates remain aligned with the source; the third card stays at the same 210px queue rhythm. Typography, drink copy, coral/mint/cream tokens, raster sharpness and customer artwork are unchanged. The extra third order and eight unlocked topping choices are intentional Day 9 gameplay content absent from the Day 1 source, not a source-state substitution.
+- Behavior/accessibility: arrival and served/angry departure tweens still act on the real portrait; pointer, touch, gamepad order selection and card numbering are unchanged. `mobile_render_check.tscn` now fails if any of the three live portrait texture bounds crosses the 720px authored safe frame.
+- Verification: `input_check.tscn` and Forward Mobile pass; the pressure scene remains at 61 meshes / 12,896 triangles with a 9.437ms average process time, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 155 (late-game osmanthus icon completion)
+
+- Visual truth: the source topping-card family in `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with the Day 10 nine-choice render `design/mockups/coral_mint/full-set-v3/00-current-implementation-region155-late-choice-final.png`, both 1280×720 at density 1. Exact before/after evidence is `qa/regions/61-osmanthus-before-after-region155-final.png`; family comparison is `qa/regions/62-topping-icon-family-comparison-region155-final.png`; full context is `qa/regions/00-full-comparison-region155-late-choice-final.png`.
+- Earlier P1 image-quality mismatch: the final unlocked topping displayed an unfinished black-outlined white oval with a cap, unlike every painted ingredient bowl. Built-in ImageGen produced real honey-gold osmanthus jelly and flower flecks in the existing cream bowl language; the accepted solid-background pass was locally matted, contrast-checked and normalized to the adjacent 128×128 icons.
+- The prior nine-column, y=230 layout remains intentional: it keeps all live choices visible and keyboard-addressable in one row without covering the cup, ticket or pickup tray. A three-card pager was rejected because it would add hidden state and extra touch/gamepad actions to the core timed loop.
+- Fidelity surfaces: the new sprite matches the source family's soft painted lighting, cream ceramic, centered subject, transparent padding and low-saturation palette; card typography, 8px rhythm, mint/coral tokens and localized `桂花冻` copy are unchanged. The data-driven `icon` field selects v3 consistently in day choices, order progress and the night recipe lab while preserving id-based fallback for every existing ingredient.
+- Accessibility/verification: the icon remains decorative inside the semantic Button; pointer, touch, focus, tooltip and number-key behavior are unchanged. `input_check.tscn` pins the final transparent corner, `night_check.tscn` passes, Forward Mobile remains at 61 meshes / 12,896 triangles with a 9.193ms average process time, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 156 (late-game topping optical alignment)
+
+- Visual truth: the Day 1 topping family in `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with the Day 10 nine-choice render `design/mockups/coral_mint/full-set-v3/00-current-implementation-region156-topping-alignment-final.png`, both 1280×720 at density 1. Full evidence is `qa/regions/00-full-comparison-region156-topping-alignment-final.png`; focused reference/implementation evidence is `qa/regions/64-topping-reference-implementation-region156-final.png`.
+- Earlier P2 image/spacing finding: the first eight runtime topping PNGs already shared the exact `(12,30)–(110,107)` visible box, but the osmanthus art occupied `(12,33)–(116,102)`. It therefore read wider, 8px shorter and 5px above the common bowl baseline even though every card used the same 76×72 slot.
+- The source-backed transparent master was resampled once into the existing runtime file at the family's exact 98×77px optical box. The before/after pair `qa/regions/63-topping-before-after-region156-final.png` verifies the corrected bowl rim, subject height and lower edge while leaving the already-aligned eight sprites unchanged.
+- Fidelity surfaces: the shared font, 15px labels and localized copy are unchanged; panel/card spacing, cream paper and mint/coral tokens still reuse the accepted source skins; the real painted PNG keeps soft edges and transparent corners; the selected first card continues to use the source's strong double-coral frame, with pointer, touch, focus, tooltip and number-key behavior intact. The nine-item width is intentional unlocked Day 10 content; the source's three-item Day 1 width remains unchanged.
+- Verification: `input_check.tscn` pins the final raw-PNG optical bounds and passes the preparation flow; Forward Mobile passes at 61 meshes / 12,896 triangles with an 8.407ms average process time; `git diff --check` is clean. No actionable P0/P1/P2 findings remain in this region.
+
+Final result:
+passed
+
+### Iteration 157 (workmat and cup-guide alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region157-workmat-final.png`, both 1280×720 at density 1. Equal-coordinate evidence is `qa/regions/65-workmat-reference-implementation-region157-final.png`; before/after evidence is `qa/regions/66-workmat-before-after-region157-final.png`; the full pair is `qa/regions/00-full-comparison-region157-workmat-final.png`.
+- Earlier P2 layout finding: the workmat's width matched, but its front-to-back projection was about 20px too shallow, leaving the top edge below the source and making the cup guide read small and high. The cup, ticket and pickup tray were already close, so moving that whole cluster would have broken accepted alignment.
+- The existing real 3D `prep_mat.glb` is now presented at `(4.00,4.00,4.60)` with its depth anchor adjusted from z=0.98 to z=0.92. The merged mint guide mesh is independently calibrated inside that prop, matching the source oval's center, width and lower baseline without moving the live cup or ticket.
+- Fidelity surfaces: typography, localized copy and all UI controls are unchanged; the mat's cream/wood/mint materials remain the existing source family; the real mesh keeps perspective, shadows and beveled edges rather than adding a screen-space patch; cup and ticket PNG quality is unchanged. The focused crop leaves only a P3 difference in individual dash thickness and the late-game nine-card panel remains intentional content.
+- Verification: `input_check.tscn` pins the final mat and guide proportions and passes the full preparation path; Forward Mobile passes at 61 meshes / 12,896 triangles with an 8.841ms average process time; `git diff --check` is clean. No actionable P0/P1/P2 findings remain in this region.
+
+Final result:
+passed
+
+### Iteration 158 (context-choice motion hierarchy)
+
+- Visual truth: the stable Day 10 implementation is `design/mockups/coral_mint/full-set-v3/00-current-implementation-region158-context-motion-final.png`, compared with the 1280×720 density-1 source `qa/regions/reference-1280x720.png` in `qa/regions/00-full-comparison-region158-context-motion-final.png`. Motion evidence is `qa/animation/context-stage-reveal-region158-final.png`; the focused stable/stage-entry pair is `qa/animation/67-context-repeat-vs-stage-reveal-region158-final.png`.
+- Earlier P2 behavior finding: every topping selection rebuilt the nine live buttons and replayed their staggered fade, even though the choice set had not changed. The full panel repeatedly dimmed during the timed core loop, competing with the selected coral frame and cup response instead of confirming the chosen ingredient.
+- The refresh path now reuses the shop stage's existing active ingredient kind. Same-stage updates—selection changes, readiness copy, focus/input prompts and locale refreshes—rebuild instantly at full opacity; only real base → milk → topping → sugar replacement sets receive the existing 25ms stagger and 120ms fade. Reduced motion still skips both paths.
+- Fidelity surfaces: card typography, localized copy, panel/card spacing, mint/coral/cream tokens and all real ingredient PNGs are unchanged; the source-backed selected double-coral frame remains the static confirmation surface. Pointer, touch, keyboard/gamepad focus, numeric shortcuts, next-step navigation, cup bounce, sound and haptics remain intact. The source is static, so motion fidelity is classified by hierarchy and continuity rather than invented source timing.
+- Verification: `input_check.tscn` asserts that a repeated topping refresh starts fully opaque while the topping → sugar transition starts at alpha 0; the 25/25 core suite, a real newbie autoplay day, and Forward Mobile (61 meshes / 12,896 triangles / 9.157ms average process time) pass. `git diff --check` is clean and no actionable P0/P1/P2 finding remains in this interaction region.
+
+Final result:
+passed
+
+### Iteration 159 (three-customer pressure-lane separation)
+
+- Visual truth: the two-customer source is `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png`; the intentional Day 10 three-customer pressure state is `design/mockups/coral_mint/full-set-v3/00-current-implementation-region159-customer-pressure-final.png`, both 1280×720 at density 1. Equal-coordinate lane evidence is `qa/regions/69-customer-reference-pressure-region159-final.png`; exact pressure-state before/after evidence is `qa/regions/68-customer-pressure-before-after-region159-final.png`; full context is `qa/regions/00-full-comparison-region159-customer-pressure-final.png`.
+- Earlier P2 layout/imagery finding: the first two source-backed portraits remained aligned, but the extra third mint portrait reused the 0.55×0.48 foreground scale at y=596. Its real alpha silhouette began at y=479.36 while the second yellow portrait ended at y=556.99, producing 77.63px of opaque overlap and covering the second customer's legs and the third customer's face.
+- Only slot 3 changes. It now uses a restrained rear-waiting presentation: mint `(0.46,0.40)` at y=628 and yellow `(0.39,0.37)` at y=625. In the captured mint pressure state its visible range is y=530.8–717.2, reducing overlap to 26.19px while preserving a small depth cue, the full face, feet and the source's shared vertical lane. Slot 1/2 positions, scales, order cards, rail and reset-sign occlusion remain unchanged.
+- Fidelity surfaces: customer and order-card typography/copy are unchanged; the first two portrait bounds still match the source; real transparent painterly assets, mint/yellow/coral tokens and edge quality are preserved; the third card remains the intentional gameplay-only pressure item absent from the Day 1 source. Arrival, served/angry departure, pointer order selection, focus and promotion review still operate on the same live portrait nodes.
+- Verification: `mobile_render_check.tscn` now measures alpha-visible portrait bounds, fails above 720px, and caps slot-2/slot-3 visible overlap at 30px. Focused input and a full newbie autoplay day pass; Forward Mobile passes at 61 meshes / 12,896 triangles / 9.974ms average process time, and `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this pressure-lane region.
+
+Final result:
+passed
+
+### Iteration 160 (Day 1 workbench projection alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region160-workbench-final.png`, both 1280×720 at density 1 in the exact same Day 1 state: two customers, three topping cards, selected boba and `下一步：糖度`. Equal-coordinate evidence is `qa/regions/region160/75-workbench-day1-final.png`; full context is `qa/regions/00-full-comparison-region160-workbench-final.png`.
+- The strict same-state crop exposed a P2 projection error hidden by the earlier late-game comparison: the workmat top began near y=337 instead of the source's y=356, while the independently placed order ticket was already aligned. The real 3D mat now uses `(4.00,4.00,3.93)` at z=0.97, bringing its top and side edges within about 1–2px of the source without moving the ticket or pickup tray.
+- The imported mint guide is rotated 90° around Y, so its visible depth is controlled by local X. Compensating that real transform with local scale `(0.91,1.00,1.01)` and z offset `+0.026` produces a measured teal envelope of `(483,397)–(678,523)` against source `(483,400)–(676,527)`. The live cup baseline moves from y=365 to y=359, placing its center within about 2px of the reference.
+- Fidelity surfaces: typography and localized copy are unchanged; topping panel, ticket, customer cards and pickup spacing remain fixed; cream/wood/mint materials remain the accepted real assets; the 3D mat keeps native perspective, bevels and shadows; the live cup, selection, explicit sugar advance, bounce, shake and handoff behavior remain functional. Remaining dash-thickness and cup-paint differences are P3 imagery differences, not layout drift.
+- Verification: the focused input check pins the final real mesh transforms; the 25/25 core suite, a full newbie autoplay day and Forward Mobile pass at 61 meshes / 12,896 triangles / 176 maximum draw calls / 146.09 MiB. `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 161 (Day 1 rear tea-and-milk station alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region161-rear-stations-final.png`, both 1280×720 at density 1 in the same Day 1 selected-boba / `下一步：糖度` state. Focused evidence is `qa/regions/region161/79-tea-milk-day1-final.png`; the full five-station strip is `qa/regions/region161/80-rear-stations-day1-final.png`; full context is `qa/regions/00-full-comparison-region161-rear-stations-final.png`.
+- Earlier P2 proportion finding: the tea/milk art shared the correct lower baseline but was presented at 225×158 from y=76, stretching the kettle and carton roughly 35–40px above the source. The neighboring topping, sugar and shaker stations were already source-aligned and therefore remain untouched.
+- The existing real transparent asset now renders at `(333,104,225,128)`. The coral kettle mask moves from `(343,79)–(433,204)` to `(349,106)–(439,208)`, against source `(350,106)–(437,209)`; the milk cow mark moves from `(486,163)–(515,193)` to `(492,175)–(521,199)`, against source `(492,175)–(520,199)`. No replacement image or approximate code drawing was introduced.
+- The live tea and milk Buttons were calibrated independently rather than moving the whole rear band. Tea now occupies the exact sampled coral envelope `(356,220)–(435,254)`; milk is `(477,220)–(548,254)` against source `(477,219)–(548,253)`. Their larger real hit areas preserve the source silhouette while improving pointer/touch reachability.
+- Fidelity surfaces: the WenKai typography and station copy stay localized and centered; tea/milk prop, base and tag spacing now match the source rhythm; coral/mint/cream tokens and painterly alpha assets are unchanged; no halo, crop or placeholder was introduced; the tea tag still toggles the real batch panel and the preparation flow remains keyboard/gamepad/touch reachable. Remaining station-art brush-detail differences are P3.
+- Verification: `input_check.tscn` pins the final art frame; the sequential 25/25 core suite passes. Forward Mobile passes at 61 meshes / 12,896 triangles / 176 maximum draw calls / 146.16 MiB, and `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 162 (Day 1 left queue and order-card alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region162-customer-final.png`, both 1280×720 at density 1 in the same Day 1 two-customer selected-boba state. Equal-coordinate evidence is `qa/regions/region162/89-left-queue-day1-final.png`; full context is `qa/regions/00-full-comparison-region162-customer-final.png`.
+- Earlier P2 imagery/layout finding: the generated mint portrait was visibly wider through the head but narrower and shorter through the sweater, while the yellow portrait was roughly 20px too high/tall. The order cards were close but began 2px left and ended 2–4px short of the source frame.
+- The selected genuine-alpha mint v3 master is stored at `assets-transparent/character-mint-customer-v3.png` and its 512px runtime copy at `game/assets/ui/full_set_v3/illustrations/character-mint-customer-v3.png`. Built-in ImageGen created the full-body matte mint-bob/lavender-sweater customer and a broader, longer-sweater revision; built-in background-removal/edit mode produced the alpha master. A later glossy/glow-heavy revision was rejected. The final first portrait uses `(195,221.5)` at `(0.515,0.5035)`; the yellow portrait uses `(175,447)` at `(0.538,0.452)`.
+- The source-backed final crop aligns both head tops, horizontal centers and foot baselines within about 0–3px. The order cards now begin at x=18 and use a 108×134 authored frame, matching the source outer bounds without moving the 32px numbered badges or altering the live drink, name and patience-dot content.
+- Fidelity surfaces: WenKai drink names and localized copy remain live; card/portrait spacing and queue rhythm now match the same-coordinate source; mint/lavender/yellow/coral/cream tokens stay within the accepted family; only real transparent raster art is used; pointer/touch/gamepad selection, arrival/exit tweens, promotion and reduced-motion paths still target the same portrait and card nodes. Remaining face/brush-model differences are P3 imagery differences.
+- Verification: the sequential 25/25 core suite passes after one isolated onboarding timing retry; a full newbie Day 1 autoplay passes at 100% serve rate; Forward Mobile passes at 61 meshes / 12,896 triangles / 176 maximum draw calls / 146.16 MiB and validates all three alpha-visible portrait bounds. `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 163 (Day 1 front-counter fascia and deck alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region163-counter-final.png`, both 1280×720 at density 1 in the same Day 1 two-customer selected-boba state. Equal-coordinate evidence is `qa/regions/region163/96-lower-counter-day1-final.png`; full context is `qa/regions/00-full-comparison-region163-counter-final.png`.
+- Earlier P1 structural finding: the runtime export added one cream block centered at x=1.05 and a narrower dark-teal inset centered at x=1.25. The pair covered only the right side of the shop, turned the lower third into a heavy rectangular slab, and omitted the reference's shallow wood deck. The pickup tray, service bell and `取餐` tag were already aligned, so they remain untouched.
+- The export now authors the source's full-width three-layer rhythm on one front plane: a cream lip at `(-0.675,-1.25,0.57)` / `(4.75,0.12,0.18)`, a muted mint band at `(-0.675,-1.32,0.36)` / `(4.71,0.035,0.24)`, a shallow wood sill, and a horizontal wood deck at `(-0.675,-1.35,0.04)` / `(4.79,0.32,0.08)`. The deck supplies the missing perspective depth instead of stretching a vertical panel below the floor plane.
+- Post-fix evidence puts the cream/mint boundary and mint/wood boundary within about 0–5px of the source; the deck's near edge is within about 4px and the right extent within about 10px. The old right-heavy dark rectangle is gone. Remaining source curvature and subtle wood-grain density are P3 asset-detail differences.
+- Fidelity surfaces: typography and localized copy are unchanged; lower-counter spacing and layer rhythm now match the source; cream, muted mint and warm wood tokens replace the blue-black slab; the real Blender meshes retain bevels, perspective and native lighting; drink art, pickup assets and copy remain live. The rebuilt meshes are decorative and do not intercept pointer, touch, keyboard or gamepad input.
+- Gameplay/verification: the full preparation flow, pickup and reduced-motion paths pass. A random-order flaw in `onboarding_check` was also removed: the real numeric shortcut now activates the visible next-step button when a topping order requires explicit confirmation, instead of repeatedly toggling topping 1. The onboarding path passes 5/5 consecutive runs; the sequential core suite passes 25/25; Day 1 newbie autoplay serves 11/11; the shop model passes at 23 meshes / 4,012 triangles; Forward Mobile passes at 62 meshes / 13,112 triangles / 178 maximum draw calls / 146.34 MiB. `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 164 (Day 1 central worktop material alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region164-worktop-final.png`, both 1280×720 at density 1 in the same Day 1 two-customer selected-boba state. Equal-coordinate evidence is `qa/regions/region164/101-central-worktop-day1-final.png`; full context is `qa/regions/00-full-comparison-region164-worktop-final.png`.
+- Earlier P1 color/image-quality finding: the four real counter planks used `shop_counter_wood_cool.jpg`, a gray-brown reclaimed texture with dense scratches and high contrast. Across the full center band it made the shop substantially darker and rougher than the reference's clean, low-contrast pale oak, even though the plank geometry and seams were already aligned.
+- Built-in ImageGen produced a seamless pale-oak game-material tile from the Day 1 reference, then performed one targeted value/hue edit while preserving the tile and fine grain. The selected master is `assets-material/wood/shop-counter-wood-pale-v3-master.png`; the 1024px export source is `assets_src/textures/shop_counter_wood_pale_v3.png`. Prompt history and mode are recorded in `assets-material/wood/README.md`.
+- Only the existing `fine_grained_wood` image input changes. The four authored 0.9455×0.70×0.06 planks, their seams, bevel-free shared plane, counter projection, cup, workmat, ticket, pickup tray and bell stay fixed. The final crop restores the source's light wood hierarchy without flattening the visible grain; residual hue and seam-density variation are P3.
+- Fidelity surfaces: typography/copy and all controls are unchanged; worktop spacing and projection remain source-aligned; the palette moves from charcoal gray-brown to muted warm beige oak; the 1024px tile is clean, matte and free of compression, halo, vignette or fake board seams; all visible props remain real raster/3D assets. The material is interaction-neutral and keeps all pointer, touch, keyboard/gamepad, motion and reduced-motion behavior intact.
+- Verification: Iteration 163's sequential 25/25 core suite and 5/5 deterministic onboarding runs cover the unchanged behavior. After the final texture swap, the model check passes at 23 meshes / 4,012 triangles and Forward Mobile passes at 62 meshes / 13,112 triangles / 178 maximum draw calls / 146.28 MiB. `git diff --check` is clean.
+
+Final result:
+passed
+
+### Iteration 165 (Day 1 bottom primary-action alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region165-bottom-action-final.png`, both 1280×720 at density 1 in the same Day 1 two-customer selected-boba / `下一步：糖度` state. Equal-coordinate evidence is `qa/regions/region165/105-bottom-action-day1-final.png`; full context is `qa/regions/00-full-comparison-region165-bottom-action-final.png`.
+- The strict crop showed that the panel's `(518,638)` position and `260×65` bounds already matched the source. The P2 mismatch was asset hierarchy: the action used the thin teal/gray secondary frame and presented the hand too lightly, making the only primary action read like a utility control.
+- The panel now reuses the existing genuine-alpha `BUTTON_SELECTED_SKIN`, rendered with its stronger coral double outline at divider 3, while the existing source-backed hand slot increases from 52×52 to 56×56. Geometry, label copy, WenKai 24px typography and the live full-panel Button stay fixed. Two ImageGen frame/icon candidates were rejected after same-coordinate capture because their opaque preview canvas or changed silhouette reduced fidelity; they are isolated under `assets-transparent/ui/rejected/` and are not imported by the game.
+- Fidelity surfaces: the button now restores the source's cream/coral primary hierarchy without adding gloss or gray weight; the real hand PNG retains genuine alpha and its original silhouette; no text, emoji, SVG or code-drawn substitute is used. Remaining hand-shadow and border-paint differences are P3 raster detail. Pointer, touch, keyboard/gamepad focus, numeric shortcut, disabled-state gating, pulse animation, reduced motion and haptic feedback still target the same live control.
+- Verification: `input_check.tscn` passes the full preparation and accessibility/input paths; Forward Mobile passes at 62 meshes / 13,112 triangles with a 9.065ms average process time; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 166 (Day 1 reset-sign alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region166-reset-sign-final.png`, both 1280×720 at density 1 in the same Day 1 two-customer selected-boba state. Equal-coordinate evidence is `qa/regions/region166/111-reset-sign-day1-final.png`; full context is `qa/regions/00-full-comparison-region166-reset-sign-final.png`.
+- Earlier P2 visual finding: the interactive sign occupied the right envelope but its board was much darker, its frame proportions drifted, and live `重置 / 损耗 3 金币` copy replaced the source's quiet `奶茶 / 物语` brand lockup. The source silhouette spans about x=229–361 and y=509–704.
+- The selected genuine-alpha v4 sign keeps its real wood geometry but receives a selective teal-only color lift as `ui-sign-reset-front-v6.png`; the control now uses `(211,525)`, rotation `-0.05` and scale `(0.92,0.86)`, placing its top, feet and horizontal center within about 0–3px of the source. Built-in ImageGen supplied the 64×64 cream cup-line master `ui-icon-sign-cup-v1.png`; its solid-black generation background was extracted to genuine alpha and it is rendered at a measured 22×22 slot below the live localized brand label.
+- Fidelity surfaces: the sign's wood stays matte and cream, the board moves from blue-black teal to muted mint, and the reference brand/cup hierarchy is restored without code-drawn art. `DAY_RESET_SIGN` localizes the visible lockup; the dynamic reset/waste copy remains available through `accessibility_name` and tooltip, so the full sign is still the same live Button. Pointer/touch press, keyboard/gamepad focus, two-step destructive confirmation, disabled state and haptics are unchanged. Remaining frame-perspective and brush-texture differences are P3.
+- Verification: `input_check.tscn` pins the visible brand and accessible reset name; `localization_check.tscn` passes both locales; Forward Mobile passes at 62 meshes / 13,112 triangles with a 9.520ms average process time; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 167 (Day 1 top HUD alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region167-top-hud-final.png`, both 1280×720 at density 1 in the same Day 1 state. Equal-coordinate evidence is `qa/regions/region167/113-top-hud-day1-final.png`; full context is `qa/regions/00-full-comparison-region167-top-hud-final.png`.
+- The strict crop confirmed that the three pill positions, 48–50px heights and horizontal gaps already matched. The P2 mismatch was surface hierarchy: all core metrics used the coral/teal tabbed HUD skin and glossy 40px icon slots, while the source uses quiet cream chips with a fine neutral inner line and smaller marks. The timer also used `108s`, breaking the source's compact colon rhythm.
+- Day, coin and inspiration now reuse the existing cream `BUTTON_SECONDARY_SKIN` at the same 9-slice margins; icon slots reduce from 40×40 to 36×36 without moving the pill bounds. `DAY_HUD_TIME` now formats the live countdown as localized `m:ss` (`1:49` in the final capture) instead of seconds plus `s`, preserving the real countdown while matching the source's typographic structure.
+- Fidelity surfaces: WenKai live labels, cocoa text, cream fill, neutral border and original genuine-alpha metric icons remain intact; no screenshot crop or code-drawn icon was introduced. Remaining icon illustration/model and subtle outer-shadow differences are P3. Tooltip semantics, late-game hidden/visible metrics, event row, upgrades, input focus and pause remain unchanged.
+- Verification: `input_check.tscn` pins the colon timer format; `localization_check.tscn` passes both locales and format strings; Forward Mobile passes at 62 meshes / 13,112 triangles with a 9.700ms average process time; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 168 (Day 1 pickup-zone color and hierarchy alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region168-pickup-final.png`, both 1280×720 at density 1 in the same Day 1 selected-boba state. Equal-coordinate evidence is `qa/regions/region168/121-pickup-zone-day1-final.png` and `qa/regions/region168/122-pickup-tray-day1-final.png`; full context is `qa/regions/00-full-comparison-region168-pickup-final.png`.
+- The strict crops proved that the arrow envelope, tray projection, bell anchor and 140px pickup-tag width were already aligned within roughly 0–4px. The P2 mismatch was color/image hierarchy: arrow, tray and bell all used the global saturated gameplay mint, the inset read cold white, and the pickup tag was about 6px visually too short and brighter than the source.
+- The selected genuine-alpha arrow keeps its 195×125 canvas and exact dash/head silhouette as `ui-arrow-pickup-v5.png`, with an alpha-preserving pale-mint grade. Only pickup-tray/service-bell material overrides change: `Mint/Tint_Mint #86BDB8`, `MintDark #568D89`, `Cream #F4EBDD`; the source GLBs, transforms, mesh topology and other props remain untouched. The pickup tag keeps x/y/width but grows from 50px to 56px and uses restrained coral normal/hover/pressed colors.
+- Fidelity surfaces: WenKai `取餐` copy and 26px size remain live; spacing and perspective stay fixed; mint/coral/cream tokens now match the quieter source hierarchy; the arrow remains a real transparent raster and tray/bell remain real 3D meshes with native light and shadow. Remaining tray wood-grain, bell brush detail and tiny arrow hue differences are P3. The handoff animation, reduced-motion cleanup, sealed-cup delivery, tag states and all pointer/touch/keyboard/gamepad paths are unchanged.
+- Verification: `input_check.tscn` pins the scoped pickup material and passes the full delivery/reduced-motion path; `model_asset_check.tscn` passes at pickup tray 2 meshes / 568 triangles and service bell 5 / 1,236; Forward Mobile passes at 62 meshes / 13,112 triangles with a 9.596ms average process time; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 169 (Day 1 rear wall/floor transition alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region169-back-wall-final.png`, both 1280×720 at density 1 in the same Day 1 selected-boba state. Equal-coordinate evidence is `qa/regions/region169/127-wall-floor-day1-final.png`; full context is `qa/regions/00-full-comparison-region169-back-wall-final.png`.
+- The first horizontal comparison was misread because the second image begins 700px into the composed strip. Rechecking each crop in its own coordinate system proved the window and wall shelf were already within roughly 4–10px of the source, so neither was moved. The actual P2 structural mismatch was the missing diagonal wall/floor transition: runtime showed a flat cream band where the reference has a pale molding over a cool-greige floor wedge.
+- Built-in ImageGen `precise-object-edit` isolated the long matte cream perspective molding, then `background-extraction` preserved that molding and the cool-greige plane below while removing only the wall above to genuine transparency. The selected source is `/Users/apple/.codex/generated_images/01a027e4-69d8-71e2-9933-ed9707afa3e6/exec-6282ba4f-5841-4d34-955c-e4e3590b8e06.png`; the fitted, restrained-color export is `assets-transparent/background/background-wall-floor-v2.png` and its runtime copy is `game/assets/ui/full_set_v3/background/background-wall-floor-v2.png`.
+- The existing background slot presents the real 650×160 alpha asset at `(0,42)`, before the entrance, succulent, window and shelf layers. This restores the source's diagonal molding and cool floor plane without covering later decor or changing the already-aligned station/customer/UI coordinates. Remaining fine grain and sub-pixel perspective variation are P3 raster detail.
+- Fidelity and behavior: typography, localized copy, live controls, customer lane, rear stations and all 3D props are unchanged; the asset stays matte, low-saturation and free of opaque checkerboard/background residue. `input_check.tscn` pins the slot and passes the full interaction path; Forward Mobile passes at 62 meshes / 13,112 triangles; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 170 (Day 1 topping-card density and spacing alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region170-topping-panel-final.png`, both 1280×720 at density 1 in the same Day 1 selected-boba state. Equal-coordinate evidence is `qa/regions/region170/134-topping-panel-day1-final.png`; full context is `qa/regions/00-full-comparison-region170-topping-panel-final.png`.
+- The strict crop proved the panel baseline and title were already aligned. The P2 imagery mismatch was inside the three live cards: each old icon showed only three sparse round pieces in a deep bowl, while the source uses a broad shallow bowl densely filled with distinct pearls, coconut-jelly cubes or pudding cubes. The card row also used an ignored generic `separation` theme override, leaving visible gaps about 4px tighter than the source.
+- Built-in ImageGen `precise-object-edit` produced three isolated genuine-alpha bowl assets from the same reference. Selected sources are `/Users/apple/.codex/generated_images/01a027e4-69d8-71e2-9933-ed9707afa3e6/exec-149a9edb-0cfd-4a51-8e90-6e5f5c171874.png`, `exec-d6395603-724e-4781-8d47-b46f8a6f3780.png` and `exec-be591671-0f7c-4554-bb9c-580f1252c35b.png`; fitted masters are `assets-transparent/ingredient/topping-{boba,coconut-jelly,pudding}-v4.png`, with runtime copies in `game/assets/icons/`.
+- Each 128×128 icon now uses the same `(5,22)–(123,104)` optical box, producing the source's dense 66×46px visible bowl family in the existing 76×72 slot. The GridContainer now uses its real `h_separation` theme constant at 12px; three-card width is 87px and the panel is 314px, aligning the first, middle and last card envelopes within about 0–2px of the source. Late-game width calculation uses the same live spacing so nine choices remain one row.
+- Fidelity and behavior: WenKai labels and localized ingredient names remain live; the mint/cream/coral card skins and selected outline are unchanged; generated bowls are restrained, clean alpha rasters with no card, text or baked checkerboard. Pointer, touch, numeric shortcuts, keyboard/gamepad focus, selected-state motion and reduced-motion behavior still target the same Buttons. Remaining pearl highlight and ceramic brush differences are P3 raster detail.
+- Verification: `input_check.tscn` pins the panel width and all three raw-PNG optical boxes; Forward Mobile passes at 62 meshes / 13,112 triangles and keeps the Day 10 nine-card row inside the safe frame; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 171 (Day 1 sugar and shaker station alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region171-sugar-shaker-final.png`, both 1280×720 at density 1 in the same Day 1 selected-boba state. Equal-coordinate evidence is `qa/regions/region171/138-sugar-shaker-day1-final.png`; full context is `qa/regions/00-full-comparison-region171-sugar-shaker-final.png`.
+- The strict crop showed that all four sugar labels and the station baseline were already aligned, but the sugar raster was vertically stretched about 20px below the source. The shaker art reused a narrow 145×200 slot about 20px left of the reference; its coral tag was likewise about 8px left, 10px narrower and 10px shorter.
+- The existing real station assets are reused. Sugar keeps its x/width and top anchor but renders at 235×140 instead of 235×160. The shaker uses the source asset's actual alpha ratio at `(1130,98)` / `168×162`, placing its teal lid and base envelopes at the reference bounds; the live tag moves to `(1164,228)` and grows to 84×44. No replacement art or screen-space patch was added.
+- Fidelity and behavior: the four localized sugar labels, bottle colors, cream/coral/mint palette and raster edge quality remain unchanged. Sugar selection, shaker hold/gesture, pulse/compression feedback, sound, haptics, keyboard/gamepad input and reduced-motion paths still act on the same live controls. Remaining bottle-paint and canister-grain differences are P3 asset detail.
+- Verification: `input_check.tscn` pins both final station-art transforms and passes the full preparation path; Forward Mobile passes at 62 meshes / 13,112 triangles and keeps the late-game controls in the safe frame; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 172 (Day 1 top-right shelf and pause alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region172-top-right-final.png`, both 1280×720 at density 1 in the same Day 1 selected-boba state. Equal-coordinate evidence is `qa/regions/region172/143-top-right-day1-final.png`; full context is `qa/regions/00-full-comparison-region172-top-right-final.png`.
+- The first strict crop found a P1 region-proportion mismatch: the v1 shelf ended near x=1166 instead of continuing behind the pause control to the right edge. Stretching v1 proved the coordinate target but exposed a P2 structural mismatch: its two compressed cubbies read as three narrow rails, whereas the source has one broad open cubby, one lower base slab and short hanging supports. The pause circle itself was already within about 1px and remained untouched.
+- Built-in ImageGen `precise-object-edit` changed only the existing shelf structure while preserving its pale-oak material, rounded bevels and diffuse painterly light. The selected source is `/Users/apple/.codex/generated_images/01a027e4-69d8-71e2-9933-ed9707afa3e6/exec-4b3a51e1-ca72-467b-8e1a-5c9f3370b41f.png`; the genuine-alpha project master and runtime copy are `assets-transparent/background/background-shelf-v2.png` and `game/assets/ui/full_set_v3/background/background-shelf-v2.png`.
+- The final 2090×414 alpha bounds render at `(830,-21)` / `480×95`. The left cheek, top slab, open-cubby baseline and lower supports now land within about 0–3px of the source; the shelf continues beyond x=1280 behind the unchanged live pause button. Remaining wood-grain/contrast variation is P3 raster detail.
+- Fidelity surfaces: WenKai labels and app copy are unaffected; upper-right spacing and region density now match; cream/pale-oak/cocoa colors remain in the source family; v2 is a clean real raster with no wall, UI, text, checkerboard or placeholder geometry; pause hover/press/focus, keyboard/gamepad activation and reduced-motion behavior remain on the same Button. `input_check.tscn` pins the v2 texture slot; Forward Mobile passes at 62 meshes / 13,112 triangles; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 173 (Day 1 customer order-card drink fidelity)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region173-order-drinks-final.png`, both 1280×720 at density 1 in the same frozen Day 1 selected-boba state. Equal-coordinate evidence is `qa/regions/region173/147-left-customer-lane-day1-final.png`; full context is `qa/regions/00-full-comparison-region173-order-drinks-final.png`.
+- The strict customer-lane crop confirmed that both card envelopes, numbered badges and portrait head/foot bounds were already aligned within about 0–3px. The actionable P1 was content fidelity: `椰果奶茶` displayed a bright green fruit-tea sprite with green spheres, contradicting both the live label and the source's warm milk tea with white coconut jelly. The classic-boba sprite was also glossy, ice-heavy and optically narrow compared with the source thumbnail.
+- Built-in ImageGen `precise-object-edit` created compact matte versions, then `background-extraction` removed baked checkerboards to genuine alpha. Selected sources are `/Users/apple/.codex/generated_images/01a027e4-69d8-71e2-9933-ed9707afa3e6/exec-627961b2-0f7c-4bf2-930a-684afd2fa6c7.png` and `exec-f7b02784-f0de-49bf-a1f8-cf6cebbca8ea.png`; project masters are `assets-transparent/drink/drink-classic-boba-v2.png` and `drink-coconut-milk-v2.png`, with versioned runtime copies under `game/assets/ui/full_set_v3/illustrations/`.
+- Both 512×512 sprites use the same `(66,55)–(446,455)` optical box, producing source-sized 45×50px card cups. The card's real VBox separation is 5px and patience dots are 16px, aligning the image/name/dot rhythm and three-filled-dot state within about 0–2px. The screenshot harness now freezes Day 1 at `1:17` and 78% patience so source and implementation are compared in the same stable state; production countdown and patience behavior are unchanged.
+- Fidelity surfaces: WenKai drink labels stay live and localized; customer/card positions remain fixed; warm tan/cream/cocoa/teal tokens replace the incorrect green content; both cups are clean real alpha rasters with no card, text, checkerboard or placeholder art. Card selection, delivery, patience state changes, pointer/touch, focus, numeric shortcuts, sound and reduced-motion paths remain on the same controls. Remaining cup-brush and portrait-pose differences are P3 imagery details.
+- Verification: `input_check.tscn` pins both raw-PNG optical boxes, the coconut drink's warm-tan content and the 16px patience beats; Forward Mobile passes at 62 meshes / 13,112 triangles and validates the three-customer pressure lane; `git diff --check` is clean. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 174 (Day 1 front-counter fascia and deck correction)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region174-front-counter-final.png`, both 1280×720 at density 1 in the same frozen Day 1 state. Equal-coordinate evidence is `qa/regions/region174/155-front-counter-day1-final.png`; full context is `qa/regions/00-full-comparison-region174-front-counter-final.png`.
+- The full view had previously hidden a P1 structural error. A dedicated y=500–720 crop proved the front group was centered about 220px too far left: cream/mint/wood layers ran under the order cards and stopped before the right edge, while the source begins behind the A-frame sign and continues beyond x=1280. The cream lip was also about 20px too tall, although the cream/mint boundary itself was close.
+- The deterministic Blender export changes only the four existing front meshes. Their shared x center moves from `-0.675` to `0.75`, preserving widths and right-edge continuation. `PD_FrontCreamLip` now uses z center `0.53` and height `0.10`, keeping its lower boundary attached to the mint band while reducing the visible cream face to the source's roughly 40px. The wood deck grows from y depth `0.32` to `0.48` at y=`-1.39`, bringing the near edge to the bottom of the frame without moving the workmat, ticket, tray, bell or action button.
+- Post-fix evidence places the cream top, cream/mint boundary, mint/wood boundary and deck top within about 0–3px vertically. The left edges now begin behind the source-matched sign/rail overlap and all four layers continue beyond the right frame. Remaining pale-oak grain density and the hidden off-frame deck edge are P3 material details.
+- Fidelity surfaces: live copy and WenKai typography are unchanged; foreground spacing and full-width hierarchy now match; cream/muted-teal/warm-wood materials reuse the established palette; the counter stays real beveled 3D geometry rather than a screen-space patch. All pointer/touch/focus controls, customer layering, cup preparation, handoff motion and reduced-motion behavior are unchanged. `input_check.tscn`, `model_asset_check.tscn` (23 meshes / 4,012 triangles), Forward Mobile (62 meshes / 13,112 triangles) and `git diff --check` pass. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 175 (Day 1 center cup, placement guide and order ticket alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region175-center-final3.png`, both 1280×720 at density 1 in the same frozen Day 1 selected-boba state. Full evidence is `qa/regions/00-full-comparison-region175-center-final3.png`; equal-coordinate focused evidence is `qa/regions/region175/170-center-day1-final3.png`, with the ticket checked at 2× in `qa/regions/region175/171-ticket-day1-final3-2x.png`.
+- The first crop found three actionable mismatches: the 3D cup guide used thick raised rectangular pieces instead of the source's flat painterly dashes; the cup was about 5px too high, 6px too narrow and 9px too tall; and the ticket's 1.10×1.16 outer transform made the front sheet roughly 20% too wide and 11% too tall. A later equal-coordinate pass also exposed the workmat's saturated brown rim/cool inset against the source's quiet cream-on-cream surface. The first generated guide draft was rejected because its dashes were oversized; later comparisons verified the exact source-coordinate guide, corrected paper envelope, cup width and scoped workmat material fix.
+- The hidden `Mint` guide mesh is replaced visually by the genuine-alpha `ui-cup-guide-v1.png`, extracted from the source's exact `(480,390)–(680,530)` pixels and rendered at that unchanged 200×140 slot behind the live cup. The cup now uses `(503,364)` / `150×150`; `OrderTicket` uses `(712,381)` / `0.90×1.04`; the existing workmat meshes use scoped `F6E4D0` base and `FFF8ED` inset materials. Pin, front paper, cup and guide land within roughly 0–3px of the source while the rim no longer dominates the center region.
+- Fidelity surfaces: WenKai title/name copy remains live; workmat, cup, guide and ticket spacing now matches; cream/muted-mint/caramel tokens are preserved; the guide is a real source-derived raster rather than code-drawn art. Built-in ImageGen `background-extraction` / `precise-object-edit` variants were inspected; outputs with photoreal cup treatment, glow, baked checkerboard or altered paper proportions were rejected rather than shipped. Remaining cup pearl brush detail, ticket under-sheet length and material grain are P3.
+- Behavior and verification: cup empty/tea/milk/topping/sealed states, bounce/shake/seal/handoff animation, shake-bar following, ticket live drink/name updates and all pointer/touch/keyboard/gamepad paths are unchanged. `input_check.tscn`, `model_asset_check.tscn` (shop 23 meshes / 4,012 triangles), Forward Mobile (61 meshes / 11,384 triangles), `localization_check.tscn` and `git diff --check` pass. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 176 (Day 1 pickup tray, service bell and handoff feedback alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region176-pickup-final2.png`, both 1280×720 at density 1 in the same frozen Day 1 selected-boba state. Full evidence is `qa/regions/00-full-comparison-region176-pickup-final2.png`; equal-coordinate pickup evidence is `qa/regions/region176/187-pickup-zone-day1-final2.png`, with the bell checked at 2× in `qa/regions/region176/188-service-bell-day1-final2-2x.png`.
+- The baseline crop showed that the arrow and 140×56 pickup tag geometry were already aligned, while the scoped colors were materially darker than the source: the tray inset was flat gray-beige, its mint rim was dark/green, and the coral tag sampled near `#E98572` against the source's quiet `#F1AA90`. The smooth 3D bell also lacked the source's six radial ribs and used a brown/chrome base. An early horizontal transform trial over-corrected both tray and bell; row-by-row equal-coordinate evidence proved the original tray transform was already within about 0–5px, so it was restored rather than preserving a false fix.
+- The live tray keeps its verified `(1.903,0.982,1.0)` transform and real 2-mesh GLB, with only scoped `#95C9C7` mint, `#69A4A0` dark mint and `#FFF3E1` cream materials. The pickup tag keeps its position/size and now uses source-sampled coral states. Built-in ImageGen `background-extraction` created the real transparent `service-bell-v2.png` from the exact bell crop; the selected source is `/Users/apple/.codex/generated_images/01a027e4-69d8-71e2-9933-ed9707afa3e6/exec-1d16c1c2-bfb2-47bf-ad0d-65941bda8172.png`, fitted at `(956,459)` / `105×118`. Its six-rib mint dome, warm-gray ring and charcoal base replace the hidden featureless 3D bell visually.
+- Fidelity surfaces: live WenKai `取餐` copy and 26px hierarchy remain unchanged; tray/sign/bell spacing and perspective match; cream/mint/coral tokens now share the source's quieter balance; the bell is a genuine-alpha raster with no tray, text, checkerboard or background residue. Remaining tray wood-grain density and sub-pixel bell brush softness are P3. The source has no extra app-specific copy in this region.
+- Behavior and verification: successful service still flies the sealed cup along the source arrow and now rings the visible bell with a restrained 0.22s rotate/compress/settle cue; reduced motion kills and resets that tween. `input_check.tscn` exercises both animated and reduced-motion paths; `model_asset_check.tscn` passes (pickup tray 2 meshes / 568 triangles, hidden service bell 5 / 1,236); Forward Mobile passes at 56 visible meshes / 10,148 triangles; `localization_check.tscn` and `git diff --check` pass. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 177 (Day 1 left customer lane, order-card token and queue-rail alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region177-left-lane-final2.png`, both 1280×720 at CSS-equivalent density 1 in the same frozen Day 1 / `1:17` / two-customer / selected-boba state. Full evidence is `design/mockups/coral_mint/full-set-v3/qa/regions/00-full-comparison-region177-left-lane-final2.png`; equal-coordinate focused evidence is `qa/regions/region177/left-lane-final2-comparison-2x.png`, `order-cards-final2-comparison-2x.png` and `figures-rail-final2-comparison-2x.png`.
+- The exact crops disproved the suspected card/portrait coordinate error: both 108×134 card envelopes, 32px badges, portrait head centers and foot baselines were already within about 0–3px of the source and remain unmoved. The actionable P2 differences were token and imagery fidelity: healthy patience dots used bright `#27B9A7` instead of the source's sampled `#4D948F`, order badges were overly red, and the v1 queue rail omitted the source's coral upper post while starting about 80px too low.
+- Built-in ImageGen `background-extraction`, grounded by the full source plus the v1 cutout, produced the real v2 rail. Selected source: `/Users/apple/.codex/generated_images/01a027e4-69d8-71e2-9933-ed9707afa3e6/exec-99b01b1e-51ef-4e1c-aeb8-cff9f76b85d0.png`; its neutral checkerboard was locally matted and checked on a contrasting teal field before the genuine-alpha runtime export. The rail now renders at `(197,72)` / `132×680`, restoring the coral top, pale-oak handrail, three cream caps and muted-teal inset at the source's visible top/turn/bottom anchors.
+- A generated mint-customer repaint was tested and rejected after same-state capture because it enlarged the head/body and regressed the already-proven bounds; it remains isolated under `qa/rejected/region177-mint-v4/` and is not used. The selected v4 character preserves the exact v3 alpha, pose, crop and 358×464 optical box, applying only a restrained mint/lavender desaturation and warm-taupe foot grade. This keeps layout stable while removing the current sprite's darkest shoe contrast.
+- Required fidelity surfaces: WenKai drink names, weights, wrapping and copy remain live and aligned; card/portrait/rail spacing now matches the same-coordinate source rhythm; healthy/empty patience tokens and badge coral are source-calibrated; the rail and portraits are real clean-alpha rasters with no SVG/CSS/placeholder art, matte residue or visible halo. Card selection, patience countdown/drop animation, arrival/exit tweens, pointer/touch/keyboard/gamepad paths and reduced-motion behavior still target the same nodes. Remaining sleeve pose, subtle hair hue, rail brush texture and paper-corner accents are P3 asset polish, not actionable layout drift.
+- Comparison history: the first post-fix rail capture restored the missing coral top but proved an attempted ImageGen portrait repaint was too large; that repaint was rejected, the geometry-preserving grade was substituted, and the final focused comparison re-established the original 0–3px portrait/card bounds. Verification passes `input_check.tscn`, `model_asset_check.tscn` (shop 23 meshes / 4,012 triangles), Forward Mobile (56 visible meshes / 10,148 triangles / 9.510ms average process time), `localization_check.tscn` and `git diff --check`. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 178 (Day 1 central worktop depth and rear-station transition alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region178-worktop-final2.png`, both 1280×720 at density 1 in the same frozen Day 1 / `1:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region178-worktop-final2.png`; equal-coordinate focused evidence is `qa/regions/region178/full-worktop-final2-comparison-2x.png`, and the three-way history is `qa/regions/region178/worktop-reference-before-after-2x.png`.
+- The baseline crop exposed a P1 region-proportion error hidden behind the cup and ticket: the four pale-oak worktop planks used only `0.70` world units of depth. Their rear edge began about 25–30px below the source, exposing a cool-gray strip directly under the rear stations, while the front edge ended roughly 35–45px early and produced a conspicuous horizontal seam across the playfield. This compressed the main preparation surface and made the cup, ticket and tray appear to sit on separate slabs.
+- The root fix changes only the existing four `PD_CounterPlank_*` boxes in `assets_src/blend/optimize_shop_export.py`, increasing their Y depth from `0.70` to `1.40` while preserving each x position, shared y/z center, width, thickness, pale-oak material and four-plank topology. The deterministic Blender export keeps the same 23 shop meshes / 4,012 triangles. Post-fix, the rear wood edge tucks directly beneath the cream/mint station apron and the front edge reaches the source's counter-lip transition; cup, guide, workmat, order ticket, topping panel, arrow, pickup tray and customer lane remain unmoved.
+- Required fidelity surfaces: no typography, copy, icon or live-control changes were made; the spacing/layout correction restores the source's continuous rear-to-front preparation plane; the accepted pale-oak color/texture remains unchanged; the result uses the existing real beveled 3D geometry and texture rather than a raster patch or code-drawn surface. Pointer/touch/keyboard/gamepad preparation, shake/handoff animation, focus, reduced motion and all customer systems remain on the same nodes. Remaining individual plank-seam placement and subtle grain contrast are P3 material polish.
+- Comparison history: the 1.04-depth trial removed the rear gray strip but still ended visibly early at the front; the 1.40-depth pass preserved the corrected rear boundary and brought the front boundary to the source transition without covering the rear station or foreground fascia. Verification passes `input_check.tscn`, `model_asset_check.tscn`, Forward Mobile (56 visible meshes / 10,148 triangles / 8.987ms average process time), `localization_check.tscn` and `git diff --check`. No actionable P0/P1/P2 finding remains in this region.
+
+Final result:
+passed
+
+### Iteration 179 (Day 1 top-HUD source state and icon fidelity)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region179-top-hud-icons-final.png`, both 1280×720 at density 1 in the same frozen Day 1 / `11:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region179-top-hud-icons-final.png`; equal-coordinate 2× evidence is `qa/regions/region179/222-top-hud-icons-final-comparison-2x.png`.
+- Exact-grid checks rejected an apparent rear-station offset: cabinet, topping, sugar, shaker and contextual topping panel were already at the source envelopes, so the trial move was reverted. The real P2 top-HUD mismatch was state width plus icon language: the harness showed `1:17`, shifting later chips, and the 128px glossy sun/bag/bulb set conflicted with the source's small matte ochre line icons.
+- The screenshot harness alone now freezes `time_left = 677.0` to reproduce `11:17`; production keeps the real 120-second countdown. The three 36×36 icons are exact-coordinate source crops from `(29,19)–(65,55)`, `(248,19)–(284,55)` and `(332,19)–(368,55)`, matted against each chip scanline into genuine alpha and stored in `assets-transparent/hud-*.png` plus the existing runtime HUD paths. No generative repaint, code drawing or layout move was introduced.
+- Required fidelity surfaces: live WenKai copy and localized values stay unchanged; three chip envelopes, gaps and baselines now align; saturated glossy highlights are replaced by the source's restrained ochre/cocoa marks; all assets are clean 36px RGBA and remain crisp at the native slot. Countdown behavior, pause, tooltips, late-game metric visibility, keyboard/gamepad/touch paths and reduced motion are unchanged.
+- Verification passes `input_check.tscn` with exact PNG size/alpha checks, `model_asset_check.tscn` (shop 23 meshes / 4,012 triangles), Forward Mobile (56 visible meshes / 10,148 triangles / 9.253ms average process time), `localization_check.tscn` and `git diff --check`. No actionable P0/P1/P2 finding remains in the top-HUD region.
+
+Final result:
+passed
+
+### Iteration 180 (Day 1 reset-sign perspective and content alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region180-reset-sign-final.png`, both 1280×720 at density 1 in the same frozen Day 1 / `11:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region180-reset-sign-final.png`; exact-coordinate 2× evidence is `qa/regions/region180/230-reset-sign-final-comparison-2x.png`.
+- The dedicated lower-left crop exposed a remaining P2 perspective mismatch hidden by the full view: the live A-frame was almost upright, about 15px left/11px low at its optical center, and its brand lockup read smaller than the reference's strongly tilted sidewalk sign. The surrounding rail, succulent and front fascia were already aligned and remain unmoved.
+- The existing real transparent `ui-sign-reset-front-v6.png` stays in place. Only its live control transform changes to `(211,509)`, rotation `-0.22` and scale `(0.75,0.92)`, matching the source's top-left/top-right/bottom-foot envelope; the localized brand label moves to 20px and the existing source-backed cup mark moves 5px upward. A generated customer-proportion edit and a generated source-cutout trial were inspected during the adjacent left-lane audit but rejected because they enlarged the face/body or baked a checkerboard; neither entered the project.
+- Required fidelity surfaces: the WenKai two-line brand now matches the source weight and remains live/localized; the sign's spacing, angle and foreground overlap follow the source; cream wood, muted teal and warm-white line tokens are unchanged; the accepted asset remains genuine alpha with no new halo, background or code-drawn substitute. The entire sign is still the same accessible reset Button with pointer/touch/focus, two-step confirmation, tooltip and haptic behavior intact.
+- Verification passes `input_check.tscn` with exact transform and accessibility assertions, `model_asset_check.tscn` (shop 23 meshes / 4,012 triangles), Forward Mobile (56 visible meshes / 10,148 triangles / 9.609ms average process time), `localization_check.tscn` and `git diff --check`. No actionable P0/P1/P2 finding remains in the reset-sign region.
+
+Final result:
+passed
+
+### Iteration 181 (Day 1 mint-customer internal proportion alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region181-mint-proportion-final.png`, both 1280×720 at density 1 in the same frozen Day 1 / `11:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region181-mint-proportion-final.png`; the exact-coordinate reference/v4/v5 history is `qa/regions/region181/233-mint-reference-before-after-2x.png`.
+- The strict customer crop confirmed that the portrait container, head top, horizontal center, card and rail overlap were already aligned. The remaining P2 was internal raster proportion: v4's mint side locks stopped around y=209 against source y=220, while its lavender region began around y=203 against source y=212, making the face/hair transition too short and the sweater read too tall/high even though the foot baseline was correct.
+- V5 preserves every v4 pixel and the real 512×512 alpha canvas but applies one continuous measured row fit: rows 0–190 remain unchanged, source rows 190–230 expand into 190–248, and rows 230–512 compress into 248–512. The in-scene mint region now ends around y=218 and the lavender region spans y=209–305, versus source y=220 and y=212–304, without moving the proven head top or foot baseline. No generative repaint, rescaled whole sprite or layout move was used.
+- Required fidelity surfaces: no text or copy changes occur in this image-only region; card/portrait/rail spacing remains fixed; the accepted mint/lavender/cream grade is byte-preserved; the 512px genuine-alpha raster keeps sharp hair, face and garment edges with no seam, checkerboard, halo or background. Arrival/exit tweens, selection/focus, patience, delivery, reduced motion and the hidden 3D fallback continue to use the same live portrait node.
+- Comparison history: a naive lower-body split was rejected immediately because it produced a visible collar seam; the continuous three-band fit removed that seam and aligned the measured hair/sweater endpoints. Verification passes `input_check.tscn` with the selected v5 runtime-path assertion, `model_asset_check.tscn`, Forward Mobile (56 visible meshes / 10,148 triangles / 9.700ms average process time), `localization_check.tscn` and `git diff --check`. Remaining cheek/arm brush-shape variation is P3 asset polish.
+
+Final result:
+passed
+
+### Iteration 182 (Day 1 yellow-customer head and baseline alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region182-yellow-proportion-final.png`, both 1280×720 at density 1 in the same frozen Day 1 / `11:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region182-yellow-proportion-final.png`; the exact-coordinate reference/v1/v2 history is `qa/regions/region182/239-yellow-reference-before-after-2x.png`.
+- The focused crop confirmed that the card, rail overlap and horizontal portrait envelope were already aligned. The remaining P2 was the yellow sprite's internal vertical rhythm: its connected brown-hair component occupied `(125,335)–(240,425)` while the source occupies `(126,332)–(240,429)`, making the head read slightly flattened and low before the yellow body.
+- V2 preserves the selected v1 pixels and genuine 270×512 alpha canvas. It maps source rows 0–210 to 0–226 and rows 210–512 to 226–512, then uses the unchanged `0.538×0.452` slot scale at y=444. The final connected hair component is `(125,332)–(240,429)` with 8,438 classified pixels against the source's 8,444; the source and implementation now share the exact vertical envelope and differ by only one x pixel at the left antialias edge.
+- Required fidelity surfaces: no typography or copy changes occur; the customer/card/rail spacing and z-order remain fixed; brown/caramel/cream/pink tokens and original brush pixels are preserved; the transparent raster keeps clean antialiasing with no seam, halo, checkerboard or background. Arrival/exit motion, order selection, patience, delivery, reduced motion and the hidden 3D fallback remain on the same node and behavior paths.
+- Comparison history: a whole-sprite y-scale trial matched the head height but pushed the feet visibly below the source baseline, so it was rejected and the proven slot scale restored. Verification passes `input_check.tscn` with the selected v2 runtime-path assertion, `model_asset_check.tscn`, Forward Mobile (56 visible meshes / 10,148 triangles / 10.118ms average process time), `localization_check.tscn` and `git diff --check`. Remaining arm/body brush-shape variation is P3 asset polish.
+
+Final result:
+passed
+
+### Iteration 183 (Day 1 left-entry railing perspective alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region183-entry-railing-final.png`, both 1280×720 at density 1 in the same frozen Day 1 / `11:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region183-entry-railing-final.png`; the exact-coordinate reference/v2/v6 crop is `qa/regions/region183/249-rail-reference-before-after-2x.png`.
+- The crop disproved a whole-rect offset: v2's middle anchor was already close while its coral top was about 35px too high and its near-field end followed the wrong perspective. The selected v6 keeps the authored paint, maps the upper rows down, preserves the top/middle anchors, and applies the stronger horizontal correction toward the lower end.
+- Runtime uses the genuine-alpha 200×570 `background-entry-railing-v6.png` in `(126, 72, 220, 680)` at z=1. Customer/card behavior, arrival/exit motion, selection, reduced motion and input remain unchanged; customers stay behind the rail and the reset sign remains in front.
+- Comparison history: v4 over-sheared the middle; v5 corrected the upper and middle line but left the bottom endpoint too far right; v6 retains those anchors and closes the lower endpoint. Verification covers the selected texture/slot/z-order plus the standard rendering, asset, localization and diff checks.
+
+Final result:
+passed
+
+### Iteration 184 (Day 1 curved front-counter alignment)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region184-front-counter-final.png`, both 1280×720 at density 1 in the frozen Day 1 / `11:17` / two-customer / selected-boba state. Full evidence is `qa/regions/00-full-comparison-region184-front-counter-final.png`; focused reference/before/final evidence is `qa/region184/14-front-reference-before-after.png`.
+- Earlier P1: the runtime front counter was authored as four straight boxes, so the cream lip, teal fascia and lower wood plane remained horizontal while the source uses one shallow, continuous near-field arc. The root fix adds one UV-mapped curved-strip mesh path to the existing Blender export and reuses it for the front wood top, cream lip/apron, teal band, sill and deck. The central curve depth is `0.08` world units (`0.07` on the deck), while the proven cup, workmat, ticket, bell, pickup tray and CTA transforms remain unchanged.
+- Comparison history: the first `0.35`-depth trial exaggerated the curve and exposed the floor; the `0.08` trial established the correct silhouette; subsequent passes extended the real wood worktop, restored the warm apron, aligned the band transitions and added real UV texture. The final focused crop now matches the source's wood → cream → warm apron → muted teal → wood order and shallow arc. No P0/P1/P2 mismatch remains in the scoped front-counter region. The remaining cream-highlight brightness and exact grain softness are P3.
+- Required fidelity surfaces: WenKai CTA typography/copy, icon, size and position are unchanged; spacing/layout now follows the source curve without moving live controls; scoped cream/wood/teal tokens are source-calibrated; the result is real beveled 3D geometry with UV-mapped wood rather than a screenshot overlay, CSS/SVG substitute or generated placeholder. Input, focus, touch, keyboard/gamepad, haptics, reduced motion and preparation state behavior remain on the same paths.
+- Verification passes `input_check.tscn`, `model_asset_check.tscn` (shop 23 meshes / 6,308 triangles), Forward Mobile (56 visible meshes / 12,444 triangles / 11.187ms average process time), `localization_check.tscn`, Blender export and `git diff --check`.
+
+Final result:
+passed
+
+### Iteration 189 (Day 1 full-screen regional closure)
+
+- Visual truth: `design/mockups/coral_mint/full-set-v3/qa/regions/reference-1280x720.png` is compared with `design/mockups/coral_mint/full-set-v3/00-current-implementation-region189-final.png`, both 1280×720 in the frozen Day 1 / `11:17` / two-customer / selected-boba state. The authoritative side-by-side is `qa/regions/00-full-comparison-region189-final.png`.
+- Left lane: the genuine-alpha v7 entry rail delays its near-field bend, the reset sign uses the corrected envelope, the succulent returns to the source baseline, the mint portrait rises 6px, and both portraits use a transparent generated contact-shadow sprite that follows arrival, departure and reduced-motion cleanup.
+- Center: the four gapped worktop planks collapse into one UV-mapped pale-oak top, eliminating the dark seams. A generated transparent warm fabric mat with stitched perimeter is carried by a dedicated Blender plane above the real prep-mat geometry; the ticket background, live title, cup and drink name keep independent runtime nodes and source-fit proportions.
+- Pickup: a generated transparent tray surface with muted mint rim and pale wood inset is carried by the existing Blender tray model; the real bell art, handoff arrow, localized pickup label and delivery animation remain independent and interactive. Runtime texture sources are reduced to 512px before GLB export, keeping `prep_mat.glb` at 249 KiB and `pickup_tray.glb` at 155 KiB.
+- Built-in ImageGen produced the three missing raster surfaces from the supplied reference: empty stitched prep mat, empty pickup tray and isolated contact shadow. Final project masters are `assets-transparent/station/station-prep-mat-fabric-v1.png`, `assets-transparent/station/station-pickup-tray-v1.png` and `assets-transparent/character/customer-contact-shadow-v1.png`; each runtime asset preserves genuine alpha.
+- Verification passes `input_check.tscn`, including customer-shadow lifecycle, bell motion, reduced motion, focus, touch safety and panel confinement; `model_asset_check.tscn` passes at shop 23 meshes / 6,272 triangles; Forward Mobile passes at 58 visible meshes / 12,412 triangles / 10.663ms average process time; `localization_check.tscn` and `git diff --check` pass. No actionable P0/P1/P2 mismatch remains in the supplied Day 1 reference state.
+
+Final result:
+passed
