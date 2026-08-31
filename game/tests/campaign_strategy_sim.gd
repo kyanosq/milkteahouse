@@ -372,15 +372,12 @@ func _finish_campaign() -> void:
 
 
 func _validate_campaign(summary: Dictionary) -> bool:
-	# 2026-08-17 经济域修复再基线（Fix2 定价改 per-item 轮转权重 + P9-2 传说不再
-	# 被动承受客流修正 + P2-F2 定位计入评级分母 14→16 + P5-3 失败线 76）：
-	# careful 新手画像升到 35★/118 币（jasmine_pure 不再给全局 ×0.98 提速，
-	# 新手日节奏更从容）；balanced/growth 现金回落 ~1%（red_bean_pudding 的
-	# ×1.03 拖速修正移除后的二阶效应）。10/16 级（定位计入分母）与 A/S/S 梯度不变。
+	# 2026-08-31 顾客统一为 2D 后，装饰性 3D 随机数不再扰动固定种子的订单序列；
+	# 经营评级与升级进度不变，现金区间按新的可复现序列再基线。
 	var expected: Dictionary = {
-		"careful": {"grade": "A", "levels": 10, "finish_day": 0, "stars": 35, "cash_min": 90, "cash_max": 150},
-		"balanced": {"grade": "S", "levels": 10, "finish_day": 0, "stars": 42, "cash_min": 2250, "cash_max": 2350},
-		"growth": {"grade": "S", "levels": 10, "finish_day": 0, "stars": 42, "cash_min": 4430, "cash_max": 4530},
+		"careful": {"grade": "A", "levels": 10, "finish_day": 0, "stars": 36, "cash_min": 260, "cash_max": 310},
+		"balanced": {"grade": "S", "levels": 10, "finish_day": 0, "stars": 42, "cash_min": 2430, "cash_max": 2530},
+		"growth": {"grade": "S", "levels": 10, "finish_day": 0, "stars": 42, "cash_min": 4480, "cash_max": 4580},
 	}[strategy]
 	var failures: Array[String] = []
 	var golden_total := 0

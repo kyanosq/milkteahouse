@@ -18,9 +18,6 @@ var _sfx_label: Label
 var _sfx: HSlider
 var _settings_dirty := false
 var _settings_save_timer: Timer
-# 兼容旧自动化接口；从本轮起“总音量”明确等同于音效音量。
-var _volume_label: Label
-var _volume: HSlider
 var _motion: CheckButton
 var _haptics: CheckButton
 var _resume: Button
@@ -96,8 +93,6 @@ func _build() -> void:
 	_sfx = _audio_slider()
 	_sfx.value_changed.connect(_on_sfx_volume_changed)
 	box.add_child(_sfx)
-	_volume_label = _sfx_label
-	_volume = _sfx
 	var feedback_row := HBoxContainer.new()
 	feedback_row.add_theme_constant_override("separation", 14)
 	box.add_child(feedback_row)
@@ -561,10 +556,6 @@ func _layout_overscan() -> void:
 		_display_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 		_display_panel.position = _safe_offset + Vector2(320, 90)
 		_display_panel.size = Vector2(640, 540)
-
-
-func _update_volume_label() -> void:
-	_update_audio_labels()
 
 
 func _update_audio_labels() -> void:

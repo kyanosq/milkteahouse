@@ -1,17 +1,6 @@
-## Blender MCP 资产回归：环境关键节点、四种普通顾客轮转与三种特殊顾客模型。
+## Blender MCP 资产回归：环境关键节点、道具、员工、升级和路线模型。
 extends Node
 
-const CUSTOMER_PATHS := [
-	"res://assets/glb/customer.glb",
-	"res://assets/glb/customer_bob.glb",
-	"res://assets/glb/customer_cap.glb",
-	"res://assets/glb/customer_buns.glb",
-]
-const SPECIAL_CUSTOMER_PATHS := {
-	"critic": "res://assets/glb/customer_critic.glb",
-	"influencer": "res://assets/glb/customer_influencer.glb",
-	"group": "res://assets/glb/customer_group.glb",
-}
 const STAFF_MODEL_PATHS := {
 	"xiaoman": "res://assets/glb/staff_xiaoman.glb",
 	"taozi": "res://assets/glb/staff_taozi.glb",
@@ -67,20 +56,6 @@ func _ready() -> void:
 	lab_model.free()
 	assert(_file_size("res://assets/glb/night_lab_scene.glb") < 2 * 1024 * 1024)
 
-	var regular_stats: Array[String] = []
-	for path in CUSTOMER_PATHS:
-		var resource := load(path) as PackedScene
-		assert(resource != null, "customer model failed to load: " + path)
-		var model := resource.instantiate()
-		assert(_has_mesh_prefix(model, "Body"))
-		assert(_has_mesh_prefix(model, "Hair"))
-		var mesh_count := _mesh_count(model)
-		var triangles := _triangle_count(model)
-		assert(mesh_count >= 8 and mesh_count <= 13, "%s has %d runtime meshes" % [path, mesh_count])
-		assert(triangles >= 1500 and triangles <= 3600, "%s has %d triangles" % [path, triangles])
-		regular_stats.append("%s=%d/%d" % [path.get_file().get_basename(), mesh_count, triangles])
-		model.free()
-		assert(_file_size(path) < 2 * 1024 * 1024)
 	var prop_stats: Array[String] = []
 	for prop_id in PROP_MODEL_PATHS:
 		var path: String = PROP_MODEL_PATHS[prop_id]
@@ -91,16 +66,6 @@ func _ready() -> void:
 		var triangles := _triangle_count(model)
 		assert(triangles <= 2500, "%s has %d triangles" % [prop_id, triangles])
 		prop_stats.append("%s=%d/%d" % [prop_id, _mesh_count(model), triangles])
-		model.free()
-		assert(_file_size(path) < 256 * 1024)
-	for kind in SPECIAL_CUSTOMER_PATHS:
-		var path: String = SPECIAL_CUSTOMER_PATHS[kind]
-		var resource := load(path) as PackedScene
-		assert(resource != null, "special customer model failed to load: " + path)
-		var model := resource.instantiate()
-		assert(_has_mesh_prefix(model, "Body"))
-		assert(_has_mesh_prefix(model, "Hair"))
-		assert(_mesh_count(model) <= 10)
 		model.free()
 		assert(_file_size(path) < 256 * 1024)
 	for staff_id in STAFF_MODEL_PATHS:
@@ -142,18 +107,6 @@ func _ready() -> void:
 	add_child(stage)
 	await get_tree().process_frame
 	assert(stage.get_route_sign() == null, "first campaign must not show a route sign")
-	var variants: Array[int] = []
-	for i in CUSTOMER_PATHS.size():
-		var actor: Node3D = stage.add_customer(i % 3, Color.from_hsv(float(i) / 4.0, 0.55, 0.85))
-		variants.append(int(actor.get_meta("model_variant", -1)))
-	assert(variants == [0, 1, 2, 3])
-	for kind in SPECIAL_CUSTOMER_PATHS:
-		var actor: Node3D = stage.add_customer(0, Color.WHITE, kind)
-		assert(String(actor.get_meta("customer_kind", "")) == kind)
-		assert(String(actor.get_meta("special_model", "")) == kind)
-		assert(int(actor.get_meta("model_variant", 0)) == -1)
-	var next_regular: Node3D = stage.add_customer(0, Color.WHITE)
-	assert(int(next_regular.get_meta("model_variant", -1)) == 0)
 	for staff_id in STAFF_MODEL_PATHS:
 		var staff_actor: Node3D = stage.add_staff(staff_id)
 		assert(String(staff_actor.get_meta("staff_model", "")) == staff_id)
@@ -223,9 +176,9 @@ func _ready() -> void:
 	await get_tree().process_frame
 	GameState.upgrades = {}
 
-	print("[MODELS] passed environments=2 shop_meshes<=40 regular_customers=4 props=8 special_customers=3 staff_models=3 upgrade_models=4 route_signs=3 runtime_glb_under_budget")
-	print("[MODEL_BUDGET] shop=%d/%d regular=[%s] props=[%s] route_signs=[%s]" % [
-		shop_meshes, shop_triangles, ", ".join(regular_stats), ", ".join(prop_stats),
+	print("[MODELS] passed environments=2 shop_meshes<=40 props=8 staff_models=3 upgrade_models=4 route_signs=3 runtime_glb_under_budget")
+	print("[MODEL_BUDGET] shop=%d/%d props=[%s] route_signs=[%s]" % [
+		shop_meshes, shop_triangles, ", ".join(prop_stats),
 		", ".join(route_sign_stats)])
 	Sfx.stop_all()
 	await get_tree().process_frame

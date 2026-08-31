@@ -1,4 +1,4 @@
-## 白天全屏 3D 舞台：店铺世界 + 可点击原料道具 + 顾客进出场 + 台面工作杯
+## 白天全屏 3D 舞台：店铺世界 + 可点击原料道具 + 台面工作杯
 ## “世界即界面”：原料罐/茶壶本身就是按钮（物理拾取），屏幕级 UI 只留 HUD
 extends SubViewportContainer
 
@@ -7,17 +7,6 @@ signal cup_clicked
 signal staff_clicked
 
 const CupRigScene := preload("res://ui/cup_rig.gd")
-const CUSTOMER_MODELS: Array[PackedScene] = [
-	preload("res://assets/glb/customer.glb"),
-	preload("res://assets/glb/customer_bob.glb"),
-	preload("res://assets/glb/customer_cap.glb"),
-	preload("res://assets/glb/customer_buns.glb"),
-]
-const SPECIAL_CUSTOMER_MODELS: Dictionary = {
-	"critic": preload("res://assets/glb/customer_critic.glb"),
-	"influencer": preload("res://assets/glb/customer_influencer.glb"),
-	"group": preload("res://assets/glb/customer_group.glb"),
-}
 const DEFAULT_STAFF_MODEL := preload("res://assets/glb/staff_barista.glb")
 const STAFF_MODELS: Dictionary = {
 	"xiaoman": preload("res://assets/glb/staff_xiaoman.glb"),
@@ -33,8 +22,6 @@ const FLOOR_TEXTURE := preload("res://assets/ui/full_set_v3/background/backgroun
 
 const COUNTER_TOP_Y := 0.985
 const CUP_SPOT := Vector3(-0.20, 0.985, 1.20)
-# 参考图的顾客沿左侧走廊纵向排队，与三张订单卡逐一对齐。
-const QUEUE_SLOTS := [Vector3(-1.46, 0, 0.20), Vector3(-1.46, 0, 0.65), Vector3(-1.46, 0, 1.25)]
 const PROP_SCALE := 2.4
 const STAFF_SPOT := Vector3(1.62, 0.80, 0.10)
 const CORAL := Color("FF6259")
@@ -52,7 +39,6 @@ var _sugar_key := ""
 var _font: FontFile
 var _staff_actor: Node3D
 var _staff_bob: Node3D
-var _customer_variant_serial := 0
 var _upgrade_visuals: Dictionary = {}
 var _route_sign: Node3D
 var _route_sign_base_scale := Vector3.ONE * 0.68
@@ -486,23 +472,6 @@ func _on_locale_changed(_locale: String) -> void:
 			lbl.text = GameLocale.ingredient_short_name(item)
 
 
-func _mat(color: Color, rough := 0.5, alpha := 1.0) -> StandardMaterial3D:
-	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(color.r, color.g, color.b, alpha)
-	m.roughness = rough
-	if alpha < 1.0:
-		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	return m
-
-
-func _mesh(root: Node3D, mesh: Mesh, mat: StandardMaterial3D, pos: Vector3) -> void:
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	mi.set_surface_override_material(0, mat)
-	mi.position = pos
-	root.add_child(mi)
-
-
 ## 从道具库加载 GLB，并对 Tint 命名部件染色（数据驱动换色）
 func _load_prop(fname: String, tint := Color.TRANSPARENT) -> Node3D:
 	var node: Node3D = (load("res://assets/glb/props/" + fname) as PackedScene).instantiate()
@@ -630,115 +599,6 @@ func remove_staff() -> void:
 	_staff_bob = null
 
 
-# ---------------------------------------------------------------- 顾客进出场
-
-func add_customer(slot: int, tint: Color, kind := "regular") -> Node3D:
-	# Gameplay-significant visitors use authored silhouettes. Regular visitors keep a
-	# stable rotation, and specials do not disturb that sequence.
-	var kind_key := kind if SPECIAL_CUSTOMER_MODELS.has(kind) else "regular"
-	var variant_index := -1
-	var model_scene: PackedScene
-	if kind_key == "regular":
-		variant_index = _customer_variant_serial % CUSTOMER_MODELS.size()
-		_customer_variant_serial += 1
-		model_scene = CUSTOMER_MODELS[variant_index]
-	else:
-		model_scene = SPECIAL_CUSTOMER_MODELS[kind_key]
-	var model: Node3D = model_scene.instantiate()
-	var actor := Node3D.new()
-	actor.name = "CustomerActor"
-	actor.set_meta("model_variant", variant_index)
-	actor.set_meta("customer_kind", kind_key)
-	actor.set_meta("special_model", kind_key if kind_key != "regular" else "")
-	var bob_root := Node3D.new()
-	bob_root.name = "BobRoot"
-	var gesture_root := Node3D.new()
-	gesture_root.name = "GestureRoot"
-	actor.add_child(bob_root)
-	bob_root.add_child(gesture_root)
-	gesture_root.add_child(model)
-	var cloth: StandardMaterial3D = null
-	var hair_mat: StandardMaterial3D = null
-	for child in model.get_children():
-		if child is MeshInstance3D:
-			var n := String(child.name)
-			if n.begins_with("Body") or n.begins_with("Arm"):
-				if cloth == null:
-					cloth = child.get_active_material(0).duplicate()
-					cloth.albedo_color = tint
-				child.set_surface_override_material(0, cloth)
-			elif n.begins_with("Hair") and kind_key == "regular":
-				if hair_mat == null:
-					hair_mat = child.get_active_material(0).duplicate()
-					hair_mat.albedo_color = Color(0.22, 0.15, 0.12).lerp(Color(0.55, 0.4, 0.28), randf())
-				child.set_surface_override_material(0, hair_mat)
-	var target: Vector3 = QUEUE_SLOTS[clampi(slot, 0, QUEUE_SLOTS.size() - 1)]
-	actor.position = target + Vector3(-1.6, 0, 0)
-	# 参考图里顾客是画面主角之一：贴近柜台并放大到半身入镜。
-	var actor_scale := 1.05 if kind_key == "group" else 1.0
-	actor.scale = Vector3.ONE * actor_scale   # 双人组合略放大，仍守住队列槽宽。
-	_vp.add_child(actor)
-	if GameState.reduced_motion():
-		actor.position = target
-		return actor
-
-	# 行走、呼吸、张望、小跳分属不同父节点，避免多个 Tween 争夺同一个属性。
-	var walk := actor.create_tween()
-	walk.tween_property(actor, "position", target, 0.6) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	var bob := bob_root.create_tween().set_loops()
-	var dur := randf_range(0.9, 1.3)
-	bob.tween_property(bob_root, "position:y", 0.018, dur) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	bob.tween_property(bob_root, "position:y", 0.0, dur) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	var look := gesture_root.create_tween().set_loops()
-	look.tween_interval(randf_range(1.0, 2.3))
-	look.tween_property(gesture_root, "rotation_degrees:y", randf_range(-12.0, -6.0), 0.45) \
-		.set_trans(Tween.TRANS_SINE)
-	look.tween_interval(randf_range(0.5, 1.2))
-	look.tween_property(gesture_root, "rotation_degrees:y", randf_range(6.0, 12.0), 0.55) \
-		.set_trans(Tween.TRANS_SINE)
-	look.tween_property(gesture_root, "rotation_degrees:y", 0.0, 0.35) \
-		.set_trans(Tween.TRANS_SINE)
-	var hop := gesture_root.create_tween().set_loops()
-	hop.tween_interval(randf_range(2.8, 5.0))
-	hop.tween_property(gesture_root, "position:y", 0.045, 0.12) \
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	hop.tween_property(gesture_root, "position:y", 0.0, 0.16) \
-		.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	return actor
-
-
-func remove_customer(actor: Node3D, served := false) -> void:
-	if not is_instance_valid(actor):
-		return
-	if GameState.reduced_motion():
-		actor.queue_free()
-		return
-	var tw := actor.create_tween()
-	if served:
-		# 正确出杯：先走向右侧取餐牌，再从右侧离场，强化“完成交付”的空间叙事。
-		var pickup := Vector3(1.42, 0.0, 1.00)
-		tw.set_parallel(true)
-		tw.tween_property(actor, "position", pickup, 0.72) \
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tw.tween_property(actor, "rotation_degrees:y", -55.0, 0.35)
-		tw.set_parallel(false)
-		tw.tween_interval(0.08)
-		tw.tween_property(actor, "position:x", pickup.x + 1.25, 0.42) \
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	else:
-		# 等太久或日终清场：沿来路离开。
-		tw.tween_property(actor, "position:x", actor.position.x - 1.8, 0.5) \
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tw.tween_callback(actor.queue_free)
-
-
 ## 世界坐标 → 屏幕坐标（订单气泡/摇茶条跟随用）
 func screen_pos(world: Vector3) -> Vector2:
 	return _cam.unproject_position(world)
-
-
-func cup_screen_pos() -> Vector2:
-	return _cam.unproject_position(CUP_SPOT + Vector3(0, 0.42, 0))

@@ -12,9 +12,6 @@ var dark_recipes: Array = []
 var traits_list: Array = []
 var staff_list: Array = []
 
-var _names: Dictionary = {}
-
-
 func _ready() -> void:
 	var ing: Variant = _load_json("res://data/ingredients.json")
 	# assert 在发布模板中会被剥离；主表损坏时给出明确错误并干净退出，
@@ -33,8 +30,6 @@ func _ready() -> void:
 	dark_recipes = _json_array("res://data/dark_recipes.json")
 	traits_list = _json_array("res://data/traits.json")
 	staff_list = _json_array("res://data/staff.json")
-	for item in bases + milks + toppings:
-		_names[item["id"]] = item["name"]
 
 
 func _load_json(path: String) -> Variant:
@@ -57,13 +52,6 @@ func unlocked(list: Array, day: int) -> Array:
 		if int(item.get("unlock_day", 1)) <= day:
 			out.append(item)
 	return out
-
-
-func name_of(id: String) -> String:
-	for item in bases + milks + toppings:
-		if String(item.get("id", "")) == id:
-			return GameLocale.ingredient_name(item)
-	return _names.get(id, id)
 
 
 ## 当日新解锁的原料名（结算演出用）

@@ -1268,7 +1268,7 @@ func _return_to_menu() -> void:
 
 
 ## 减弱动态的创建点门控在日内开启后不会自停存量循环（P12-F3）：
-## 开启时重建舞台上的店员/顾客（reduced_motion 分支直接静态就位）。
+## 开启时重建舞台店员，并结束存量顾客贴图动画。
 ## 关闭时刻意不重建——中途补回动画收益低且会造成可见的位置跳变。
 func _on_reduced_motion_toggled(enabled: bool) -> void:
 	if not enabled:
@@ -1296,11 +1296,6 @@ func _on_reduced_motion_toggled(enabled: bool) -> void:
 		stage.set_staff_state(staff_state)
 	for c in customers:
 		_settle_customer_arrival(c)
-		var node: Node3D = stage.add_customer(int(c["slot"]), Color(c.get("tint", Color.WHITE)), \
-			String(c.get("kind", "regular")))
-		node.visible = c.get("portrait") == null
-		stage.remove_customer(c["node"], false)
-		c["node"] = node
 
 
 func _pill(hud: HBoxContainer, icon_texture: Texture2D) -> Label:
@@ -2447,19 +2442,7 @@ func _spawn_customer() -> void:
 	_kind_spawn_counts[kind] = _special_spawn_count(kind) + 1
 
 	var slot := _free_slot()
-	var customer_color := Color.from_hsv(randf(), 0.55, 0.85)
-	match kind:
-		"critic":
-			customer_color = Color("8C67B5")
-		"influencer":
-			customer_color = Color("F083A2")
-		"group":
-			customer_color = Color("3AAE9F")
-	if dark_order:
-		customer_color = Color("8C67B5")
-	var node: Node3D = stage.add_customer(slot, customer_color, kind)
-	# 顾客统一进入左侧固定队列；特殊顾客仍由订单卡标识，不再躲在柜台模型后方。
-	node.visible = false
+	# 顾客统一进入左侧固定队列；特殊顾客由订单卡标识。
 	var portrait := Sprite2D.new()
 	var mint_portrait := spawned_count % 2 == 1
 	portrait.texture = CustomerMint if mint_portrait else CustomerYellow
@@ -2620,10 +2603,10 @@ func _spawn_customer() -> void:
 		"order": order, "orders": orders, "group_index": 0, "group_total": orders.size(),
 		"patience": patience, "max_patience": patience,
 		"editor": editor, "live_second": live_second,
-		"node": node, "portrait": portrait, "contact_shadow": contact_shadow,
+		"portrait": portrait, "contact_shadow": contact_shadow,
 		"arrival_tween": arrival, "arrival_x": portrait_target_x,
 		"bubble": bubble, "order_badge": order_badge,
-		"btn": btn, "slot": slot, "tint": customer_color,
+		"btn": btn, "slot": slot,
 		"patience_bar": patience_bar, "patience_label": patience_label,
 		"order_title": order_title, "order_progress": order_progress,
 		"order_row": row, "drink_art": drink_art, "drink_name": drink_name,
@@ -3264,7 +3247,6 @@ func _finish_customer_departure(departure: Dictionary) -> void:
 func _remove_customer(c: Dictionary, served := false) -> void:
 	var was_active: bool = active_customer == c
 	customers.erase(c)
-	stage.remove_customer(c["node"], served)
 	_settle_customer_arrival(c)
 	var portrait := c.get("portrait") as Node
 	var contact_shadow := c.get("contact_shadow") as Node

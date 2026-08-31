@@ -660,7 +660,7 @@ func _ready() -> void:
 	assert(shop.service_bell_art.rotation == 0.0 and shop.service_bell_art.scale == Vector2.ONE,
 		"reduced motion must keep the service bell stable after delivery")
 
-	# ---- 减弱动态开启后存量动画停（P12-F3）：舞台演员重建为静态 ----
+	# ---- 减弱动态开启后存量动画停（P12-F3）----
 	GameState.settings["reduced_motion"] = false
 	shop._animate_service_bell()
 	await get_tree().create_timer(0.06).timeout
@@ -705,21 +705,15 @@ func _ready() -> void:
 	shop._update_next_action_motion()
 	assert(shop.next_action_panel.scale.x < 1.0,
 		"a changed next-action prompt must give one restrained transition cue")
-	var stale_actors: Array = []
-	for c in shop.customers:
-		stale_actors.append(c["node"])
 	GameState.settings["reduced_motion"] = true
 	shop._on_reduced_motion_toggled(true)
 	assert(shop.next_action_panel.scale == Vector2.ONE,
 		"reduced motion must immediately settle the next-action prompt")
 	assert(shop._cup_handoff_art == null,
 		"reduced motion must immediately remove an active pickup handoff")
-	assert(shop.customers.size() == stale_actors.size())
-	for i in shop.customers.size():
-		assert(shop.customers[i]["node"] != stale_actors[i],
-			"enabling reduced motion must rebuild live actors so idle loops stop")
-		assert(float(shop.customers[i]["node"].get_node("BobRoot").position.y) == 0.0,
-			"rebuilt actors must be placed statically with no bob loop")
+	for customer in shop.customers:
+		assert(customer["arrival_tween"] == null,
+			"reduced motion must leave every live portrait in a settled state")
 
 	# ---- 日间暂停面板圈禁（P3-F6）：逃逸后的 D-pad 不落遮罩下控件 ----
 	shop._toggle_pause()
