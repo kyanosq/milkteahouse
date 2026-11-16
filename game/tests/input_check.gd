@@ -161,12 +161,8 @@ func _ready() -> void:
 		"the reset sign must keep its source-aligned perspective envelope")
 	assert(shop.station_art.keys().size() == 5 and shop.active_station_art_id == "tea_milk",
 		"the reference-aligned station art must expose every preparation phase")
-	assert(shop.CustomerMint.resource_path.ends_with("character-mint-customer-v5.png"),
-		"the Day 1 mint customer must keep the source-proportion transparent revision")
-	assert(shop.CustomerYellow.resource_path.ends_with("character-yellow-customer-waiting-v2.png"),
-		"the Day 1 yellow customer must keep the source-proportion transparent revision")
-	assert(shop.CustomerShadow.resource_path.ends_with("customer-contact-shadow-v1.png"),
-		"customer portraits must keep their transparent ground-contact shadow")
+	assert(shop.stage.WalkingCustomer.MODEL.resource_path.ends_with("customer_walk.glb"),
+		"customers must use the skinned walking model")
 	for drink_path in [
 			"res://assets/ui/full_set_v3/illustrations/drink-classic-boba-v2.png",
 			"res://assets/ui/full_set_v3/illustrations/drink-coconut-milk-v2.png"]:
@@ -668,36 +664,35 @@ func _ready() -> void:
 		"successful service must ring the visible pickup bell")
 	shop._spawn_customer()
 	var animated_leaver: Dictionary = shop.customers.back()
-	var departure_portrait := animated_leaver["portrait"] as Sprite2D
-	var departure_shadow := animated_leaver["contact_shadow"] as Sprite2D
-	var arrival_tween := animated_leaver["arrival_tween"] as Tween
+	var departure_actor: Node3D = animated_leaver["actor"]
+	assert(not departure_actor.path.is_empty(), "new customers must walk into the queue")
 	GameState.settings["reduced_motion"] = true
 	shop._on_reduced_motion_toggled(true)
-	assert(not arrival_tween.is_valid()
-		and departure_portrait.position.x == float(animated_leaver["arrival_x"])
-		and departure_shadow.position.x == float(animated_leaver["arrival_x"])
-		and departure_portrait.modulate.a == 1.0 and departure_shadow.modulate.a == 1.0,
-		"enabling reduced motion must immediately settle live customer arrival art")
+	assert(departure_actor.path.is_empty()
+		and departure_actor.position.is_equal_approx(shop.stage.QUEUE_SPOTS[animated_leaver["slot"]])
+		and not departure_actor.animation.is_playing(),
+		"enabling reduced motion must settle the customer and stop its skeleton animation")
 	GameState.settings["reduced_motion"] = false
 	shop._remove_customer(animated_leaver, true)
-	assert(not departure_portrait.is_queued_for_deletion() and not departure_shadow.is_queued_for_deletion(),
-		"visible customer art must remain alive for the served departure cue")
+	assert(not departure_actor.is_queued_for_deletion() and departure_actor.departing,
+		"served customers must remain alive while walking out")
 	GameState.settings["reduced_motion"] = true
 	shop._on_reduced_motion_toggled(true)
-	assert(not departure_portrait.visible and not departure_shadow.visible,
-		"enabling reduced motion must immediately hide an in-flight departure")
+	assert(not departure_actor.visible, "reduced motion must hide an in-flight departure")
 	await get_tree().process_frame
-	assert(not is_instance_valid(departure_portrait) and not is_instance_valid(departure_shadow),
-		"enabling reduced motion must release in-flight departure art")
+	assert(not is_instance_valid(departure_actor), "departing skeletons must be released")
 	GameState.settings["reduced_motion"] = false
 	shop._spawn_customer()
 	var completed_leaver: Dictionary = shop.customers.back()
-	departure_portrait = completed_leaver["portrait"] as Sprite2D
-	departure_shadow = completed_leaver["contact_shadow"] as Sprite2D
+	departure_actor = completed_leaver["actor"]
 	shop._remove_customer(completed_leaver, true)
-	await get_tree().create_timer(0.32).timeout
-	assert(not is_instance_valid(departure_portrait) and not is_instance_valid(departure_shadow),
-		"served customer art must finish and leave the queue after the cue")
+	for walk_frame in 900:
+		if departure_actor.is_queued_for_deletion():
+			break
+		departure_actor._process(1.0 / 60.0)
+	assert(departure_actor.is_queued_for_deletion(), "the exit path must finish")
+	await get_tree().process_frame
+	assert(not is_instance_valid(departure_actor), "finished walkers must leave the scene")
 	shop._animate_cup_handoff()
 	assert(shop._cup_handoff_art != null and shop._cup_handoff_art.texture == shop.CupSealed,
 		"successful service must carry the sealed cup toward pickup")
@@ -712,8 +707,8 @@ func _ready() -> void:
 	assert(shop._cup_handoff_art == null,
 		"reduced motion must immediately remove an active pickup handoff")
 	for customer in shop.customers:
-		assert(customer["arrival_tween"] == null,
-			"reduced motion must leave every live portrait in a settled state")
+		assert(customer["actor"].path.is_empty(),
+			"reduced motion must leave every live customer in a settled state")
 
 	# ---- 日间暂停面板圈禁（P3-F6）：逃逸后的 D-pad 不落遮罩下控件 ----
 	shop._toggle_pause()

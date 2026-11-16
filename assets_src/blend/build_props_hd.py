@@ -65,6 +65,7 @@ def finish(obj, name, mat, col, bevel=0.0):
         mod.limit_method = "ANGLE"
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.modifier_apply(modifier=mod.name)
+        obj.modifiers.new("SurfaceNormals", "WEIGHTED_NORMAL")
     return move_to(obj, col)
 
 
@@ -258,8 +259,10 @@ def build_shaker():
 
 def build_prep_mat():
     col = collection("PrepMatHD")
-    cube("MatBase", (0, 0, 0.010), (0.380, 0.280, 0.020), "Wood", col, 0.018)
-    cube("MatInset", (0, 0, 0.022), (0.350, 0.250, 0.014), "Cream", col, 0.014)
+    rounded_prism("MatBase", (0, -0.011, 0.011), (0.376, 0.267, 0.022), 0.023,
+                  "Wood", col)
+    rounded_prism("MatInset", (0, -0.011, 0.025), (0.369, 0.257, 0.006), 0.023,
+                  "Cream", col)
     textured_plane("FabricOverlay", (0, -0.024, 0.030), (0.382, 0.290),
                    image_material("Fabric", PREP_MAT_TEXTURE), col)
     for index in range(16):
@@ -273,10 +276,11 @@ def build_prep_mat():
 
 def build_pickup_tray():
     col = collection("PickupTrayHD")
+    # Match the surface art's narrower rear and contact outline.
     widen_rear(rounded_prism("TrayBase", (0, 0, 0.012), (0.320, 0.260, 0.024), 0.022,
-                            "Mint", col), 1.10, 0.013)
+                            "Mint", col), 0.91, -0.004)
     widen_rear(rounded_prism("TrayInset", (0, 0, 0.025), (0.280, 0.220, 0.018), 0.018,
-                            "Cream", col), 1.10, 0.013)
+                            "Cream", col), 0.91, -0.004)
     textured_plane("TrayOverlay", (-0.006, -0.019, 0.035), (0.335, 0.312),
                    image_material("TrayTexture", PICKUP_TRAY_TEXTURE), col)
     return col
@@ -305,6 +309,11 @@ def export_collection(col, filename):
         obj = source.copy()
         obj.data = source.data.copy()
         temp.objects.link(obj)
+        # Evaluate normals after shape edits, before join discards modifier stacks.
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        bpy.ops.object.convert(target="MESH")
         material_name = obj.data.materials[0].name if obj.data.materials else "Unmaterialed"
         contract = "Tint" if source.name.startswith("Tint") else "Fixed"
         groups.setdefault((contract, material_name), []).append(obj)

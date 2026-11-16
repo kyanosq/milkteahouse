@@ -1,6 +1,7 @@
 """Batch the editable shop into a runtime GLB without mutating source objects."""
 
 import bpy
+import bmesh
 import math
 import os
 import re
@@ -11,7 +12,6 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 SOURCE_BLEND = os.path.join(ROOT, "assets_src/blend/shop_scene.blend")
 SOURCE_GLB = os.path.join(ROOT, "assets_src/glb/shop_scene.glb")
 RUNTIME_GLB = os.path.join(ROOT, "game/assets/glb/shop_scene.glb")
-WOOD_TEXTURE = os.path.join(ROOT, "assets_src/textures/shop_counter_wood_pale_v4.png")
 SEMANTIC_NODES = {"PD_Fascia_Base", "PD_JarFill_0", "PD_LampShade_0", "PD_MenuCup"}
 RUNTIME_EXCLUDE_PREFIXES = (
     "PrepTier", "Menu", "PD_Menu", "Lamp", "PD_Lamp",
@@ -33,6 +33,7 @@ def add_box(collection, groups, name, location, dimensions, material_name, bevel
         modifier = obj.modifiers.new("SoftBevel", "BEVEL")
         modifier.width = min(bevel, min(dimensions) * 0.24)
         modifier.segments = 2
+        modifier.limit_method = "ANGLE"
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.modifier_apply(modifier=modifier.name)
     for owner in list(obj.users_collection):
@@ -62,16 +63,22 @@ def add_curved_strip(collection, groups, name, center, dimensions, material_name
         a = index * 4
         b = a + 4
         faces.extend([
-            (a, b, b + 1, a + 1),
-            (a + 2, a + 3, b + 3, b + 2),
-            (a, a + 2, b + 2, b),
-            (a + 1, b + 1, b + 3, a + 3),
+            (a + 1, b + 1, b, a),
+            (b + 2, b + 3, a + 3, a + 2),
+            (b, b + 2, a + 2, a),
+            (a + 3, b + 3, b + 1, a + 1),
         ])
     last = segments * 4
-    faces.extend([(0, 1, 3, 2), (last, last + 2, last + 3, last + 1)])
+    faces.extend([(2, 3, 1, 0), (last + 1, last + 3, last + 2, last)])
     mesh = bpy.data.meshes.new(name + "Mesh")
     mesh.from_pydata(vertices, [], faces)
     mesh.update()
+    # Check before batching: glTF splits vertices at UV/normal seams.
+    check = bmesh.new()
+    check.from_mesh(mesh)
+    assert all(edge.is_manifold and edge.is_contiguous for edge in check.edges), name
+    assert check.calc_volume(signed=True) > 0, name + " has inward faces"
+    check.free()
     uv_layer = mesh.uv_layers.new(name="UVMap")
     for polygon in mesh.polygons:
         for loop_index in polygon.loop_indices:
@@ -89,10 +96,16 @@ def add_curved_strip(collection, groups, name, center, dimensions, material_name
         modifier = obj.modifiers.new("SoftBevel", "BEVEL")
         modifier.width = min(bevel, min(depth, height) * 0.24)
         modifier.segments = 2
+        modifier.limit_method = "ANGLE"
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.select_all(action="DESELECT")
         obj.select_set(True)
         bpy.ops.object.modifier_apply(modifier=modifier.name)
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    normals = obj.modifiers.new("SurfaceNormals", "WEIGHTED_NORMAL")
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=normals.name)
     groups.setdefault(("material", (material_name,)), []).append(obj)
 
 
@@ -123,11 +136,18 @@ def triangles(mesh):
 
 
 def build_export_collection():
-    wood = bpy.data.materials["fine_grained_wood"].node_tree
-    wood_image = wood.nodes["Image Texture"]
-    wood_image.image = bpy.data.images.load(WOOD_TEXTURE, check_existing=True)
-    wood.links.new(wood_image.outputs["Color"],
-                   wood.nodes["Principled BSDF"].inputs["Base Color"])
+    # The toon counter uses a matte color; Godot supplies the shared painted floor.
+    # Strip the superseded color/roughness maps instead of keeping them resident in VRAM.
+    for name, color in {"fine_grained_wood": (0.72, 0.62, 0.45, 1),
+                        "grey_cartago_01": (0.70, 0.74, 0.72, 1)}.items():
+        graph = bpy.data.materials[name].node_tree
+        shader = next(node for node in graph.nodes if node.type == "BSDF_PRINCIPLED")
+        for socket in ("Base Color", "Roughness", "Metallic", "Normal"):
+            for link in list(shader.inputs[socket].links):
+                graph.links.remove(link)
+        shader.inputs["Base Color"].default_value = color
+        shader.inputs["Roughness"].default_value = 0.9
+        shader.inputs["Metallic"].default_value = 0.0
     temp = bpy.data.collections.new("EXPORT_ShopMobile")
     bpy.context.scene.collection.children.link(temp)
     groups = {}
@@ -164,7 +184,7 @@ def build_export_collection():
         groups.setdefault(key, []).append(obj)
 
     add_box(temp, groups, "PD_CounterTop", (0.0, -0.475, 0.95),
-            (3.80, 1.65, 0.06), "fine_grained_wood", 0.0)
+            (3.80, 1.65, 0.06), "fine_grained_wood", 0.008)
 
     # 参考图的后场由奶油色柜体包住原料，而不是一条孤立的平板货架。
     # 复用店铺现有材质，补齐框架即可，不引入新的运行时系统或贴图。

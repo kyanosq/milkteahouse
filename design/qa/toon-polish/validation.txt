@@ -1,0 +1,9 @@
+[INPUT] passed actions=5 families=4 prep_shoulders=true device_glyphs=true focus_ring=4px safe=320x/40y+cutout mouse_gesture=true sensor_gate=true gamepad_shake=true haptics=true tutorial_focus=true spotlight_hole=true patience_contrast=true panel_confinement=true buy_refocus=true promotion_review=true reduced_motion_refresh=true
+[MODELS] passed environments=2 shop_meshes<=40 props=8 staff_models=3 upgrade_models=4 route_signs=3 runtime_glb_under_budget
+[STAFF] passed hire=3 traits=3 models=3 slacker_wake=1 perfection_rescue=1 wage=14 shortfall=9 rest_day=true auto_return=true
+[GODOT_CHECKS] PASSED core=26 campaign=0 failed=0 logs=/private/tmp/milkteahouse-godot-checks.mGZyFi
+[MODELS] passed environments=2 shop_meshes<=40 props=8 staff_models=3 upgrade_models=4 route_signs=3 runtime_glb_under_budget
+[STAFF] passed hire=3 traits=3 models=3 slacker_wake=1 perfection_rescue=1 wage=14 shortfall=9 rest_day=true auto_return=true
+[INPUT] passed actions=5 families=4 prep_shoulders=true device_glyphs=true focus_ring=4px safe=320x/40y+cutout mouse_gesture=true sensor_gate=true gamepad_shake=true haptics=true tutorial_focus=true spotlight_hole=true patience_contrast=true panel_confinement=true buy_refocus=true promotion_review=true reduced_motion_refresh=true
+[MOBILE_RENDER] renderer=mobile meshes=90 surfaces=90 triangles=67612 lights=3 shadow_lights=1 subviewports=3 draw_calls_max=251 primitives_max=195774 process_ms_avg=83.747 video_mem_mib=156.55
+[MOBILE_RENDER] passed day=10 customers=3 upgrades=10 static_budget=true

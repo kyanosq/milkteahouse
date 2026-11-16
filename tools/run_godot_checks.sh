@@ -10,6 +10,7 @@ source "$SCRIPT_DIR/find_godot.sh"
 CHECK_SCENES=(
   "tests/audio_check.tscn"
   "tests/campaign_check.tscn"
+  "tests/customer_walk_check.tscn"
   "tests/dark_menu_check.tscn"
   "tests/endless_contract_check.tscn"
   "tests/event_check.tscn"
@@ -35,7 +36,7 @@ CHECK_SCENES=(
   "tests/upgrade_check.tscn"
 )
 
-EXPECTED_CHECK_COUNT=25
+EXPECTED_CHECK_COUNT=26
 if [[ "${#CHECK_SCENES[@]}" -ne "$EXPECTED_CHECK_COUNT" ]]; then
   printf '[GODOT_CHECKS] expected %d scenes, configured %d\n' \
     "$EXPECTED_CHECK_COUNT" "${#CHECK_SCENES[@]}" >&2

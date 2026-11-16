@@ -7,11 +7,14 @@ signal cup_clicked
 signal staff_clicked
 
 const CupRigScene := preload("res://ui/cup_rig.gd")
-const DEFAULT_STAFF_MODEL := preload("res://assets/glb/staff_barista.glb")
+const WalkingCustomer := preload("res://ui/walking_customer.gd")
+# ponytail: three authored queue spots; add navigation if the shop layout becomes editable.
+const QUEUE_SPOTS := [Vector3(-2.84, 0, -1.14), Vector3(-2.20, 0, 0.49), Vector3(-1.80, 0, 1.43)]
+const DEFAULT_STAFF_MODEL := "res://assets/glb/staff_barista.glb"
 const STAFF_MODELS: Dictionary = {
-	"xiaoman": preload("res://assets/glb/staff_xiaoman.glb"),
-	"taozi": preload("res://assets/glb/staff_taozi.glb"),
-	"acheng": preload("res://assets/glb/staff_acheng.glb"),
+	"xiaoman": "res://assets/glb/staff_xiaoman.glb",
+	"taozi": "res://assets/glb/staff_taozi.glb",
+	"acheng": "res://assets/glb/staff_acheng.glb",
 }
 const ROUTE_SIGN_MODELS: Dictionary = {
 	"rush": preload("res://assets/glb/props/routes/route_rush.glb"),
@@ -23,7 +26,7 @@ const FLOOR_TEXTURE := preload("res://assets/ui/full_set_v3/background/backgroun
 const COUNTER_TOP_Y := 0.985
 const CUP_SPOT := Vector3(-0.20, 0.985, 1.20)
 const PROP_SCALE := 2.4
-const STAFF_SPOT := Vector3(1.62, 0.80, 0.10)
+const STAFF_SPOT := Vector3(2.35, 0, -1.98)
 const CORAL := Color("FF6259")
 const MINT := Color("27B9A7")
 const CREAM := Color("FFF8ED")
@@ -38,13 +41,14 @@ var _prop_nodes: Dictionary = {}    # item_id -> 道具根节点（选中态抬�
 var _sugar_key := ""
 var _font: FontFile
 var _staff_actor: Node3D
-var _staff_bob: Node3D
+var _staff_animation: AnimationPlayer
 var _upgrade_visuals: Dictionary = {}
 var _route_sign: Node3D
 var _route_sign_base_scale := Vector3.ONE * 0.68
 var _route_sign_tween: Tween
 var _active_prop_kind := ""
 var _prop_hint_sources: Dictionary = {}
+var customer_root: Node3D
 
 
 func _ready() -> void:
@@ -80,6 +84,11 @@ func _ready() -> void:
 		floor_material.ao_enabled = false
 		floor_material.vertex_color_use_as_albedo = false
 		(floor_mesh as MeshInstance3D).set_surface_override_material(0, floor_material)
+	ShopToon.apply(model)
+	for wood in model.find_children("*fine_grained_wood*", "MeshInstance3D", true, false):
+		var wood_material: StandardMaterial3D = wood.get_active_material(0)
+		wood_material.albedo_texture = null
+		wood_material.albedo_color = Color("DDCDB0")
 	_build_route_sign()
 
 	# 方案 3：更俯视、更宽的空间站点构图，顾客在左、制杯垫居中、原料沿后方展开。
@@ -91,13 +100,16 @@ func _ready() -> void:
 	_cam.position = Vector3(0.06, 3.75, 3.58)
 	_cam.look_at(Vector3(0.02, 1.12, 0.52))
 	_cam.fov = 42
+	_cam.cull_mask = 1
 
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-50, -20, 0)
-	sun.light_energy = 0.66
-	sun.light_color = Color(1.0, 0.96, 0.90)
+	sun.light_energy = 0.72
+	sun.light_cull_mask = 7
+	sun.layers = 7
+	sun.light_color = Color("FFFDF4")
 	sun.shadow_enabled = true
-	sun.shadow_opacity = 0.46
+	sun.shadow_opacity = 0.30
 	sun.light_angular_distance = 3.0
 	sun.shadow_blur = 2.0
 	sun.directional_shadow_max_distance = 12.0
@@ -105,35 +117,39 @@ func _ready() -> void:
 	var warm := OmniLight3D.new()
 	warm.position = Vector3(0, 2.1, 0.8)
 	warm.omni_range = 7.0
-	warm.light_energy = 0.22
-	warm.light_color = Color(1.0, 0.94, 0.88)
+	warm.light_energy = 0.10
+	warm.light_cull_mask = 7
+	warm.layers = 7
+	warm.light_color = Color("F4F8FF")
 	_vp.add_child(warm)
 	# 薄荷反杈补光：抬亮暖色阴影，呼应珊瑚薄荷色板
 	var fill := OmniLight3D.new()
 	fill.position = Vector3(-1.6, 1.6, 2.0)
 	fill.omni_range = 6.0
-	fill.light_energy = 0.18
+	fill.light_energy = 0.10
+	fill.light_cull_mask = 7
+	fill.layers = 7
 	fill.light_color = Color(0.82, 0.95, 0.92)
 	_vp.add_child(fill)
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	# 参考图是暖奶油纸感：背景与环光整体提亮提暖。
+	# Neutral daylight and a cool ambient fill keep the pastel palette clear.
 	env.background_color = Color(0.88, 0.83, 0.74)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.48, 0.43, 0.38)
-	env.ambient_light_energy = 0.70
-	# Steam 品质基线：ACES + SSAO 接触阴影 + 克制的 Glow；色彩矫正抑制 ACES 去饱和
+	env.ambient_light_color = Color("CBD8E4")
+	env.ambient_light_energy = 0.34
+	# Keep tone mapping gentle and contact shadows light; materials provide the toon bands.
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	env.tonemap_white = 4.0
 	env.adjustment_enabled = true
 	env.adjustment_brightness = 1.03
-	env.adjustment_saturation = 1.08
-	env.adjustment_contrast = 1.04
+	env.adjustment_saturation = 0.98
+	env.adjustment_contrast = 1.0
 	# Forward Mobile does not implement SSAO; setting it there only emits a warning.
 	# Keep the authored effect on desktop and let the mobile ambient/fill rig carry depth.
 	env.ssao_enabled = RenderingServer.get_current_rendering_method() != "mobile"
-	env.ssao_intensity = 0.85
-	env.ssao_radius = 0.35
+	env.ssao_intensity = 0.35
+	env.ssao_radius = 0.20
 	env.ssao_power = 1.4
 	env.glow_enabled = false
 	var we := WorldEnvironment.new()
@@ -162,6 +178,46 @@ func _ready() -> void:
 	_props_root = Node3D.new()
 	_vp.add_child(_props_root)
 	_build_dressing()
+	customer_root = Node3D.new()
+	customer_root.name = "Customers"
+	_vp.add_child(customer_root)
+
+
+## Composite the real 3D actors above painted wall art and below the rail/cards.
+## Both cameras share one world, light rig and perspective.
+func create_character_layer(region: Rect2i, mask: int) -> SubViewportContainer:
+	var layer := SubViewportContainer.new()
+	layer.position = region.position
+	layer.size = region.size
+	layer.stretch = true
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var viewport := SubViewport.new()
+	viewport.size = region.size
+	viewport.transparent_bg = true
+	viewport.world_3d = _vp.find_world_3d()
+	layer.add_child(viewport)
+	var camera := Camera3D.new()
+	camera.transform = _cam.transform
+	# Crop the existing projection to the queue; don't allocate another full-screen target.
+	var near_height := 2.0 * _cam.near * tan(deg_to_rad(_cam.fov) * 0.5)
+	var center := Vector2(region.get_center()) - Vector2(640, 360)
+	camera.set_frustum(near_height * region.size.y / 720.0,
+		Vector2(center.x, -center.y) * near_height / 720.0,
+		_cam.near, _cam.far)
+	camera.cull_mask = mask
+	viewport.add_child(camera)
+	return layer
+
+
+func add_customer(slot: int, appearance: int) -> Node3D:
+	var actor := WalkingCustomer.new()
+	actor.appearance = appearance
+	actor.scale = Vector3.ONE * 1.12
+	actor.position = Vector3(-1.78, 0, 2.70)
+	customer_root.add_child(actor)
+	var target: Vector3 = QUEUE_SPOTS[slot]
+	actor.walk_to([target + Vector3(-0.18, 0, 0.20), target])
+	return actor
 
 
 ## 新店+路线进入实体店铺：独立浮雕只加载当前路线，首周目保持原场景。
@@ -171,8 +227,10 @@ func _build_route_sign() -> void:
 	if scene == null:
 		return
 	_route_sign = scene.instantiate()
+	ShopToon.apply(_route_sign)
 	_route_sign.name = "RouteSign_%s" % route_id
-	_route_sign.position = Vector3(-0.30, 1.02, 1.23)
+	# Mount on the front fascia, clear of the working cup and preparation mat.
+	_route_sign.position = Vector3(1.30, 0.44, 1.43)
 	_route_sign.scale = _route_sign_base_scale
 	_route_sign.set_meta("route_id", route_id)
 	_disable_small_prop_shadows_on_mobile(_route_sign)
@@ -218,7 +276,7 @@ func _build_dressing() -> void:
 			var prep_palette := {"Wood": Color("F6E4D0"), "Cream": Color("FFF8ED")}
 			for mesh_name in prep_palette:
 				var mesh_node := node.find_child(mesh_name, true, false) as MeshInstance3D
-				var prep_material := mesh_node.mesh.surface_get_material(0).duplicate() as StandardMaterial3D
+				var prep_material := mesh_node.get_active_material(0).duplicate() as StandardMaterial3D
 				prep_material.albedo_color = prep_palette[mesh_name]
 				prep_material.roughness = 0.88
 				mesh_node.material_override = prep_material
@@ -237,7 +295,7 @@ func _build_dressing() -> void:
 				var mesh_node := node.find_child(mesh_name, true, false) as MeshInstance3D
 				if mesh_node == null:
 					continue
-				var pickup_material := mesh_node.mesh.surface_get_material(0).duplicate() as StandardMaterial3D
+				var pickup_material := mesh_node.get_active_material(0).duplicate() as StandardMaterial3D
 				pickup_material.albedo_color = pickup_palette[mesh_name]
 				mesh_node.material_override = pickup_material
 		if d[0] == "service_bell.glb":
@@ -262,17 +320,18 @@ func _build_dressing() -> void:
 		comfort.rotation_degrees.y = -12.0
 	if UpgradeCatalog.auto_sugar_after_milk():
 		_add_upgrade_visual("smart_sugar", "smart_sugar.glb", 1,
-			Vector3(1.49, 0.985, 0.48), 0.72)
+			Vector3(-0.82, COUNTER_TOP_Y, 0.34), 0.55)
 	var tip_level := UpgradeCatalog.level("tip_jar")
 	if tip_level > 0:
 		_add_upgrade_visual("tip_jar", "tip_jar.glb", tip_level,
-			Vector3(1.70, 0.982, 0.76), 0.66)
+			Vector3(-1.28, COUNTER_TOP_Y, 0.37), 0.45)
 
 
 func _add_upgrade_visual(id: String, filename: String, level: int,
 		position: Vector3, scale_value: float) -> Node3D:
 	var scene := load("res://assets/glb/props/upgrades/" + filename) as PackedScene
 	var node := scene.instantiate()
+	ShopToon.apply(node)
 	node.name = "Upgrade_%s" % id
 	node.position = position
 	node.scale = Vector3.ONE * scale_value
@@ -475,6 +534,7 @@ func _on_locale_changed(_locale: String) -> void:
 ## 从道具库加载 GLB，并对 Tint 命名部件染色（数据驱动换色）
 func _load_prop(fname: String, tint := Color.TRANSPARENT) -> Node3D:
 	var node: Node3D = (load("res://assets/glb/props/" + fname) as PackedScene).instantiate()
+	ShopToon.apply(node)
 	if tint.a > 0.0:
 		for child in node.get_children():
 			if child is MeshInstance3D and String(child.name).begins_with("Tint"):
@@ -547,56 +607,53 @@ func _bounce(root: Node3D) -> void:
 func add_staff(staff_id := "") -> Node3D:
 	remove_staff()
 	var staff_key := staff_id if STAFF_MODELS.has(staff_id) else "generic"
-	var model_scene: PackedScene = STAFF_MODELS[staff_key] if staff_key != "generic" else DEFAULT_STAFF_MODEL
+	var model_scene: PackedScene = load(STAFF_MODELS[staff_key] if staff_key != "generic" else DEFAULT_STAFF_MODEL)
 	var model: Node3D = model_scene.instantiate()
+	ShopToon.apply(model)
+	for mesh in model.find_children("*", "MeshInstance3D", true, false):
+		mesh.layers = 4
+		mesh.get_active_material(0).disable_receive_shadows = true
 	_staff_actor = Node3D.new()
 	_staff_actor.name = "StaffActor"
 	_staff_actor.set_meta("staff_model", staff_key)
 	_staff_actor.position = STAFF_SPOT
-	_staff_actor.scale = Vector3.ONE * 0.92
-	_staff_bob = Node3D.new()
-	_staff_bob.name = "StaffBob"
-	_staff_actor.add_child(_staff_bob)
-	_staff_bob.add_child(model)
+	_staff_actor.scale = Vector3.ONE * 1.78
+	_staff_actor.rotation_degrees.y = -12.0
+	_staff_actor.add_child(model)
 	_vp.add_child(_staff_actor)
 	var hit := StaticBody3D.new()
 	var shape_node := CollisionShape3D.new()
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.24
-	shape.height = 0.72
+	shape.height = 0.98
 	shape_node.shape = shape
-	shape_node.position = Vector3(0, 0.25, 0)
+	shape_node.position = Vector3(0, 0.47, 0)
 	hit.add_child(shape_node)
 	hit.input_event.connect(func(_c, ev, _p, _n, _s):
 		if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
 			staff_clicked.emit())
 	_staff_actor.add_child(hit)
-	if not GameState.reduced_motion():
-		var bob := _staff_bob.create_tween().set_loops()
-		bob.tween_property(_staff_bob, "position:y", 0.018, 1.1).set_trans(Tween.TRANS_SINE)
-		bob.tween_property(_staff_bob, "position:y", 0.0, 1.1).set_trans(Tween.TRANS_SINE)
+	_staff_animation = model.find_child("AnimationPlayer", true, false)
+	for clip in ["Idle", "Work"]:
+		_staff_animation.get_animation(clip).loop_mode = Animation.LOOP_LINEAR
+	set_staff_state("working")
 	return _staff_actor
 
 
 func set_staff_state(state: String) -> void:
 	if not is_instance_valid(_staff_actor):
 		return
-	var target_y := STAFF_SPOT.y - (0.11 if state == "idle" else 0.0)
-	var target_z := -11.0 if state == "idle" else 0.0
+	_staff_animation.play("Idle" if state == "idle" else "Work", 0.18)
 	if GameState.reduced_motion():
-		_staff_actor.position.y = target_y
-		_staff_actor.rotation_degrees.z = target_z
-		return
-	var tween := _staff_actor.create_tween().set_parallel(true)
-	tween.tween_property(_staff_actor, "position:y", target_y, 0.22).set_trans(Tween.TRANS_BACK)
-	tween.tween_property(_staff_actor, "rotation_degrees:z", target_z, 0.22).set_trans(Tween.TRANS_SINE)
+		_staff_animation.seek(0.0, true)
+		_staff_animation.pause()
 
 
 func remove_staff() -> void:
 	if is_instance_valid(_staff_actor):
 		_staff_actor.queue_free()
 	_staff_actor = null
-	_staff_bob = null
+	_staff_animation = null
 
 
 ## 世界坐标 → 屏幕坐标（订单气泡/摇茶条跟随用）

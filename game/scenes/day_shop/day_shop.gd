@@ -14,9 +14,6 @@ const HudCoinIcon := preload("res://assets/icons/hud/coin.png")
 const HudInspirationIcon := preload("res://assets/icons/hud/inspiration.png")
 const HudPerfectIcon := preload("res://assets/icons/hud/perfect.png")
 const HudStreakIcon := preload("res://assets/icons/hud/streak.png")
-const CustomerMint := preload("res://assets/ui/full_set_v3/illustrations/character-mint-customer-v5.png")
-const CustomerYellow := preload("res://assets/ui/full_set_v3/illustrations/character-yellow-customer-waiting-v2.png")
-const CustomerShadow := preload("res://assets/ui/full_set_v3/illustrations/customer-contact-shadow-v1.png")
 const DrinkClassic := preload("res://assets/ui/full_set_v3/illustrations/drink-classic-boba-v2.png")
 const DrinkCoconut := preload("res://assets/ui/full_set_v3/illustrations/drink-coconut-milk-v2.png")
 const DrinkTaro := preload("res://assets/ui/full_set_v3/illustrations/drink-taro-boba.png")
@@ -33,6 +30,7 @@ const StationToppings := preload("res://assets/ui/full_set_v3/station/station-to
 const StationSugar := preload("res://assets/ui/full_set_v3/station/station-sugar-v3.png")
 const StationShaker := preload("res://assets/ui/full_set_v3/station/station-shaker-v2.png")
 const StationCabinet := preload("res://assets/ui/full_set_v3/station/station-cabinet-v8.png")
+const MatteArt := preload("res://ui/matte_art.gdshader")
 const ServiceBell := preload("res://assets/ui/full_set_v3/station/service-bell-v2.png")
 const BackgroundEntrance := preload("res://assets/ui/full_set_v3/background/background-entrance-v2.png")
 const BackgroundEntryRailing := preload("res://assets/ui/full_set_v3/background/background-entry-railing-v7.png")
@@ -233,7 +231,7 @@ var _context_panel_tween: Tween
 var _last_next_action_text := ""
 var _next_action_tween: Tween
 var _topping_step_confirmed := false
-var _departing_customer_art: Array[Dictionary] = []
+var _matte_art := ShaderMaterial.new()
 
 
 func _ready() -> void:
@@ -385,6 +383,7 @@ func _input(event: InputEvent) -> void:
 # ---------------------------------------------------------------- UI
 
 func _build_ui() -> void:
+	_matte_art.shader = MatteArt
 	theme = AppTheme.build()
 	AppTheme.apply_day_skin(theme)
 	stage = ShopStageScene.new()
@@ -401,14 +400,17 @@ func _build_ui() -> void:
 			[BackgroundShelf, Vector2(830, -21), Vector2(480, 95)]]:
 		var background_art := TextureRect.new()
 		background_art.texture = spec[0]
+		background_art.material = _matte_art
 		background_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		background_art.stretch_mode = TextureRect.STRETCH_SCALE
 		background_art.position = spec[1]
 		background_art.size = spec[2]
 		background_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ui_frame.add_child(background_art)
+	ui_frame.add_child(stage.create_character_layer(Rect2i(0, 0, 360, 720), 2))
 	var entry_railing := TextureRect.new()
 	entry_railing.texture = BackgroundEntryRailing
+	entry_railing.material = _matte_art
 	entry_railing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	entry_railing.stretch_mode = TextureRect.STRETCH_SCALE
 	entry_railing.position = Vector2(126, 72)
@@ -789,6 +791,8 @@ func _build_station_tags() -> void:
 
 func _build_station_art() -> void:
 	_station_art("cabinet", StationCabinet, Vector2(550, 53), Vector2(608, 258))
+	# The counter occludes the staff's lower body; keep the head and working hands visible.
+	ui_frame.add_child(stage.create_character_layer(Rect2i(910, 0, 220, 196), 4))
 	_station_art("tea_milk", StationTeaMilk, Vector2(333, 104), Vector2(225, 128))
 	_station_art("toppings", StationToppings, Vector2(575, 92), Vector2(278, 140))
 	_station_art("sugar", StationSugar, Vector2(890, 95), Vector2(235, 140))
@@ -806,6 +810,7 @@ func _build_cup_art() -> void:
 	cup_guide_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui_frame.add_child(cup_guide_art)
 	cup_art = TextureRect.new()
+	cup_art.material = _matte_art
 	cup_art.position = Vector2(503, 364)
 	cup_art.size = Vector2(150, 150)
 	cup_art.pivot_offset = cup_art.size * 0.5
@@ -818,6 +823,7 @@ func _build_cup_art() -> void:
 
 func _build_service_bell_art() -> void:
 	service_bell_art = TextureRect.new()
+	service_bell_art.material = _matte_art
 	service_bell_art.name = "ServiceBellArt"
 	service_bell_art.texture = ServiceBell
 	service_bell_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -930,6 +936,7 @@ func _animate_cup_handoff() -> void:
 func _station_art(id: String, texture: Texture2D, pos: Vector2, extent: Vector2) -> void:
 	var art := TextureRect.new()
 	art.texture = texture
+	art.material = _matte_art
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_SCALE
 	art.position = pos
@@ -1268,16 +1275,18 @@ func _return_to_menu() -> void:
 
 
 ## 减弱动态的创建点门控在日内开启后不会自停存量循环（P12-F3）：
-## 开启时重建舞台店员，并结束存量顾客贴图动画。
-## 关闭时刻意不重建——中途补回动画收益低且会造成可见的位置跳变。
+## 开启时让行走顾客就位、清理离场顾客，并停止店员循环。
 func _on_reduced_motion_toggled(enabled: bool) -> void:
+	if stage != null:
+		for actor in stage.customer_root.get_children():
+			if enabled:
+				actor.settle()
+			else:
+				actor._idle()
 	if not enabled:
+		if stage != null and is_instance_valid(stage._staff_actor):
+			stage.set_staff_state(staff_state)
 		return
-	for departure in _departing_customer_art.duplicate():
-		var tween := departure["tween"] as Tween
-		if tween.is_valid():
-			tween.kill()
-		_finish_customer_departure(departure)
 	if _next_action_tween != null and _next_action_tween.is_valid():
 		_next_action_tween.kill()
 	if next_action_panel != null:
@@ -1294,8 +1303,6 @@ func _on_reduced_motion_toggled(enabled: bool) -> void:
 		stage.remove_staff()
 		stage.add_staff(String(StaffCatalog.current().get("id", "")))
 		stage.set_staff_state(staff_state)
-	for c in customers:
-		_settle_customer_arrival(c)
 
 
 func _pill(hud: HBoxContainer, icon_texture: Texture2D) -> Label:
@@ -2398,16 +2405,6 @@ func _topping_count() -> int:
 
 # ---------------------------------------------------------------- 顾客与固定订单队列
 
-func _free_slot() -> int:
-	var used: Array = []
-	for c in customers:
-		used.append(c["slot"])
-	for i in 3:
-		if not i in used:
-			return i
-	return 0
-
-
 func _special_spawn_count(kind: String) -> int:
 	return int(_kind_spawn_counts.get(kind, 0))
 
@@ -2441,37 +2438,8 @@ func _spawn_customer() -> void:
 		and _special_spawn_count("influencer") % 2 == 1
 	_kind_spawn_counts[kind] = _special_spawn_count(kind) + 1
 
-	var slot := _free_slot()
-	# 顾客统一进入左侧固定队列；特殊顾客由订单卡标识。
-	var portrait := Sprite2D.new()
-	var mint_portrait := spawned_count % 2 == 1
-	portrait.texture = CustomerMint if mint_portrait else CustomerYellow
-	if slot == 2:
-		portrait.position = Vector2(185, 628) if mint_portrait else Vector2(173, 625)
-		portrait.scale = Vector2(0.54, 0.40) if mint_portrait else Vector2(0.39, 0.37)
-	else:
-		portrait.position = Vector2(195, 215.5) if mint_portrait else Vector2(175, 444)
-		portrait.scale = Vector2(0.515, 0.5035) if mint_portrait else Vector2(0.538, 0.452)
-	var contact_shadow := Sprite2D.new()
-	contact_shadow.texture = CustomerShadow
-	contact_shadow.position = Vector2(portrait.position.x, 700 if slot == 2 else (315 if mint_portrait else 550))
-	contact_shadow.scale = Vector2(0.78, 0.62) if mint_portrait else Vector2(0.72, 0.60)
-	ui_frame.add_child(contact_shadow)
-	ui_frame.add_child(portrait)
-	var portrait_target_x := portrait.position.x
-	var arrival: Tween
-	if not GameState.reduced_motion():
-		portrait.position.x -= 48.0
-		portrait.modulate.a = 0.0
-		contact_shadow.position.x -= 48.0
-		contact_shadow.modulate.a = 0.0
-		arrival = portrait.create_tween().set_parallel(true)
-		arrival.tween_property(portrait, "position:x", portrait_target_x, 0.28) \
-			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		arrival.tween_property(portrait, "modulate:a", 1.0, 0.18)
-		arrival.tween_property(contact_shadow, "position:x", portrait_target_x, 0.28) \
-			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		arrival.tween_property(contact_shadow, "modulate:a", 1.0, 0.18)
+	var slot := customers.size()
+	var actor: Node3D = stage.add_customer(slot, spawned_count - 1)
 	Sfx.play("customer_arrive", randf_range(0.96, 1.06))
 
 	# 固定订单卡：位置不再追随 3D 头像，信息更稳、触控目标更大；压窄给顾客让出站位。
@@ -2603,8 +2571,7 @@ func _spawn_customer() -> void:
 		"order": order, "orders": orders, "group_index": 0, "group_total": orders.size(),
 		"patience": patience, "max_patience": patience,
 		"editor": editor, "live_second": live_second,
-		"portrait": portrait, "contact_shadow": contact_shadow,
-		"arrival_tween": arrival, "arrival_x": portrait_target_x,
+		"actor": actor,
 		"bubble": bubble, "order_badge": order_badge,
 		"btn": btn, "slot": slot,
 		"patience_bar": patience_bar, "patience_label": patience_label,
@@ -3224,51 +3191,20 @@ func _customer_leave(c: Dictionary, msg: String) -> void:
 	_remove_customer(c)
 
 
-func _settle_customer_arrival(c: Dictionary) -> void:
-	var arrival := c.get("arrival_tween") as Tween
-	if arrival != null and arrival.is_valid():
-		arrival.kill()
-	c["arrival_tween"] = null
-	var portrait := c["portrait"] as Sprite2D
-	var contact_shadow := c["contact_shadow"] as Sprite2D
-	portrait.position.x = float(c["arrival_x"])
-	portrait.modulate.a = 1.0
-	contact_shadow.position.x = float(c["arrival_x"])
-	contact_shadow.modulate.a = 1.0
-
-
-func _finish_customer_departure(departure: Dictionary) -> void:
-	_departing_customer_art.erase(departure)
-	for node in [departure["portrait"], departure["contact_shadow"]]:
-		node.visible = false
-		node.queue_free()
-
-
-func _remove_customer(c: Dictionary, served := false) -> void:
+func _remove_customer(c: Dictionary, _served := false) -> void:
 	var was_active: bool = active_customer == c
 	customers.erase(c)
-	_settle_customer_arrival(c)
-	var portrait := c.get("portrait") as Node
-	var contact_shadow := c.get("contact_shadow") as Node
-	if portrait != null:
-		if GameState.reduced_motion():
-			portrait.queue_free()
-			contact_shadow.queue_free()
-		else:
-			var departure := portrait.create_tween().set_parallel(true)
-			departure.tween_property(portrait, "position:x",
-				portrait.position.x + (64.0 if served else -64.0), 0.28) \
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-			departure.tween_property(portrait, "modulate:a", 0.0, 0.22)
-			departure.tween_property(contact_shadow, "position:x",
-				contact_shadow.position.x + (64.0 if served else -64.0), 0.28) \
-				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-			departure.tween_property(contact_shadow, "modulate:a", 0.0, 0.22)
-			var departure_art := {
-				"portrait": portrait, "contact_shadow": contact_shadow, "tween": departure,
-			}
-			_departing_customer_art.append(departure_art)
-			departure.finished.connect(_finish_customer_departure.bind(departure_art))
+	c["actor"].leave()
+	# Move the remaining people and their order cards into the vacated queue slots.
+	for index in customers.size():
+		var waiting: Dictionary = customers[index]
+		if int(waiting["slot"]) == index:
+			continue
+		waiting["slot"] = index
+		waiting["bubble"].position.y = 98 + index * 210
+		waiting["order_badge"].position.y = 92 + index * 210
+		waiting["order_badge"].text = str(index + 1)
+		waiting["actor"].walk_to([stage.QUEUE_SPOTS[index]], 0.45)
 	var order_badge := c.get("order_badge") as Node
 	if order_badge != null:
 		order_badge.queue_free()

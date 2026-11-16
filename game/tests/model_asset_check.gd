@@ -76,8 +76,13 @@ func _ready() -> void:
 		assert(_has_mesh_prefix(model, "Body"))
 		assert(_has_mesh_prefix(model, "Hair"))
 		assert(_mesh_count(model) <= 9)
+		assert(_triangle_count(model) <= 16_000, "detailed staff must stay within the skinned mesh budget")
+		var skeletons := model.find_children("*", "Skeleton3D", true, false)
+		assert(skeletons.size() == 1 and skeletons[0].get_bone_count() == 13)
+		var animation: AnimationPlayer = model.find_child("AnimationPlayer", true, false)
+		assert(animation.has_animation("Work") and animation.has_animation("Idle"))
 		model.free()
-		assert(_file_size(path) < 256 * 1024)
+		assert(_file_size(path) < 768 * 1024)
 	for upgrade_id in UPGRADE_MODEL_PATHS:
 		var path: String = UPGRADE_MODEL_PATHS[upgrade_id]
 		var resource := load(path) as PackedScene
@@ -110,6 +115,32 @@ func _ready() -> void:
 	for staff_id in STAFF_MODEL_PATHS:
 		var staff_actor: Node3D = stage.add_staff(staff_id)
 		assert(String(staff_actor.get_meta("staff_model", "")) == staff_id)
+		assert(not stage._staff_animation.is_playing(), "reduced motion must stop the staff's skeleton")
+		var staff_mesh: MeshInstance3D = staff_actor.find_children("*", "MeshInstance3D", true, false)[0]
+		assert(staff_mesh.get_active_material(0).specular_mode == BaseMaterial3D.SPECULAR_DISABLED)
+		assert(staff_mesh.get_active_material(0).diffuse_mode == BaseMaterial3D.DIFFUSE_TOON)
+		await get_tree().physics_frame
+		var head_center := staff_actor.to_global(Vector3(0, 0.74, 0))
+		var camera_position: Vector3 = stage._cam.global_position
+		var query := PhysicsRayQueryParameters3D.create(camera_position,
+			camera_position + (head_center - camera_position).normalized() * 12.0)
+		var hit: Dictionary = stage._vp.find_world_3d().direct_space_state.intersect_ray(query)
+		assert(not hit.is_empty() and hit["collider"].get_parent() == staff_actor,
+			"the visible staff head must remain clickable")
+	GameState.settings["reduced_motion"] = false
+	stage.set_staff_state("working")
+	assert(stage._staff_animation.is_playing())
+	stage._staff_animation.play("Work", 0.0)
+	var staff_skeleton: Skeleton3D = stage._staff_actor.find_children("*", "Skeleton3D", true, false)[0]
+	var arm := staff_skeleton.find_bone("Forearm_R")
+	stage._staff_animation.seek(0.0, true)
+	var arm_before := staff_skeleton.get_bone_global_pose(arm)
+	stage._staff_animation.seek(0.375, true)
+	assert(not staff_skeleton.get_bone_global_pose(arm).is_equal_approx(arm_before),
+		"the work clip must move the hand, not just bob the whole model")
+	GameState.settings["reduced_motion"] = true
+	stage.set_staff_state("idle")
+	assert(not stage._staff_animation.is_playing())
 	stage.remove_staff()
 	stage.queue_free()
 	await get_tree().process_frame
@@ -123,6 +154,8 @@ func _ready() -> void:
 		assert(String(route_sign.get_meta("route_id", "")) == route_id)
 		assert(not route_stage.pulse_route_sign(), "reduced motion must suppress route-sign pulse")
 		assert(route_sign.scale.is_equal_approx(Vector3.ONE * 0.68))
+		assert(route_sign.position.y + 0.25 < route_stage.COUNTER_TOP_Y,
+			"route relief must stay below the preparation surface")
 		route_stage.queue_free()
 		await get_tree().process_frame
 		var route_lab: SubViewportContainer = load("res://ui/night_lab_backdrop.gd").new()

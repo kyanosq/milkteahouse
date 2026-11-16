@@ -222,13 +222,14 @@ def add_preview():
     bpy.context.object.data.size = 1.5
 
 
-reset()
-make_materials()
-customer = build_customer()
-mesh_count, triangles = export_batched(customer)
-add_preview()
-bpy.context.scene.render.filepath = PREVIEW_PATH
-bpy.ops.render.render(write_still=True)
-bpy.ops.wm.save_as_mainfile(filepath=BLEND_PATH)
-print({"source_objects": len(customer.objects), "runtime_meshes": mesh_count,
-       "triangles": triangles, "blend": BLEND_PATH, "preview": PREVIEW_PATH})
+if __name__ == "__main__":
+    reset()
+    make_materials()
+    customer = build_customer()
+    mesh_count, triangles = export_batched(customer)
+    add_preview()
+    bpy.context.scene.render.filepath = PREVIEW_PATH
+    bpy.ops.render.render(write_still=True)
+    bpy.ops.wm.save_as_mainfile(filepath=BLEND_PATH)
+    print({"source_objects": len(customer.objects), "runtime_meshes": mesh_count,
+           "triangles": triangles, "blend": BLEND_PATH, "preview": PREVIEW_PATH})

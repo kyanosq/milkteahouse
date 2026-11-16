@@ -2,6 +2,23 @@
 
 Runtime-loaded copies live under `game/assets/`. Editable Blender sources and acceptance renders stay under `assets_src/`.
 
+## Current characters — soft toon rendering, 2026-09-05
+
+Day-shop customers use `../game/assets/glb/customer_walk.glb`, replacing the static portrait sprites. The refined model has 13 bones, 8 material batches and 13,116 triangles; mint/lavender and brown/yellow appearances share its geometry. `Walk` has a planted stance foot and a 0.36 m stride; `Idle` keeps both feet grounded. Godot samples the walking clip by travelled distance and handles arrival, queue advancement and departure in the shop world.
+
+The three staff members and generic barista share the 13-bone rig with `Work` and `Idle` clips. Their modeled uniforms include curved aprons, straps, pockets, collars, cuffs, name badges and a cup attached to the hand. Hair locks, face openings, eyes, shoes and knee joints were refined for the native toon lighting.
+
+| Staff | Appearance | Editable source | Runtime asset | Triangles | Meshes |
+| --- | --- | --- | --- | ---: | ---: |
+| 小满 | Mint cap and apron | `blend/staff_xiaoman.blend` | `../game/assets/glb/staff_xiaoman.glb` | 15,404 | 8 |
+| 桃子 | Side ponytail and coral apron | `blend/staff_taozi.blend` | `../game/assets/glb/staff_taozi.glb` | 14,832 | 8 |
+| 阿澄 | Round glasses and indigo uniform | `blend/staff_acheng.blend` | `../game/assets/glb/staff_acheng.glb` | 15,236 | 8 |
+| Generic | Mint barista uniform | `blend/staff_barista.blend` | `../game/assets/glb/staff_barista.glb` | 15,404 | 8 |
+
+Rebuild customers with `blender --background --python assets_src/blend/build_customer_walk.py`; prefix the same command with `CHARACTER_ROLE=xiaoman`, `taozi`, `acheng` or `barista` for staff. Reimport Godot afterwards. Editable customer source: `blend/customer_walk.blend`. This build uses local Blender because the MCP connection was unavailable.
+
+The current shop export strips superseded photographic wood/floor maps; the live floor texture is shared by Godot. `game/ui/toon_style.gd` supplies native toon diffuse with disabled specular, while `game/ui/matte_art.gdshader` softens painted props without changing their alpha or the interactive UI. Staff assets load only for the active hire. Current recordings, screenshots and validation: `../design/qa/toon-polish/`. The earlier walking iteration remains documented in `../design/qa/customer-walk/`.
+
 ## Iteration 13 — Blender MCP premium bar and customer silhouettes
 
 All assets below were authored locally through Blender MCP. No paid image or 3D generation API was used.
